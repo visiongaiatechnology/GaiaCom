@@ -27,35 +27,21 @@ We utilize a Hybrid Cryptographic Scheme to ensure security against both current
 
 The Stack
 
-Layer
+Key Exchange (Classic): X25519 (Elliptic Curve)
 
-Algorithm
+Purpose: High-speed, proven security against conventional computers.
 
-Purpose
+Key Exchange (PQC): ML-KEM-1024 (Kyber)
 
-Key Exchange (Classic)
+Purpose: NIST Level 5. Protection against "Store Now, Decrypt Later" quantum attacks.
 
-X25519 (Elliptic Curve)
+Transport: Noise Protocol Framework
 
-High-speed, proven security against conventional computers.
+Purpose: Metadata obfuscation and forward secrecy.
 
-Key Exchange (PQC)
+Storage: IPFS / Distributed Hash Table
 
-ML-KEM-1024 (Kyber)
-
-NIST Level 5. Protection against "Store Now, Decrypt Later" quantum attacks.
-
-Transport
-
-Noise Protocol Framework
-
-Metadata obfuscation and forward secrecy.
-
-Storage
-
-IPFS / Distributed Hash Table
-
-Encrypted blobs stored redundantly across the mesh.
+Purpose: Encrypted blobs stored redundantly across the mesh.
 
 03. LICENSING & GOVERNANCE (THE GLASS FORTRESS)
 
@@ -93,8 +79,8 @@ Note: These modules are not in this repository. They are provided as binary plug
 
 Dependencies: Go >= 1.22, Rust (for Kyber FFI), Docker
 
-# Clone the repository
-git clone COMING SOON
+# Clone the repository 
+git clone 
 
 # Initialize submodules (Crypto Libs)
 git submodule update --init --recursive
@@ -119,12 +105,12 @@ Contact us via encrypted channels at security@visiongaiatechnology.de (PGP Key a
 
 06. OPERATIONAL COMMAND
 
-Commercial Entity: COMING SOON
+Commercial Entity:
 For Enterprise Licensing, Government Contracts, and Support SLAs:
-VisionGaiaTechnology 
+VisionGaiaTechnology
 https://visiongaiatechnology.de
 
 Non-Profit Governance:
-GaiaCom Foundation (DAO) - Structure pending.
+GaiaComFoundation (DAO) - Structure pending.
 
 "Code is Law. Privacy is Power."
