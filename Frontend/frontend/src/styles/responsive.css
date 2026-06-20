@@ -1,0 +1,605 @@
+/* --- Mobile Responsive Rules --- */
+
+/* Hide mobile-only buttons by default on desktop */
+.mobile-menu-toggle,
+.mobile-menu-close,
+.mobile-back-btn,
+.detail-mobile-actions {
+  display: none !important;
+}
+
+@media (max-width: 992px) {
+  .unlock-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .unlock-story-panel {
+    padding: 6px 2px 0;
+  }
+
+  .unlock-story-panel .logo-mark img {
+    width: min(180px, 100%);
+  }
+
+  .unlock-story-panel h1 {
+    max-width: 100%;
+    font-size: clamp(1.65rem, 8vw, 2.25rem);
+  }
+
+  .unlock-story-panel p {
+    font-size: 0.84rem;
+  }
+
+  .unlock-status-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .unlock-card {
+    max-width: 100%;
+    padding: 22px !important;
+  }
+
+  .auth-product-shell {
+    display: block;
+    padding: 16px;
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .auth-story-panel {
+    padding: 12px 4px 20px;
+  }
+
+  .auth-story-panel h1 {
+    font-size: clamp(1.42rem, 7vw, 1.88rem);
+    max-width: 100%;
+  }
+
+  .auth-proof-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-lang-container {
+    position: static;
+    margin-bottom: 14px;
+  }
+
+  .auth-brand-row {
+    gap: 10px;
+  }
+
+  /* Mobile viewport: use dvh for iOS dynamic viewport, prevent body scroll */
+  body {
+    overflow: hidden;
+    height: 100dvh;
+  }
+
+  .app-container {
+    grid-template-columns: 1fr !important;
+    width: 100vw;
+    /* Use dynamic viewport height so iPhone browser chrome is handled correctly */
+    height: 100dvh;
+    height: 100vh; /* fallback for older browsers */
+    height: 100dvh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 1. NAVIGATION SIDEBAR OVERLAY ON MOBILE */
+  .navigation-sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 280px;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 1000;
+    background: #0a0c12;
+    border-right: 1px solid var(--accent-cyan);
+    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.85);
+    padding: 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    animation: slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Hamburger & Close menu buttons */
+  .mobile-menu-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-right: 10px;
+    line-height: 1;
+    transition: all 0.2s;
+  }
+
+  .mobile-menu-toggle:hover {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    box-shadow: 0 0 10px var(--border-glow);
+  }
+
+  .mobile-menu-close {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+    transition: color 0.2s;
+  }
+
+  .mobile-menu-close:hover {
+    color: var(--danger);
+  }
+
+  /* Mobile menu open state: pseudo backdrop + show sidebar */
+  .app-container.mobile-menu-open::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(4, 5, 8, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 999;
+  }
+
+  .app-container.mobile-menu-open .navigation-sidebar {
+    display: flex;
+  }
+
+  /* 2. MASTER-DETAIL SWITCH (LIST VS CONTENT PANE) */
+  
+  /* Case A: Show List (default when detail content is inactive) */
+  .mail-list-pane {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .mail-list-pane .pane-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+    background: rgba(10, 12, 18, 0.94);
+    border-bottom: 1px solid rgba(0, 242, 254, 0.14);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  body.light-mode .mail-list-pane .pane-header {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .mobile-pane-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .mobile-pane-actions .mobile-menu-toggle {
+    flex: 0 0 auto;
+    min-width: 42px;
+    height: 34px;
+    margin: 0;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .mobile-pane-actions .mobile-compose-btn {
+    flex: 0 1 auto;
+    margin: 0;
+    min-width: 0;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgba(0, 242, 254, 0.12);
+  }
+
+  .desktop-compose-btn {
+    display: none !important;
+  }
+
+  .detail-mobile-actions {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
+    background: rgba(10, 12, 18, 0.94);
+    border-bottom: 1px solid rgba(0, 242, 254, 0.14);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 30;
+  }
+
+  body.light-mode .detail-mobile-actions {
+    background: rgba(255, 255, 255, 0.95);
+  }
+
+  .detail-mobile-actions .mobile-menu-toggle,
+  .detail-mobile-actions .mobile-back-btn {
+    margin: 0;
+    min-height: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .mobile-floating-menu {
+    align-self: flex-start;
+    flex-shrink: 0;
+    margin: calc(10px + env(safe-area-inset-top)) 14px 0 !important;
+    min-height: 34px;
+    height: 34px;
+    padding: 0 10px !important;
+    border-radius: 8px;
+    font-size: 0.72rem !important;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .mail-list-pane .pane-title-row {
+    margin-bottom: 0;
+  }
+
+  .mail-list-pane .pane-title-row h2 {
+    font-size: 1.15rem;
+  }
+
+  /* Make the scroll container inside actually fill remaining space */
+  .mail-list-pane .list-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .mail-content-pane {
+    display: none;
+  }
+
+  /* Case B: Show Content / Detail Pane (when a mail/chat/profile is active) */
+  .app-container.mobile-content-active .mail-list-pane {
+    display: none;
+  }
+
+  .app-container.mobile-content-active .mail-content-pane {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* Scrollable content areas on mobile */
+  .profile-container,
+  .composer-form {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .reader-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom)) !important;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Chat input row stays pinned to bottom */
+  .chat-input-row {
+    padding-bottom: calc(0px + env(safe-area-inset-bottom));
+    flex-shrink: 0;
+    flex-wrap: wrap;
+  }
+
+  .chat-input-row .input-field {
+    min-width: 0;
+  }
+
+  .chat-header-action {
+    margin-left: 0;
+    padding: 7px 10px;
+  }
+
+  .emoji-picker {
+    width: 210px;
+    left: 0;
+  }
+
+  /* Mobile Back Button */
+  .mobile-back-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-right: 12px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .mobile-back-btn:hover {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    box-shadow: 0 0 8px var(--border-glow);
+  }
+
+  /* Adjust Reader Header spacing to accommodate back button */
+  .reader-header {
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 16px 20px;
+  }
+
+  .reader-meta-info {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  /* 3. GROUP CHAT SUB-LAYOUT MOBILE HANDLING */
+  .group-chat-layout {
+    flex-direction: column !important;
+    min-height: 0;
+  }
+
+  /* If a channel chat is inactive: show the group sidebar (channels/members) */
+  .group-sidebar {
+    display: flex !important;
+    width: 100% !important;
+    flex: 1;
+    height: auto;
+    min-height: 0;
+    border-right: none !important;
+  }
+  
+  .group-chat-layout .chat-container {
+    display: none !important;
+  }
+
+  /* If a channel chat is active: show the chat container and hide the sidebar */
+  .group-chat-layout:has(.chat-input-row) .group-sidebar {
+    display: none !important;
+  }
+
+  .group-chat-layout:has(.chat-input-row) .chat-container {
+    display: flex !important;
+    width: 100% !important;
+    flex: 1;
+    height: auto;
+    min-height: 0;
+  }
+
+  /* 4. OTHER DETAIL VIEWS SCROLL & DETAIL TUNING */
+  .composer-form, .profile-container {
+    padding: 20px !important;
+  }
+
+  .reader-body {
+    padding: 20px !important;
+  }
+
+  .profile-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .avatar-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+
+  .crypto-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .crypto-card {
+    grid-column: span 1 !important;
+  }
+
+  .vault-record-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .password-change-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .password-change-button {
+    width: 100%;
+  }
+
+  .vault-record-header {
+    flex-direction: column;
+  }
+
+  .gaia-drop-card-header {
+    flex-direction: column;
+  }
+
+  .vault-actions-row {
+    align-items: stretch;
+  }
+
+  .vault-actions-row .btn-primary,
+  .vault-actions-row .btn-secondary {
+    width: 100% !important;
+  }
+
+  .auth-card {
+    padding: 24px !important;
+    /* Auth card on small screens: allow internal scroll */
+    max-height: 100dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .auth-wrapper {
+    align-items: flex-start;
+    padding-top: 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    height: 100dvh;
+  }
+
+  .wizard-card {
+    padding: 24px !important;
+    max-height: 100dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Fix chat container height on mobile */
+  .chat-container {
+    height: 100dvh !important;
+    overflow: hidden;
+  }
+
+  /* Group chat sidebar fills screen */
+  .group-sidebar {
+    height: 100dvh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent horizontal overflow on long keys/addresses */
+  .crypto-value,
+  .mail-sender,
+  .mail-subject,
+  .sender-address,
+  .recipient-address {
+    word-break: break-all;
+  }
+
+  /* Popup/Modal: ensure it fits on screen */
+  .popup-overlay {
+    align-items: flex-start;
+    padding: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+  }
+
+  .popup-card {
+    width: 100% !important;
+    max-width: min(440px, 100%) !important;
+    max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding: 20px !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  .popup-icon {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 14px;
+    font-size: 0.78rem;
+  }
+
+  .popup-title {
+    font-size: 1.05rem;
+  }
+
+  .popup-text {
+    font-size: 0.86rem;
+    margin-bottom: 16px !important;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .device-session-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .device-current-pill,
+  .device-revoke-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+

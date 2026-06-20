@@ -1,0 +1,91 @@
+.vault-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vault-unlock-form,
+.vault-record-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vault-unlock-form {
+  max-width: 620px;
+}
+
+.vault-record-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 10px;
+}
+
+.vault-actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.vault-record-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.vault-empty,
+.vault-record-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+}
+
+.vault-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.vault-record-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.vault-record-header div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.vault-record-header strong {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.vault-record-header span {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.vault-record-card pre {
+  margin: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.section-copy {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  margin: 0 0 14px;
+}
+
