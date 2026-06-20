@@ -8,9 +8,9 @@ We value the contributions of security researchers. This document defines the pr
 
 If you discover a security vulnerability in GaiaCom, please report it privately:
 
-*   **Email Address:** [security@gaiacom.de](mailto:security@gaiacom.de)
-*   **Encrypted Communication:** Please encrypt your email using our PGP Key:
-    *   *PGP Fingerprint:* `B82F 721A 90CD EE34 1A90 8821 721A 90CD EE34 1A90` (Mock/Placeholder)
+*   **Email Address:** [security@visiongaia.de](mailto:security@visiongaia.de)
+*   **Encrypted Communication:** Please encrypt your email using our Form:
+  [https://visiongaiatechnology.de](https://visiongaiatechnology.de/#vgt-comlink)
 *   **What to Include:**
     *   Detailed description of the vulnerability.
     *   Step-by-step proof-of-concept (PoC) or exploit code.
