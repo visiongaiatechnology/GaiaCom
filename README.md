@@ -1,230 +1,128 @@
-# ⬡ GaiaCom Protocol
+# GaiaCom — Post-Quantum Secure Federated E2EE Infrastructure
 
-[![Status](https://img.shields.io/badge/Status-PRE--ALPHA-red?style=for-the-badge)](#)
-[![Phase](https://img.shields.io/badge/Phase-Architectural-orange?style=for-the-badge)](#roadmap)
-[![License Core](https://img.shields.io/badge/Core-AGPLv3-green?style=for-the-badge)](LICENSE)
-[![License Client](https://img.shields.io/badge/Client-GPLv3-green?style=for-the-badge)](#licensing)
-[![PQC](https://img.shields.io/badge/Crypto-ML--KEM--1024%20%2B%20X25519-blue?style=for-the-badge)](#architecture)
-[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go)](https://go.dev)
-[![VGT](https://img.shields.io/badge/VGT-VisionGaia_Technology-red?style=for-the-badge)](https://visiongaiatechnology.de)
+[![Go Version](https://img.shields.io/badge/Go-1.26.4-blue.svg)](https://golang.org)
+[![Node Version](https://img.shields.io/badge/Node-v24.13-green.svg)](https://nodejs.org)
+[![Kryptografie](https://img.shields.io/badge/Kryptografie-ML--KEM--1024%20%2B%20X25519-orange.svg)](#)
+[![Security Level](https://img.shields.io/badge/Security-Post--Quantum--E2EE-red.svg)](#)
 
-> *"We do not patch the old internet. We replace it."*
-
-**GaiaCom** is a decentralized, post-quantum secure communication protocol designed to replace SMTP and centralized messaging infrastructure. No central servers. No metadata leaks. No administrator with a god-mode button.
-
-**Email has been broken for 40 years. GaiaCom is the sovereign alternative.**
+GaiaCom ist eine dezentrale, föderierte Kommunikationsplattform mit nativer Ende-zu-Ende-Verschlüsselung (E2EE) und zukunftssicherer, hybrider Post-Quanten-Kryptografie. Das System schützt Unterhaltungen, Gruppen-Chats und Dateidrops vor externen Angreifern, kompromittierten Server-Knoten und zukünftigen Quantencomputern.
 
 ---
 
-## ⚠️ Classified — Active Development
+## 1. Architektur & Kernfunktionen
 
-This repository contains the core architectural logic for the GaiaCom Protocol. Cryptographic primitives (Kyber / X25519) are standard and audited — but the implementation is under active development.
+GaiaCom basiert auf einer verteilten Multi-Knoten-Architektur, bei der die Datensouveränität vollständig beim Nutzer liegt.
 
-**Do NOT use for mission-critical operations yet.**
+### Hauptkomponenten
+1. **Frontend (React)**: Ein hochgradig modularisiertes Web-Frontend. Die Benutzeroberfläche nutzt ein schickes Dark-Mode-Cyberpunk-Design mit geteilten Panels und responsivem Hamburger-Menü. Die kryptografischen Operationen werden direkt im Browser des Benutzers ausgeführt.
+2. **Backend (Go)**: Ein leichtgewichtiges, schnelles Go-Backend, das API-Anfragen bedient, Daten persistent speichert und Föderations-Anfragen verarbeitet. Es nutzt eine pure Go-Implementierung von SQLite (`modernc.org/sqlite`) für minimale Abhängigkeiten.
+3. **Kryptografische Engine**: Nutzt einen hybriden Ansatz aus **ML-KEM-1024** (Post-Quanten-Kryptografie) und **X25519** (Elliptische Kurven), um Nachrichten und Metadaten zu verschlüsseln.
 
----
-
-## 🚨 The Problem: SMTP Is a 1980s Relic
-
-Email was designed in an era before the internet was hostile. Today it is unencrypted by default, metadata-heavy, spam-ridden, and runs through central servers — Google, GMX, Microsoft — that can read, block, or hand over everything.
-
-| SMTP / Centralized Messaging | GaiaCom Protocol |
-|---|---|
-| ❌ Unencrypted by default | ✅ Kyber-1024 + X25519 hybrid encryption |
-| ❌ Central servers — single point of failure | ✅ Federated nodes — no honeypot |
-| ❌ Metadata leaks (sender, receiver, timing) | ✅ Traffic shaping + onion-routing logic |
-| ❌ God mode — admins can read & ban | ✅ No global administrator. Ever. |
-| ❌ Vulnerable to "Store Now, Decrypt Later" | ✅ Post-quantum protection at NIST Level 5 |
-| ❌ Compliance demands expose all data | ✅ Mathematical impossibility — server sees only encrypted blobs |
+### Features
+*   **Post-Quanten E2EE**: Verschlüsselung von Direktnachrichten (Chats), Gruppen-Chats und Dateiübertragungen.
+*   **GaiaVault**: Ein passwortgeschützter, Client-seitig verschlüsselter Datensafe im Browser (PBKDF2-abgeleitete Schlüssel) zum Speichern von Anmeldedaten und privaten Schlüsseln.
+*   **GaiaDrop**: Anonymes, hochsicheres Filesharing-System mit automatischen Ablaufzeiten und Ratenbegrenzung.
+*   **TrustMesh & TrustPassport**: Ein dezentrales Konsenssystem zur Missbrauchs- und Spam-Erkennung anhand von Reputations-Scores, ohne die Privatsphäre der Nutzer zu gefährden.
+*   **SMTP-Bridge**: Ein dediziertes Eingabe-Gateway für den Empfang und Versand klassischer E-Mails, visuell getrennt von sicheren GaiaCom-Nachrichten.
 
 ---
 
-## 🛡️ Defense Architecture — The Hybrid Shield
+## 2. Dokumentations-Index
 
-GaiaCom uses a layered cryptographic scheme to ensure security against both current threats and future quantum decryption attacks.
+Ausführliche Beschreibungen des Protokoll-Designs und der Bedrohungsmodelle finden Sie im Ordner [`docs/`](docs/):
+*   [Protocol Specification v0.1](docs/protocol-v0.1.md) — Details zu hybriden X25519/ML-KEM Kombinierern, AAD Binding und Signatur-Serialisierung.
+*   [Threat Model](docs/threat-model.md) — Erläuterung der Systemgrenzen, STRIDE-Kategorien und Mitigierungen.
+*   [Security Invariants](docs/security-invariants.md) — Sicherheits-Invarianten, die durch unsere Test-Suite verifiziert werden.
+*   [Beta Known Limitations](docs/beta-known-limitations.md) — Einschränkungen der Beta-Version und Sandbox-Grenzen.
+*   [Abuse Consensus](docs/abuse-consensus.md) — TrustMesh Score-Decay und Friction-Policies.
+*   [Responsible Disclosure](docs/responsible-disclosure.md) — Richtlinien zur Einreichung von Sicherheitsberichten.
 
-```
-┌────────────────────────────────────────────────┐
-│              YOUR DEVICE                        │
-│  Message → Kyber-1024 Encryption → Blob        │
-│  Private Key NEVER leaves this layer           │
-├────────────────────────────────────────────────┤
-│              TRANSPORT LAYER                    │
-│  Noise Protocol Framework                      │
-│  Metadata obfuscation + forward secrecy        │
-├────────────────────────────────────────────────┤
-│              NETWORK LAYER                      │
-│  Federated Nodes (AGPLv3)                      │
-│  No central authority. No single point.        │
-├────────────────────────────────────────────────┤
-│              STORAGE LAYER                      │
-│  IPFS / Distributed Hash Table                 │
-│  Encrypted blobs. Redundant. Unreadable.       │
-├────────────────────────────────────────────────┤
-│              RECIPIENT DEVICE                   │
-│  Only private key can decrypt the blob         │
-│  Even under subpoena: server has nothing       │
-└────────────────────────────────────────────────┘
+---
+
+## 3. Wie Föderation (S2S) funktioniert
+
+Die Föderation ermöglicht es verschiedenen eigenständigen Servern (Nodes), sicher miteinander zu kommunizieren.
+
+```mermaid
+sequenceDiagram
+    participant Node A (Absender)
+    participant Node B (Empfänger)
+    
+    Node A->>Node A: Nachricht verschlüsseln & signieren
+    Node A->>Node B: HTTP POST /api/v1/federation/pdu (Signed PDU)
+    Note over Node B: SSRF & IP-Firewall prüfen
+    Note over Node B: Zeitstempel-Fenster prüfen
+    Note over Node B: Signatur mit Sender-PublicKey verifizieren
+    Note over Node B: Replay-Schutz (PDU-ID Cache) prüfen
+    Node B-->>Node A: 200 OK / PDU Akzeptiert
 ```
 
-### Key Exchange (Classic) — X25519
-Elliptic Curve Diffie-Hellman. High-speed, proven security against all classical adversaries.
-
-```go
-curve := ecdh.X25519()
-sharedSecret, _ := curve.ECDH(priv, pub)
-```
-
-### Key Exchange (Post-Quantum) — ML-KEM-1024 (Kyber)
-NIST Level 5. Full protection against "Store Now, Decrypt Later" quantum attacks.
-
-```go
-// Quantum Resistant Encapsulation
-ss, ct, _ := kyber1024.Encapsulate(pk)
-```
-
-**Status: `PARANOID-LEVEL ACTIVE`**
+### Sicherheits-Schutzschichten bei der Föderation:
+1. **Protocol Data Units (PDUs)**: Jede föderierte Interaktion wird als PDU serialisiert, die kryptografisch mit dem privaten Schlüssel des sendenden Knotens signiert ist.
+2. **SSRF- & DNS-Rebinding-Firewall**: Beim Verbindungsaufbau zu anderen Servern blockiert das Go-Backend Anfragen an `localhost`, private IP-Bereiche (RFC 1918) und DNS-Umleitungen in lokale Subnetze.
+3. **Replay-Schutz**: Empfangene PDU-IDs werden in einem Cache vorgehalten. Identische PDU-IDs innerhalb des Gültigkeitsfensters werden sofort verworfen.
+4. **Zeitstempel-Validierung**: PDUs werden abgelehnt, wenn deren Zeitstempel zu weit in der Vergangenheit oder Zukunft liegt, um Time-Drift- und Replay-Angriffe abzuwehren.
 
 ---
 
-## 🌐 The Trinity Ecosystem
+## 4. Manuelle Konfiguration (Umgebungsvariablen)
 
-GaiaCom is not one product. It is an infrastructure layer with three distinct deployment modes.
+Um die Backend-Dienste vollständig in Betrieb zu nehmen, müssen folgende Umgebungsvariablen konfiguriert werden:
 
-### 🏢 GaiaCom Enterprise — Business
-For organizations requiring absolute data sovereignty. Eliminates industrial espionage risk through decentralized fragmentation.
-- **Internal Godmode:** Full administrative control over your corporate network. You hold the keys — not us.
-- **Infrastructure Independence:** You control the network logic, not the physical hardware.
-- **Target:** Law firms, mechanical engineering, private banking, DAX40, pharma, automotive.
+### Core- & API-Konfiguration
+| Variable | Standardwert | Beschreibung |
+| :--- | :--- | :--- |
+| `GAIACOM_DEV_MODE` | `false` | Aktiviert den Entwicklungsmodus (erweiterte Protokollierung, lockere CSPs für Localhost). |
+| `PORT` | `8080` | Port, auf dem das Go-Backend lauscht. |
+| `GAIACOM_DB_PATH` | `data/gaiacom.db` | Pfad zur SQLite-Datenbank. |
+| `JWT_SECRET` | *(Generiert)* | Geheimschlüssel für Session-Tokens. Muss in Produktion gesetzt werden! |
 
-### 🌍 GaiaCom Network — Public
-The global infrastructure for humanity. Free, uncensorable, mathematically neutral.
-- **No Godmode:** VisionGaia has zero access. No backdoors. No admin read access.
-- **Targeted Intervention:** Access only reactively for verified, user-reported terrorist activity via network consensus.
-- **Target:** Everyone.
+### SMTP-Bridge (Legacy Fallback)
+Das Interface markiert SMTP-Interaktionen explizit als unsicher und unverschlüsselt. Für die Anbindung an Mail-Gateways konfigurieren Sie:
 
-### 🏛️ GaiaCom Defend — Government
-High-security infrastructure for agencies, military, and state executive bodies.
-- **Total State Sovereignty:** Full Godmode for the authorized state entity.
-- **Isolated Silos:** Physically and logically separated from the public network.
-- **Operable:** Even when civilian internet is compromised.
-- **Target:** Ministries, Bundeswehr, BKA. White-label ready ("BundesMessenger").
-
----
-
-## 💶 Commercial Tiers
-
-| | **Hidden Champion** | **Corporate Fortress** | **National Defense** |
-|---|---|---|---|
-| **Target** | SME, Kanzleien, Mittelstand | DAX40, Pharma, Automotive | Ministerien, Bundeswehr, BKA |
-| **License** | 24.000 €/yr | 150.000 €/yr + 5€/User/mo | RESTRICTED |
-| **Setup** | 5.000 € | 50.000 € (AD/LDAP) | Classified |
-| **Users** | Up to 500 | Unlimited | Site License |
-| **SLA** | Silver (48h) | Gold (24/7 Hotline) | Classified |
-| **Infrastructure** | 1x Self-Hosted Node | HA-Cluster (Multi-Node) | Air-Gapped |
-| **Source Audit** | — | — | ✅ Full |
-| **White Label** | — | — | ✅ ("BundesMessenger") |
-
-> App for individuals: **3.69 € once** (Bot Protection Fee) — available on AppStore & PlayStore. Or compile it yourself for free.
+| Variable | Pflichtfeld | Beschreibung |
+| :--- | :--- | :--- |
+| `GAIACOM_SMTP_HOST` | **Ja** | Postausgangsserver (z.B. `smtp.gmail.com` oder `mail.gaiacom.de`). |
+| `GAIACOM_SMTP_FROM` | **Ja** | Absender-E-Mail-Adresse der Bridge (z.B. `bridge@gaiacom.de`). |
+| `GAIACOM_SMTP_PORT` | Nein | SMTP-Port (Standard: `587` bei TLS-Start). |
+| `GAIACOM_SMTP_USERNAME` | Nein | Benutzername zur Anmeldung (leer lassen, wenn keine Auth nötig). |
+| `GAIACOM_SMTP_PASSWORD` | Nein | Passwort zur Anmeldung. |
+| `GAIACOM_SMTP_INGEST_TOKEN` | Nein | Token zur Authentifizierung eingehender Mails in den SMTP-Eingang. |
 
 ---
 
-## 🏛️ Governance — The Glass Fortress
+## 5. Lokale Entwicklung & Tests
 
-### The Foundation — Non-Profit DAO
-The GaiaCom Foundation is the neutral guardian of the protocol. It operates without profit motive.
-- **Protocol Stewardship:** Maintains Open Source code. Organizes updates via community consensus.
-- **Bootstrap Nodes:** Operates entry nodes for the public network.
-- **Funding:** Purely through donations and grants. Zero commercial sales.
+### Clean Copy Build (Lokale Verifikation)
+Um das System ohne Altlasten, lokale Caches oder geheime `.env`-Dateien lokal zu bauen und zu verifizieren:
 
-### VisionGaia Technology — Commercial Entity
-The commercial architect. We monetize the application — not user data.
-- **Revenue:** Enterprise licenses, hardware nodes, premium apps, SLA contracts.
-- **Zero Liability:** No operational involvement in the public network. Pure technical supplier.
-
----
-
-## 📜 License Matrix
-
-| Component | License | Philosophy |
-|---|---|---|
-| **Core Node** (routing, storage, consensus) | AGPLv3 | "Toxic" to cloud giants — modifications must be shared |
-| **Client App** (desktop & mobile) | GPLv3 | Verifiable security — encryption must be transparent |
-| **Enterprise Modules** (LDAP, Godmode, HA) | Proprietary | Not in this repository. Binary plugins for licensed partners. |
-
-> **AGPLv3 Clause:** If you run the GaiaCom node as a SaaS service, you MUST open-source your modifications. No extraction by cloud giants.
-
----
-
-## 🚀 Build Instructions
-
-### Requirements
-- Go >= 1.22
-- Rust (for Kyber FFI bindings)
-- Docker
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/VisionGaiaTechnology/gaiacom-protocol.git
-
-# Initialize submodules (Crypto libs)
-git submodule update --init --recursive
-
-# Build the node (Alpha)
-go build -o gaia-node ./cmd/node
-```
-
-> Full build documentation coming with Phase 1 release.
+1. **Projekt säubern & kopieren** (Exkludiert Binaries, `node_modules` und lokale DBs):
+   ```powershell
+   robocopy . ..\GaiaCOM_CLEAN_VERIFY /E /XD node_modules build dist .git .idea .vscode tmp temp logs data __pycache__ /XF *.exe *.dll *.so *.db *.sqlite *.sqlite3 *.log .env .env.local .env.production gaiacom-backend gaiacom-backend-linux-amd64
+   ```
+2. **Build-Cache leeren**:
+   ```bash
+   go clean -cache
+   ```
+3. **Backend-Tests & Kompilierung**:
+   ```bash
+   cd Backend
+   go test ./...
+   go build -o gaiacom-backend.exe .
+   ```
+4. **Frontend-Tests & Kompilierung**:
+   ```bash
+   cd Frontend/frontend
+   npm ci
+   npm run build
+   node src/adversarial_run.mjs # Führt die 44 kryptografischen Frontend-Prüfungen aus
+   ```
 
 ---
 
-## 🤝 Contribution Guidelines
+## 6. Security Scans & Best Practices
 
-The bar is high. This is infrastructure, not a side project.
-
-- **GPG Signing:** All commits must be GPG signed. Unsigned commits are rejected by CI/CD immediately.
-- **No External Analytics:** Do not submit code that calls home, tracks users, or loads external scripts.
-- **Tests:** Every PR must include unit tests covering the new logic.
-- **Security Vulnerabilities:** Do NOT open a GitHub Issue for critical exploits. Contact us via encrypted channel: `security@visiongaiatechnology.de` *(PGP key available on website)*
-
----
-
-## 🗺️ Roadmap
-
-| Phase | Milestone | Status |
-|---|---|---|
-| 🔄 Phase 0 | **Architectural Design** — Protocol spec, crypto selection, governance model | **Active** |
-| 📋 Phase 1 | **Core Node** — Federated routing, encrypted storage, Noise transport | Planned |
-| 📋 Phase 2 | **Client Alpha** — Desktop app, key management, basic messaging | Planned |
-| 📋 Phase 3 | **Network Launch** — Public testnet, bootstrap nodes, community onboarding | Planned |
-| 📋 Phase 4 | **Enterprise Modules** — LDAP, Godmode panel, HA clustering | Planned |
-| 🔒 Phase 5 | **Mainnet + Government** — Full audit, white-label, national deployments | Locked |
-
----
-
-## 📡 Operational Command
-
-**Commercial Entity — Enterprise Licensing, Government Contracts, SLA:**
-
-[![VisionGaia Technology](https://img.shields.io/badge/VGT-visiongaiatechnology.de-red?style=for-the-badge)](https://visiongaiatechnology.de)
-
-**Non-Profit Governance — GaiaCom Foundation (DAO):**
-Structure pending. Community-governed. Contribution-driven.
-
----
-
-> *"Code is Law. Privacy is Power."*
-
----
-
-## 🏢 Built by VisionGaia Technology
-
-VisionGaia Technology builds enterprise-grade security and AI tooling — engineered to the DIAMANT VGT SUPREME standard.
-
-> *"When SMTP dies — and it will — GaiaCom will already be running."*
-
----
-
-*Pre-Alpha — GaiaCom Protocol // Post-Quantum Sovereign Communication Infrastructure*
+Im Quellcode sind folgende Sicherheitsrichtlinien implementiert:
+*   **Kein `dangerouslySetInnerHTML`**: Eingaben werden strikt gefiltert, um Cross-Site Scripting (XSS) zu verhindern.
+*   **Keine lokalen IP-Leaks**: Der Production-Build blockiert alle Localhost-Pfade.
+*   **Explizite Warnungen**: SMTP-Interaktionen blenden dem Nutzer zwingend eine Warnung ein, dass SMTP keinen Post-Quanten-Schutz und keine E2EE bietet.
