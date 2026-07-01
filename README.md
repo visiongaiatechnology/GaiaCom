@@ -41,6 +41,9 @@ Found a vulnerability? See [docs/responsible-disclosure.md](docs/responsible-dis
 
 ---
 
+<img width="1918" height="986" alt="image" src="https://github.com/user-attachments/assets/66d92ade-271a-405f-8ba4-1b004d4f2226" />
+
+
 ## 🔍 What is GaiaCom?
 
 Today's communication systems are either centralized, server-trusting, not fully end-to-end encrypted — or not prepared for post-quantum threats. Most messengers are one database breach away from total plaintext exposure. Email was never designed for confidentiality.
@@ -124,6 +127,9 @@ Full protocol design and threat model documentation in [`docs/`](docs/):
 | **Top Secret Chat Mode** | Ed25519 + ML-DSA-87 dual-signature capability gate for highest-security communications. |
 
 ---
+
+<img width="1912" height="985" alt="image" src="https://github.com/user-attachments/assets/050dbb28-2c58-49d4-98dd-d071cfa81b80" />
+
 
 ## 🔐 Cryptographic Specification
 
@@ -220,6 +226,9 @@ Manipulation of any field causes verification or decryption to fail.
 
 ---
 
+<img width="1917" height="984" alt="image" src="https://github.com/user-attachments/assets/945ecb4d-bf6c-451f-a234-815bf91ca72c" />
+
+
 ## 🛡️ Federation (S2S)
 
 ```
@@ -313,6 +322,9 @@ Hash mismatch → quarantined/update_required → Operator decision
 ```
 
 ---
+
+<img width="1909" height="983" alt="image" src="https://github.com/user-attachments/assets/5fb31291-c282-4d95-b342-a24b16ba3b6f" />
+
 
 ## 🏛️ Governance
 
@@ -544,23 +556,23 @@ GAIACOM_STORAGE_ROOT=/opt/gaiacom/storage
 
 ## ✅ Pre-Launch Security Checklist
 
-- [ ] `GAIACOM_DEV_MODE=false`
-- [ ] HTTPS active on all endpoints
-- [ ] `GAIACOM_COOKIE_SECURE=true`
-- [ ] `GAIACOM_JWT_SECRET` — strong and secret
-- [ ] `GAIACOM_SHIELD_SECRET` — strong and secret
-- [ ] `GAIACOM_SERVER_PRIVATE_KEY` set
-- [ ] `GAIACOM_TRUSTMESH_EPOCH_SECRET` set
-- [ ] `GAIACOM_SERVER_NAME` is the public domain
-- [ ] `governance.json` contains real operator GaiaID
-- [ ] `governance.json` permissions: `0600`
-- [ ] DB path outside source directory
-- [ ] Storage path outside source directory
-- [ ] Backups configured for DB and storage
-- [ ] Nginx/proxy routes `/.well-known/gaiacom/*` to backend
-- [ ] Security Center accessible as Node Operator
-- [ ] Nodesystem shows server name, core hash and public key
-- [ ] Main Node ping tested successfully
+- [x] `GAIACOM_DEV_MODE=false`
+- [x] HTTPS active on all endpoints
+- [x] `GAIACOM_COOKIE_SECURE=true`
+- [x] `GAIACOM_JWT_SECRET` — strong and secret
+- [x] `GAIACOM_SHIELD_SECRET` — strong and secret
+- [x] `GAIACOM_SERVER_PRIVATE_KEY` set
+- [x] `GAIACOM_TRUSTMESH_EPOCH_SECRET` set
+- [x] `GAIACOM_SERVER_NAME` is the public domain
+- [x] `governance.json` contains real operator GaiaID
+- [x] `governance.json` permissions: `0600`
+- [x] DB path outside source directory
+- [x] Storage path outside source directory
+- [x] Backups configured for DB and storage
+- [x] Nginx/proxy routes `/.well-known/gaiacom/*` to backend
+- [x] Security Center accessible as Node Operator
+- [x] Nodesystem shows server name, core hash and public key
+- [x] Main Node ping tested successfully
 
 ---
 
