@@ -1,0 +1,68 @@
+{
+  "date": "2026-06-30",
+  "scope": "GaiaCom Core beta release candidate",
+  "decision": "PLATIN_WITH_CONDITIONS_RELEASE_ALLOWED_WITH_RISK_REGISTER",
+  "out_of_scope": [
+    "GaiaCom Defense",
+    "GaiaCom Enterprise"
+  ],
+  "commands": {
+    "backend_go_test": "PASS",
+    "backend_go_build": "PASS",
+    "fresh_go_mod_download": "PASS",
+    "go_mod_verify": "PASS",
+    "frontend_npm_ci": "PASS",
+    "frontend_build": "PASS",
+    "frontend_runtime_audit_omit_dev": {
+      "status": "PASS",
+      "critical": 0,
+      "high": 0,
+      "moderate": 0,
+      "low": 0,
+      "total": 0
+    },
+    "frontend_adversarial_harness": {
+      "status": "PASS",
+      "passed": 58,
+      "failed": 0
+    },
+    "total_system_poc_runner": {
+      "status": "PASS",
+      "passed": 29,
+      "failed": 0
+    },
+    "extreme_security_gate": "DIAMANT_VERIFIED",
+    "master_security_suite": {
+      "status": "PASS",
+      "passed": 52,
+      "failed": 0
+    }
+  },
+  "artifacts": {
+    "linux_amd64_backend": {
+      "path": "Backend/gaiacom-backend-linux-amd64",
+      "size_bytes": 12320930,
+      "sha256": "ED83A7AD94324B1B326054F21BE0D1C13063A589483333D6FE553170CDCCE008"
+    },
+    "linux_arm64_backend": {
+      "path": "Backend/gaiacom-backend-linux-arm64",
+      "size_bytes": 11534498,
+      "sha256": "E8CDF4ED55B7DDDBD5557F3D644B2AFF7D0EFB72FA96DB00E924A50F62E4FF69"
+    }
+  },
+  "repository_hygiene": {
+    "real_backend_env_removed": true,
+    "backend_env_example_present": true,
+    "source_secret_rescan": "PASS",
+    "ignored_runtime_artifacts_must_not_be_packaged": true
+  },
+  "residual_risks": [
+    {
+      "id": "R-001",
+      "severity": "medium",
+      "title": "Legacy CRA devtooling audit findings remain outside runtime dependency set",
+      "status": "accepted_for_core_beta",
+      "next_action": "Migrate frontend build system away from react-scripts/CRA."
+    }
+  ]
+}

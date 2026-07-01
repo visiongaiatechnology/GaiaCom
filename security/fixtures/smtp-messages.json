@@ -1,0 +1,26 @@
+[
+  {
+    "id": "msg-001",
+    "direction": "outbound",
+    "sender": "@user:gaiacom.de",
+    "recipient": "external@example.com",
+    "subject": "Test Outbound Legacy Mail",
+    "body": "This is an unencrypted legacy email.",
+    "attachments": []
+  },
+  {
+    "id": "msg-002",
+    "direction": "inbound",
+    "sender": "external@example.com",
+    "recipient": "@user:gaiacom.de",
+    "subject": "Test Inbound Legacy Mail",
+    "body": "Replying to your secure gateway.",
+    "attachments": [
+      {
+        "name": "report.pdf",
+        "mimeType": "application/pdf",
+        "size": 1024
+      }
+    ]
+  }
+]
