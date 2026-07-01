@@ -41,9 +41,6 @@ Found a vulnerability? See [docs/responsible-disclosure.md](docs/responsible-dis
 
 ---
 
-<img width="1909" height="985" alt="image" src="https://github.com/user-attachments/assets/a69674a0-5a50-4bb0-9c66-78bbe28b0dc9" />
-
-
 ## 🔍 What is GaiaCom?
 
 Today's communication systems are either centralized, server-trusting, not fully end-to-end encrypted — or not prepared for post-quantum threats. Most messengers are one database breach away from total plaintext exposure. Email was never designed for confidentiality.
@@ -107,12 +104,6 @@ Full protocol design and threat model documentation in [`docs/`](docs/):
 └──────────────┴──────────────┴─────────────────┴──────────────────────┘
 ★ New in Beta v2
 ```
-
-<img width="1914" height="983" alt="image" src="https://github.com/user-attachments/assets/60fa6898-a439-46c8-a5e1-687facfcbc10" />
-
-
-<img width="1912" height="980" alt="image" src="https://github.com/user-attachments/assets/ad311b5e-7b33-4abc-bd79-c4af640d28d7" />
-
 
 ### Components
 
@@ -215,9 +206,6 @@ Manipulation of any field causes verification or decryption to fail.
 
 ---
 
-<img width="1917" height="984" alt="image" src="https://github.com/user-attachments/assets/99fe0d25-23cd-4379-8900-e0360a94b7b9" />
-
-
 ## 🏗️ Architecture Principles
 
 **Zero-Trust Design** — the server handles transport, storage, routing and federation but has no access to plaintext messages, mnemonics, private identity or device keys, symmetric message keys or decrypted vault contents.
@@ -231,10 +219,6 @@ Manipulation of any field causes verification or decryption to fail.
 **No-Backdoor Architecture** — GaiaCom Public has no central decryption capability, no admin-decrypt and no global content control. Abuse is handled via proof-based mechanisms, receiver reports, friction, quarantine and local policy.
 
 ---
-
-<img width="1908" height="985" alt="image" src="https://github.com/user-attachments/assets/d94ef97a-3e81-4f03-921c-a83ac73aac75" />
-
-
 
 ## 🛡️ Federation (S2S)
 
@@ -679,6 +663,283 @@ NGINX (Edge Proxy)
 | Multi-device group sync per identity | Pending |
 | Attachment-based GaiaDrop | Pending audit |
 | Automatic update pipeline | Prepared, not yet implemented |
+
+---
+
+## 🐧 Linux Installation & Server Setup
+
+This is the primary deployment path. GaiaCom runs as a Go binary — no runtime, no interpreter, no Node.js on the server.
+
+### Requirements
+
+| Dependency | Version | Notes |
+|---|---|---|
+| **OS** | Ubuntu 22.04+ / Debian 12+ / any AMD64 Linux | ARM64 untested |
+| **Go** | 1.26.4+ | Build only — not needed at runtime |
+| **Node.js** | v24.13+ | Build only — not needed at runtime |
+| **npm** | Bundled with Node | Frontend build |
+| **NGINX** | Any current | Reverse proxy + TLS termination |
+| **Certbot** | Any | Let's Encrypt TLS (or bring your own cert) |
+
+### 1. Server Preparation
+
+```bash
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install NGINX + Certbot
+sudo apt install -y nginx certbot python3-certbot-nginx
+
+# Create service user (no login shell)
+sudo useradd -r -s /bin/false -d /opt/gaiacom gaiacom
+
+# Create directory structure
+sudo mkdir -p /opt/gaiacom/{backend,frontend,data,storage,config,backups,logs}
+sudo chown -R gaiacom:gaiacom /opt/gaiacom
+sudo chmod 750 /opt/gaiacom
+```
+
+### 2. Build on Your Dev Machine
+
+> GaiaCom ships no prebuilt binaries. Build locally and transfer to server.
+
+**Backend (cross-compile for Linux AMD64):**
+
+```bash
+cd Backend
+go clean -cache
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
+  go build -trimpath -ldflags='-s -w' -o gaiacom-backend-linux-amd64 .
+```
+
+**Frontend (production build):**
+
+```bash
+cd Frontend/frontend
+npm ci
+CI=false npx react-app-rewired build
+# Output: Frontend/frontend/build/
+```
+
+### 3. Transfer to Server
+
+```bash
+# Transfer backend binary
+scp Backend/gaiacom-backend-linux-amd64 user@your-server:/opt/gaiacom/backend/
+
+# Transfer frontend build
+scp -r Frontend/frontend/build/. user@your-server:/opt/gaiacom/frontend/
+
+# Set binary permissions
+ssh user@your-server "
+  sudo chmod 755 /opt/gaiacom/backend/gaiacom-backend-linux-amd64
+  sudo chown gaiacom:gaiacom /opt/gaiacom/backend/gaiacom-backend-linux-amd64
+"
+```
+
+### 4. Create governance.json
+
+```bash
+sudo nano /opt/gaiacom/config/governance.json
+```
+
+```json
+{
+  "bootstrap_gaia_id": "@operator:node.example.org"
+}
+```
+
+```bash
+sudo chmod 600 /opt/gaiacom/config/governance.json
+sudo chown gaiacom:gaiacom /opt/gaiacom/config/governance.json
+```
+
+### 5. Create Secrets File
+
+```bash
+sudo nano /opt/gaiacom/config/gaiacom.secrets.env
+```
+
+```bash
+GAIACOM_JWT_SECRET=<min-32-byte-random-string>
+GAIACOM_SHIELD_SECRET=<min-32-byte-random-string>
+GAIACOM_SERVER_PRIVATE_KEY=<ed25519-private-key-hex>
+GAIACOM_TRUSTMESH_EPOCH_SECRET=<32-byte-hex>
+GAIACOM_GOVERNANCE_CONFIG=/opt/gaiacom/config/governance.json
+```
+
+```bash
+sudo chmod 600 /opt/gaiacom/config/gaiacom.secrets.env
+sudo chown gaiacom:gaiacom /opt/gaiacom/config/gaiacom.secrets.env
+```
+
+> You can generate `GAIACOM_SERVER_PRIVATE_KEY` and `GAIACOM_TRUSTMESH_EPOCH_SECRET` via the Security Center after first start — see step 8.
+
+### 6. Install systemd Service
+
+```bash
+sudo nano /etc/systemd/system/gaiacom.service
+```
+
+```ini
+[Unit]
+Description=GaiaCom Backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=gaiacom
+Group=gaiacom
+WorkingDirectory=/opt/gaiacom/backend
+ExecStart=/opt/gaiacom/backend/gaiacom-backend-linux-amd64
+Restart=always
+RestartSec=5
+
+Environment=SERVER_PORT=8080
+Environment=DB_PATH=/opt/gaiacom/data/gaiacom.db
+Environment=SQLITE_MAX_OPEN_CONNS=4
+Environment=GAIACOM_DEV_MODE=false
+Environment=GAIACOM_COOKIE_SECURE=true
+Environment=GAIACOM_SERVER_NAME=node.example.org
+Environment=GAIACOM_REGISTRY_MAIN_NODE=https://beta.gaiacom.de
+Environment=GAIACOM_REGISTRY_AUTHORITY_DOMAIN=gaiacom.de
+Environment=GAIACOM_STORAGE_ROOT=/opt/gaiacom/storage
+EnvironmentFile=/opt/gaiacom/config/gaiacom.secrets.env
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/gaiacom/data /opt/gaiacom/storage /opt/gaiacom/config /opt/gaiacom/logs
+
+StandardOutput=append:/opt/gaiacom/logs/gaiacom.log
+StandardError=append:/opt/gaiacom/logs/gaiacom-error.log
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable gaiacom
+sudo systemctl start gaiacom
+sudo systemctl status gaiacom
+```
+
+### 7. Configure NGINX
+
+```bash
+sudo nano /etc/nginx/sites-available/gaiacom
+```
+
+```nginx
+server {
+    listen 80;
+    server_name node.example.org;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name node.example.org;
+
+    ssl_certificate     /etc/letsencrypt/live/node.example.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/node.example.org/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_early_data      off;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options DENY always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    # Frontend (static)
+    root /opt/gaiacom/frontend;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # API — backend
+    location /api/ {
+        proxy_pass         http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+        client_max_body_size 10M;
+    }
+
+    # Federation well-known — backend
+    location /.well-known/gaiacom/ {
+        proxy_pass         http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        client_max_body_size 2M;
+    }
+}
+```
+
+```bash
+sudo ln -s /etc/nginx/sites-available/gaiacom /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+# TLS via Let's Encrypt
+sudo certbot --nginx -d node.example.org
+sudo systemctl reload nginx
+```
+
+### 8. First-Run Node Setup
+
+Once the service is running and NGINX is live:
+
+```
+1. Open https://node.example.org in your browser
+2. Create an account
+3. Create a GaiaID matching your governance.json bootstrap_gaia_id
+4. Open Security Center → Nodesystem
+5. Click "Secrets generieren" — generates SERVER_PRIVATE_KEY + TRUSTMESH_EPOCH_SECRET
+6. Copy values into /opt/gaiacom/config/gaiacom.secrets.env
+7. sudo systemctl restart gaiacom
+8. Security Center → Nodesystem → Main-Node pingen
+9. Wait for acceptance by the main node operator
+10. Test federation
+```
+
+### 9. Verify Deployment
+
+```bash
+# Service running
+sudo systemctl status gaiacom
+
+# Backend responding
+curl -s https://node.example.org/.well-known/gaiacom/nodeinfo | jq .
+
+# Nodes visible
+curl -s https://node.example.org/.well-known/gaiacom/nodes | jq .
+
+# Logs
+sudo journalctl -u gaiacom -f
+# or
+tail -f /opt/gaiacom/logs/gaiacom.log
+```
+
+### Firewall (UFW)
+
+```bash
+sudo ufw allow 22/tcp      # SSH
+sudo ufw allow 80/tcp      # HTTP (redirect)
+sudo ufw allow 443/tcp     # HTTPS
+sudo ufw enable
+# Backend port 8080 stays local — never expose directly
+```
 
 ---
 
