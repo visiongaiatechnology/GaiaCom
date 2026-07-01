@@ -41,6 +41,9 @@ Found a vulnerability? See [docs/responsible-disclosure.md](docs/responsible-dis
 
 ---
 
+<img width="1909" height="985" alt="image" src="https://github.com/user-attachments/assets/a69674a0-5a50-4bb0-9c66-78bbe28b0dc9" />
+
+
 ## 🔍 What is GaiaCom?
 
 Today's communication systems are either centralized, server-trusting, not fully end-to-end encrypted — or not prepared for post-quantum threats. Most messengers are one database breach away from total plaintext exposure. Email was never designed for confidentiality.
@@ -104,6 +107,12 @@ Full protocol design and threat model documentation in [`docs/`](docs/):
 └──────────────┴──────────────┴─────────────────┴──────────────────────┘
 ★ New in Beta v2
 ```
+
+<img width="1914" height="983" alt="image" src="https://github.com/user-attachments/assets/60fa6898-a439-46c8-a5e1-687facfcbc10" />
+
+
+<img width="1912" height="980" alt="image" src="https://github.com/user-attachments/assets/ad311b5e-7b33-4abc-bd79-c4af640d28d7" />
+
 
 ### Components
 
@@ -206,6 +215,9 @@ Manipulation of any field causes verification or decryption to fail.
 
 ---
 
+<img width="1917" height="984" alt="image" src="https://github.com/user-attachments/assets/99fe0d25-23cd-4379-8900-e0360a94b7b9" />
+
+
 ## 🏗️ Architecture Principles
 
 **Zero-Trust Design** — the server handles transport, storage, routing and federation but has no access to plaintext messages, mnemonics, private identity or device keys, symmetric message keys or decrypted vault contents.
@@ -219,6 +231,10 @@ Manipulation of any field causes verification or decryption to fail.
 **No-Backdoor Architecture** — GaiaCom Public has no central decryption capability, no admin-decrypt and no global content control. Abuse is handled via proof-based mechanisms, receiver reports, friction, quarantine and local policy.
 
 ---
+
+<img width="1908" height="985" alt="image" src="https://github.com/user-attachments/assets/d94ef97a-3e81-4f03-921c-a83ac73aac75" />
+
+
 
 ## 🛡️ Federation (S2S)
 
