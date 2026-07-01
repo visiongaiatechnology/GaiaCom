@@ -1,0 +1,217 @@
+/* GaiaCom is a trademark of VisionGaiaTechnology. Copyright (C) 2026 VisionGaiaTechnology. Licensed under AGPL-3.0-or-later. Trademark rights are reserved. */
+.nhd-overlay {
+  z-index: 2300;
+}
+
+.nhd-shell {
+  width: min(1060px, calc(100vw - 28px));
+  max-height: min(88dvh, 820px);
+  overflow-y: auto;
+  padding: 24px;
+  display: grid;
+  gap: 18px;
+}
+
+.nhd-page {
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.nhd-shell.embedded {
+  max-height: none;
+  min-height: 100%;
+  overflow: visible;
+  width: 100%;
+}
+
+.nhd-header {
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding-bottom: 14px;
+}
+
+.nhd-kicker {
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin: 0 0 6px;
+  text-transform: uppercase;
+}
+
+.nhd-header h2 {
+  font-size: clamp(1.45rem, 3vw, 2.2rem);
+  letter-spacing: 0;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.nhd-close {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-weight: 900;
+  padding: 9px 12px;
+}
+
+.nhd-close:hover,
+.nhd-close:focus-visible {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  outline: none;
+}
+
+.nhd-state {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  padding: 16px;
+}
+
+.nhd-state.danger {
+  border-color: rgba(255, 71, 87, 0.42);
+  color: var(--danger);
+}
+
+.nhd-status-row {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.nhd-status-row div,
+.nhd-metric-card,
+.nhd-crypto-grid div,
+.nhd-signature-card div,
+.nhd-boundary-grid div {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+}
+
+.nhd-status-row span,
+.nhd-metric-card span,
+.nhd-crypto-grid span,
+.nhd-signature-card span {
+  color: var(--text-muted);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.nhd-status-row strong,
+.nhd-metric-card strong,
+.nhd-crypto-grid strong,
+.nhd-signature-card strong {
+  color: var(--text-primary);
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.nhd-status-row strong {
+  color: var(--accent-cyan);
+  font-size: 1.15rem;
+}
+
+.nhd-status-secure {
+  color: var(--success) !important;
+}
+
+.nhd-status-warning {
+  color: var(--warning) !important;
+}
+
+.nhd-metric-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.nhd-metric-card strong {
+  font-family: var(--font-mono);
+  font-size: clamp(1.05rem, 2vw, 1.55rem);
+}
+
+.nhd-section {
+  display: grid;
+  gap: 10px;
+}
+
+.nhd-section h3 {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  margin: 0;
+}
+
+.nhd-crypto-grid,
+.nhd-signature-card,
+.nhd-boundary-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.nhd-crypto-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.nhd-signature-card code {
+  color: var(--accent-cyan);
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.nhd-boundary-grid strong {
+  color: var(--accent-cyan);
+  display: block;
+  font-size: 0.82rem;
+  margin-bottom: 9px;
+  text-transform: uppercase;
+}
+
+.nhd-boundary-grid span {
+  color: var(--text-secondary);
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin-top: 5px;
+}
+
+@media (max-width: 860px) {
+  .nhd-metric-grid,
+  .nhd-crypto-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .nhd-shell {
+    padding: 18px;
+  }
+
+  .nhd-header,
+  .nhd-status-row,
+  .nhd-metric-grid,
+  .nhd-crypto-grid,
+  .nhd-signature-card,
+  .nhd-boundary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nhd-header {
+    display: grid;
+  }
+}

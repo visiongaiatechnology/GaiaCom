@@ -1,0 +1,440 @@
+/* GaiaCom is a trademark of VisionGaiaTechnology. Copyright (C) 2026 VisionGaiaTechnology. Licensed under AGPL-3.0-or-later. Trademark rights are reserved. */
+/* Success Pop-up overlay (Custom modal) */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+  background: rgba(4, 5, 8, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.popup-card {
+  width: 90%;
+  max-width: 440px;
+  max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  padding: 35px;
+  border: 1px solid var(--accent-cyan);
+  box-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+  text-align: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  word-break: break-word;
+  -webkit-overflow-scrolling: touch;
+  animation: zoomScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.popup-card-info {
+  border-color: var(--accent-cyan);
+}
+
+.popup-card-warning {
+  border-color: var(--warning);
+}
+
+.popup-card-danger {
+  border-color: var(--danger);
+}
+
+.popup-card-confirm {
+  max-width: 480px;
+}
+
+.modal-card-compact {
+  width: 100%;
+  max-width: 440px;
+  text-align: left;
+}
+
+.modal-card-wide {
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+}
+
+.contact-profile-overlay {
+  z-index: 1100;
+}
+
+.status-success {
+  color: var(--success);
+}
+
+.status-warning {
+  color: var(--warning);
+}
+
+.status-danger {
+  color: var(--danger);
+}
+
+.popup-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(0, 242, 254, 0.1);
+  color: var(--accent-cyan);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 20px auto;
+  font-size: 24px;
+}
+
+.popup-icon-info {
+  color: var(--accent-cyan);
+  background: rgba(0, 242, 254, 0.1);
+}
+
+.popup-icon-warning {
+  color: var(--warning);
+  background: var(--warning-glow);
+}
+
+.popup-icon-danger {
+  color: var(--danger);
+  background: var(--danger-glow);
+}
+
+.popup-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.popup-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 25px;
+  overflow-wrap: anywhere;
+}
+
+.popup-text-prewrap {
+  margin-bottom: 20px;
+  white-space: pre-wrap;
+}
+
+.popup-modal-actions {
+  width: 100%;
+}
+
+.modal-actions-spaced {
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modal-submit-btn {
+  width: auto;
+  padding: 0 20px;
+}
+
+.modal-search-btn {
+  width: auto;
+  padding: 0 18px;
+}
+
+.modal-confirm-btn {
+  width: auto;
+  padding: 10px 24px;
+}
+
+.modal-inline-action-row {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-checkbox-row {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+  margin-top: 10px;
+}
+
+.modal-checkbox-input {
+  cursor: pointer;
+  margin: 0;
+  width: auto;
+}
+
+.modal-checkbox-label {
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.modal-avatar-grid-six {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.modal-avatar-item-sm {
+  height: 40px;
+  width: 40px;
+  font-size: 1.2rem;
+}
+
+.modal-error-text {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.modal-discovery-card {
+  background: rgba(255, 255, 255, 0.02);
+  margin: 15px 0;
+}
+
+.modal-discovery-id {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+.quantum-shield-title {
+  color: var(--accent-cyan);
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.quantum-shield-body {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.quantum-shield-intro {
+  margin-bottom: 12px;
+}
+
+.quantum-shield-layer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.quantum-shield-layer {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.quantum-shield-layer p {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.quantum-shield-layer-cyan {
+  border-left-color: var(--accent-cyan);
+}
+
+.quantum-shield-layer-violet {
+  border-left-color: var(--accent-violet);
+}
+
+.quantum-shield-layer-success {
+  border-left-color: var(--success);
+}
+
+.quantum-shield-layer-warning {
+  border-left-color: var(--warning);
+}
+
+.key-change-warning-card {
+  border-color: var(--danger);
+  max-width: 520px;
+  text-align: left;
+  width: 100%;
+}
+
+.key-change-warning-icon {
+  background: var(--danger-glow);
+  color: var(--danger);
+  margin: 0 0 20px;
+}
+
+.key-change-warning-title {
+  color: var(--danger);
+  font-size: 1.3rem;
+}
+
+.key-change-warning-body {
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.key-change-warning-copy {
+  margin-bottom: 10px;
+}
+
+.key-change-fingerprint-grid {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  display: grid;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  gap: 10px;
+  grid-template-columns: 1fr;
+  padding: 12px;
+  word-break: break-all;
+}
+
+.key-change-fingerprint-label-muted {
+  color: var(--text-muted);
+}
+
+.key-change-fingerprint-label-new,
+.key-change-fingerprint-new {
+  color: var(--accent-cyan);
+}
+
+.key-change-fingerprint-old {
+  color: var(--text-secondary);
+}
+
+.key-change-warning-hint {
+  color: var(--warning);
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.key-change-confirm-group {
+  margin-bottom: 20px;
+}
+
+.key-change-confirm-label {
+  color: var(--danger);
+}
+
+.key-change-confirm-input {
+  border-color: var(--danger);
+}
+
+.key-change-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.key-change-action-btn {
+  flex: 1;
+  margin-top: 0;
+}
+
+.contact-profile-grid {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 20px;
+}
+
+.contact-profile-grid > div {
+  padding: 12px;
+}
+
+.contact-profile-grid code {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  word-break: break-all;
+}
+
+.trust-passport-panel {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.025);
+  padding: 14px;
+  margin: 12px 0 18px;
+}
+
+.trust-passport-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.trust-passport-grid > div {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: rgba(0, 0, 0, 0.12);
+  padding: 10px;
+}
+
+.trust-passport-grid label,
+.key-history-item span {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.trust-passport-grid code {
+  display: block;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  word-break: break-all;
+  margin-top: 4px;
+}
+
+.key-history-list {
+  display: grid;
+  gap: 8px;
+}
+
+.key-history-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.025);
+  padding: 10px;
+}
+
+.key-history-item.warning {
+  border-color: var(--warning);
+  background: var(--warning-glow);
+}
+
+.key-history-item div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.key-history-item strong {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  word-break: break-all;
+}
+
+.key-history-status {
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+/* ==========================================
+   CSS EXTENSIONS: LIGHT MODE, CUSTOM SELECT, GROUPS
+   ========================================== */
+

@@ -1,0 +1,282 @@
+/* GaiaCom is a trademark of VisionGaiaTechnology. Copyright (C) 2026 VisionGaiaTechnology. Licensed under AGPL-3.0-or-later. Trademark rights are reserved. */
+/* Group Chat Panel Layout styling */
+.group-chat-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.empty-group-state {
+  width: 100%;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.group-sidebar {
+  width: 260px;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  background: rgba(9, 14, 25, 0.74);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.group-nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.group-room-title {
+  color: var(--text-primary);
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.group-nav-actions {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+
+.group-compact-action {
+  font-size: 0.65rem;
+  padding: 2px 6px;
+}
+
+.group-settings-icon {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0.8;
+  padding: 2px 5px;
+}
+
+.channel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 24px;
+  background: rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.channel-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.channel-item {
+  border: none;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.channel-item:hover, .channel-item.active {
+  background: var(--bg-active);
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.group-sidebar-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 15px 24px 8px 24px;
+  letter-spacing: 0.5px;
+}
+
+.group-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 24px;
+  max-height: 200px;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.group-member-item {
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  gap: 8px;
+  padding: 4px 0;
+  text-align: left;
+}
+
+.group-member-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.group-member-copy strong {
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.group-member-copy small {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-member-item .member-role {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.group-member-item .member-role.owner {
+  background: rgba(255, 215, 0, 0.1);
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.group-member-item .member-role.admin {
+  background: rgba(0, 242, 254, 0.1);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+}
+
+.group-policy-box {
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+  line-height: 1.4;
+  padding: 10px 15px;
+}
+
+.group-policy-box.muted {
+  color: var(--text-muted);
+}
+
+.group-policy-title {
+  color: var(--accent-cyan);
+  font-size: 0.75rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.pinned-security-note {
+  background: rgba(255, 193, 7, 0.03);
+}
+
+.group-leave-box {
+  border-top: 1px solid var(--border-color);
+  padding: 15px;
+}
+
+.group-leave-btn {
+  border-color: var(--danger);
+  color: var(--danger);
+  font-size: 0.8rem;
+  padding: 8px;
+  width: 100%;
+}
+
+.group-invite-box {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  margin-top: 10px;
+}
+
+.group-invite-box span {
+  color: var(--accent-cyan);
+  display: block;
+  font-weight: 800;
+}
+
+.group-invite-box code {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  display: block;
+  margin-top: 4px;
+  padding: 4px;
+  word-break: break-all;
+}
+
+.group-invite-box .btn-action {
+  font-size: 0.65rem;
+  margin-top: 6px;
+  padding: 4px 0;
+  width: 100%;
+}
+
+.group-main-chat {
+  flex: 1;
+  min-width: 0;
+}
+
+.group-chat-header-actions {
+  align-items: center;
+  display: flex;
+  flex: 0 1 auto;
+  gap: 10px;
+  min-width: 260px;
+}
+
+.group-chat-search-input {
+  flex: 1 1 220px;
+  max-width: 260px;
+  min-width: 180px;
+}
+
+.group-tools-dropdown {
+  top: calc(100% + 8px);
+  right: 0;
+}
+
+.group-sender-button {
+  border: none;
+  color: var(--accent-cyan);
+  cursor: pointer;
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+  padding: 0;
+  text-align: left;
+}
+

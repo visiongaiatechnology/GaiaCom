@@ -1,0 +1,567 @@
+/* GaiaCom is a trademark of VisionGaiaTechnology. Copyright (C) 2026 VisionGaiaTechnology. Licensed under AGPL-3.0-or-later. Trademark rights are reserved. */
+.public-channel-pane {
+  min-width: 0;
+  min-height: 0;
+  background:
+    linear-gradient(135deg, rgba(67, 227, 255, 0.05), transparent 28%),
+    linear-gradient(315deg, rgba(124, 92, 255, 0.05), transparent 34%),
+    rgba(5, 10, 18, 0.74);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 20px;
+  position: relative;
+}
+
+.public-channel-pane::before {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  content: "";
+  inset: 0;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 75%);
+  opacity: 0.15;
+  pointer-events: none;
+  position: absolute;
+}
+
+.public-channel-pane.empty,
+.public-channel-pane.is-empty-state .public-channel-editor {
+  align-content: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  max-width: 600px;
+  text-align: center;
+  width: 100%;
+}
+
+.public-channel-empty-icon {
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(139, 92, 246, 0.1)),
+    rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 242, 254, 0.08);
+  color: var(--accent-cyan);
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 800;
+  height: 60px;
+  justify-content: center;
+  width: 60px;
+}
+
+.public-channel-editor {
+  background: linear-gradient(180deg, rgba(20, 28, 49, 0.92), rgba(10, 15, 27, 0.88));
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 680px;
+  padding: 28px;
+  width: 100%;
+}
+
+.public-channel-editor form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.public-channel-header {
+  display: flex;
+  align-items: center;
+  background: rgba(10, 18, 31, 0.72);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  gap: 18px;
+  position: relative;
+  z-index: 2;
+}
+
+.public-channel-avatar {
+  align-items: center;
+  background:
+    linear-gradient(135deg, rgba(0, 242, 254, 0.12), rgba(139, 92, 246, 0.08)),
+    rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  color: var(--accent-cyan);
+  display: flex;
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 800;
+  height: 64px;
+  justify-content: center;
+  overflow: hidden;
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.public-channel-avatar img {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.public-channel-header-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.public-channel-header-copy h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.public-channel-header-copy p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.public-channel-eyebrow,
+.public-channel-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.public-channel-eyebrow span,
+.public-channel-meta-row span {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
+.public-channel-eyebrow span:first-child {
+  border-color: rgba(0, 242, 254, 0.25);
+  color: var(--accent-cyan);
+}
+
+.public-channel-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.public-channel-header-actions > :nth-child(n + 3) {
+  display: none;
+}
+
+.public-channel-actions-trigger {
+  border-color: rgba(124, 92, 255, 0.24);
+  background: rgba(124, 92, 255, 0.1);
+  color: #ddd6ff;
+}
+
+.btn-danger-outline {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #f87171;
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-danger-outline:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+.public-channel-suspended-banner {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #fca5a5;
+  position: relative;
+  z-index: 2;
+}
+
+.public-channel-suspended-banner strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.public-channel-suspended-banner p {
+  margin: 0;
+}
+
+.public-channel-posts {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.public-channel-post {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+  max-width: 800px;
+  width: 100%;
+}
+
+.public-channel-post-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  padding-bottom: 6px;
+}
+
+.public-channel-post-top span {
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.public-channel-post-body {
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.public-channel-post-image {
+  border-radius: 8px;
+  max-height: 380px;
+  object-fit: contain;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.public-channel-image-placeholder {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  padding: 24px;
+  text-align: center;
+}
+
+.public-channel-composer {
+  background: rgba(10, 18, 31, 0.88);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 2;
+}
+
+.public-channel-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding-bottom: 8px;
+}
+
+.public-channel-toolbar button,
+.public-channel-composer-img-label {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s ease;
+}
+
+.public-channel-toolbar button:hover,
+.public-channel-composer-img-label:hover {
+  background: rgba(67, 227, 255, 0.1);
+  border-color: rgba(67, 227, 255, 0.2);
+  color: #ffffff;
+}
+
+.public-channel-composer-img-label input {
+  display: none;
+}
+
+.public-channel-composer textarea {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.94rem;
+  line-height: 1.5;
+  outline: none;
+  resize: vertical;
+  min-height: 72px;
+  width: 100%;
+}
+
+.public-channel-composer textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.public-channel-composer-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.public-channel-composer-footer span {
+  font-family: var(--font-mono);
+}
+
+.public-channel-composer-footer button {
+  padding: 8px 24px;
+  font-size: 0.82rem;
+  border-radius: 6px;
+  width: auto;
+  flex: none;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.public-channel-composer-footer button:hover {
+  opacity: 0.9;
+}
+
+.public-channel-avatar-edit {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.public-channel-file-btn {
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.public-channel-file-btn input {
+  display: none;
+}
+
+.public-channel-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.public-channel-pane .btn-secondary {
+  margin-top: 0;
+}
+
+.public-channel-actions-modal {
+  width: min(440px, calc(100vw - 28px));
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+
+.public-channel-actions-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.public-channel-actions-modal-header h3 {
+  margin: 6px 0 0;
+  color: var(--text-primary);
+  font-size: 1.24rem;
+}
+
+.public-channel-actions-modal-eyebrow {
+  color: var(--accent-cyan);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.public-channel-actions-modal-list {
+  display: grid;
+  gap: 10px;
+}
+
+.public-channel-actions-modal-btn {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.public-channel-mobile-filter-btn,
+.public-channel-mobile-category-overlay {
+  display: none;
+}
+
+.public-channel-mobile-category-sheet {
+  width: min(420px, calc(100vw - 28px));
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.public-channel-mobile-category-list {
+  display: grid;
+  gap: 10px;
+}
+
+.public-channel-mobile-category-list .active {
+  border-color: rgba(0, 242, 254, 0.35);
+  background: rgba(0, 242, 254, 0.12);
+  color: var(--accent-cyan);
+}
+
+.public-channel-actions-operator {
+  border-color: rgba(67, 227, 255, 0.22);
+  color: var(--accent-cyan);
+  background: rgba(67, 227, 255, 0.07);
+}
+
+/* Ensure the composer publish button is correctly sized and styled */
+.public-channel-composer-footer .btn-primary {
+  width: auto !important;
+  max-width: fit-content !important;
+  padding: 8px 20px !important;
+  font-size: 0.8rem !important;
+  text-transform: uppercase;
+}
+
+/* Mobile responsive styling for public channels header */
+@media (max-width: 992px) {
+  .public-channel-pane {
+    padding: 0 14px 14px;
+  }
+
+  .public-channel-pane .detail-mobile-actions {
+    margin: 0 -14px 12px;
+  }
+
+  .public-channel-mobile-filter-btn {
+    display: inline-flex !important;
+    flex: 1 1 auto;
+    max-width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .public-channel-mobile-category-overlay {
+    display: flex;
+  }
+
+  .public-channel-category-chips {
+    display: none !important;
+  }
+
+  .public-channel-header {
+    display: flex;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 12px !important;
+  }
+  
+  .public-channel-avatar {
+    width: 48px !important;
+    height: 48px !important;
+    flex-shrink: 0;
+  }
+
+  .public-channel-header-copy {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Hide description and tag eyebrows on mobile */
+  .public-channel-eyebrow,
+  .public-channel-header-copy p {
+    display: none !important;
+  }
+
+  /* Hide extra badges, show only subscriber count */
+  .public-channel-meta-row {
+    margin-top: 2px !important;
+  }
+  .public-channel-meta-row span:not(:first-child) {
+    display: none !important;
+  }
+
+  /* Make actions wrap neatly */
+  .public-channel-header-actions {
+    width: 100% !important;
+    margin-top: 8px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    justify-content: stretch !important;
+  }
+
+  .public-channel-header-actions button,
+  .public-channel-header-actions a {
+    flex: 1 !important;
+    text-align: center;
+    padding: 6px 12px !important;
+    font-size: 0.78rem !important;
+    min-width: 100px;
+  }
+}

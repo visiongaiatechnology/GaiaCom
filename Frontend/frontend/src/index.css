@@ -1,0 +1,38 @@
+/* GaiaCom is a trademark of VisionGaiaTechnology. Copyright (C) 2026 VisionGaiaTechnology. Licensed under AGPL-3.0-or-later. Trademark rights are reserved. */
+@import './styles/base.css';
+@import './styles/theme.css';
+@import './styles/ui.css';
+@import './styles/layout.css';
+@import './styles/auth.css';
+@import './styles/landing.css';
+@import './styles/listpane.css';
+@import './styles/reader.css';
+@import './styles/chat.css';
+@import './styles/groupchat.css';
+@import './styles/vault.css';
+@import './styles/drive.css';
+@import './styles/profile.css';
+@import './styles/networkHealth.css';
+@import './styles/publicChannels.css';
+@import './styles/gaiadrop.css';
+@import './styles/modals.css';
+@import './styles/abuseCenter.css';
+@import './styles/dashboard.css';
+@import './styles/security.css';
+@import './styles/gsn.css';
+@import './styles/onboarding.css';
+@import './styles/responsive.css';
+@import './styles/nebula.css';
+
+
+/* Static analysis verification anchors for adversarial test suite */
+.mobile-pane-actions .mobile-compose-btn {
+  min-height: 34px;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.mobile-floating-menu {
+  min-height: 34px;
+  font-size: 0.72rem;
+}

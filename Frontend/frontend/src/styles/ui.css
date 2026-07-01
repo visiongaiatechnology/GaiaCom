@@ -1,0 +1,257 @@
+/* GaiaCom is a trademark of VisionGaiaTechnology. Copyright (C) 2026 VisionGaiaTechnology. Licensed under AGPL-3.0-or-later. Trademark rights are reserved. */
+/* Inputs & Forms */
+.form-group {
+  margin-bottom: 22px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(10, 13, 22, 0.88);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  transition: var(--transition-smooth);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--brand-purple);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
+}
+
+/* Buttons */
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: var(--accent-gradient);
+  border: none;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(139, 92, 246, 0.28);
+  transition: var(--transition-smooth);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(139, 92, 246, 0.40);
+}
+
+.btn-primary.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-primary:active,
+.btn-secondary:active,
+.btn-action:active,
+.nav-btn:active,
+.mail-card:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  margin-top: 10px;
+}
+
+.btn-secondary:hover {
+  background: rgba(139, 92, 246, 0.10);
+  border-color: rgba(139, 92, 246, 0.28);
+  color: #ffffff;
+}
+
+.btn-action {
+  padding: 7px 13px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-action:hover {
+  background: rgba(139, 92, 246, 0.12);
+  color: #ffffff;
+  border-color: rgba(139, 92, 246, 0.28);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.18);
+}
+
+/* Styled select selector for active identity */
+.identity-select {
+  width: 100%;
+  padding: 10px 14px;
+  background: rgba(10, 12, 18, 0.85);
+  border: 1px solid var(--accent-cyan);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 0 10px var(--border-glow);
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='cyan' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px;
+  transition: all 0.25s ease;
+}
+
+.smtp-active .identity-select {
+  background-image: url("data:image/svg+xml;utf8,<svg fill='red' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+}
+
+.identity-select:hover {
+  box-shadow: 0 0 15px var(--accent-glow);
+}
+
+
+.auth-proof-grid div,
+.profile-section-card,
+.identity-pill,
+.contact-profile-grid > div {
+  border: 1px solid var(--border-color);
+  background: var(--bg-item);
+  border-radius: var(--radius-sm);
+}
+
+.auth-proof-grid div {
+  min-width: 0;
+  padding: 9px 10px;
+  min-height: 110px;
+}
+
+.auth-proof-grid strong,
+.profile-section-title,
+.contact-profile-grid label {
+  display: block;
+  color: var(--accent-cyan);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.auth-proof-grid span,
+.powered-by,
+.auth-copy {
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  line-height: 1.38;
+}
+
+.powered-by {
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.compact-btn {
+  padding: 9px;
+  font-size: 0.8rem;
+}
+
+.form-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+}
+
+.form-success {
+  color: var(--accent-green);
+  font-size: 0.85rem;
+  margin: 10px 0 15px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 24px;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.checkbox-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-cyan);
+}
+
+.button-row,
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.link-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: var(--accent-cyan);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.icon-only {
+  width: 30px;
+  justify-content: center;
+  padding: 2px 0 !important;
+}
+
+.sr-hidden-field {
+  display: none;
+}
+
+/* Styled select option overrides to prevent white-on-white background */
+select option {
+  background-color: #0b0e14 !important;
+  color: #e0e6ed !important;
+}
+
+body.light-mode select option {
+  background-color: #ffffff !important;
+  color: #1a1f2c !important;
+}
+

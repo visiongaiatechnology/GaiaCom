@@ -1,0 +1,312 @@
+/* GaiaCom is a trademark of VisionGaiaTechnology. Copyright (C) 2026 VisionGaiaTechnology. Licensed under AGPL-3.0-or-later. Trademark rights are reserved. */
+/* Three-Column Layout */
+.app-container {
+  display: grid;
+  grid-template-columns: 252px 380px minmax(0, 1fr);
+  min-height: 100dvh;
+  height: 100%;
+  width: 100%;
+  background: var(--bg-dark);
+}
+
+/* Column 1: Navigation Sidebar */
+.navigation-sidebar {
+  min-width: 0;
+  min-height: 0;
+  background: rgba(11, 14, 23, 0.88);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  overflow-y: auto;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.nav-header {
+  margin-bottom: 16px;
+}
+
+.nav-logo {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+  border: 1px solid transparent;
+  width: 100%;
+}
+
+.nav-btn:hover, .nav-btn.active {
+  color: var(--text-primary);
+  background: rgba(139, 92, 246, 0.10);
+  border-color: rgba(139, 92, 246, 0.20);
+  transform: translateX(3px);
+  box-shadow: inset 3px 0 0 var(--brand-purple), 0 6px 20px rgba(139, 92, 246, 0.08);
+}
+
+.nav-btn.active {
+  animation: navPulse 0.42s ease-out;
+}
+
+/* Quantum Shield Widget */
+.quantum-gauge {
+  background: rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-top: auto;
+}
+
+.gauge-header {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-purple);
+  margin-bottom: 8px;
+  letter-spacing: 1.2px;
+}
+
+.gauge-bar {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.gauge-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  width: 100%;
+  box-shadow: 0 0 10px var(--brand-purple);
+}
+
+/* Branding link styles */
+.branding-footer {
+  margin-top: auto;
+  padding: 16px 0 0 0;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.branding-link {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.2s;
+}
+
+.branding-link:hover {
+  text-shadow: 0 0 8px var(--accent-glow);
+  color: #fff;
+}
+
+.logo-mark {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+}
+
+.logo-icon-wrapper {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-shrink: 0;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.logo-mark img {
+  display: block;
+  width: min(260px, 100%);
+  height: auto;
+  object-fit: contain;
+}
+
+.logo-mark.compact img {
+  width: 126px;
+  max-height: 48px;
+}
+
+.logo-mark .logo-icon {
+  height: 30px;
+  object-fit: contain;
+  width: 30px;
+}
+
+.logo-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0;
+}
+
+.logo-title-suffix {
+  font-weight: 400;
+  opacity: 0.95;
+}
+
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid rgba(139, 92, 246, 0.22);
+  border-radius: var(--radius-sm);
+  background: rgba(139, 92, 246, 0.07);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  margin-bottom: 10px;
+}
+
+.version-badge strong {
+  color: var(--accent-purple);
+  font-weight: 800;
+}
+.identity-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+}
+
+.identity-pill span {
+  color: var(--text-primary);
+  font-weight: 800;
+  font-size: 0.84rem;
+}
+
+.identity-pill small {
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  word-break: break-all;
+}
+
+/* Light / Dark Mode Toggle button style */
+.theme-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 0.68rem;
+  word-break: break-all;
+}
+
+/* Light / Dark Mode Toggle button style */
+.theme-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  width: 100%;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.theme-toggle-btn:hover {
+  border-color: var(--brand-purple);
+  color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.08);
+}
+
+/* Navigation Dropdowns */
+.nav-dropdown-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.nav-dropdown-toggle {
+  justify-content: space-between;
+}
+
+.nav-dropdown-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 20px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border-left: 1px dashed var(--border-color);
+}
+
+.nav-sub-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  width: 100%;
+}
+
+.nav-sub-btn:hover, .nav-sub-btn.active {
+  color: #ffffff;
+  background: rgba(67, 227, 255, 0.08);
+  border-color: rgba(67, 227, 255, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.nav-sub-btn.active {
+  color: var(--accent-cyan);
+  background: rgba(67, 227, 255, 0.06);
+  border-color: rgba(67, 227, 255, 0.15);
+}

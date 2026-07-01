@@ -1,0 +1,955 @@
+/* GaiaCom is a trademark of VisionGaiaTechnology. Copyright (C) 2026 VisionGaiaTechnology. Licensed under AGPL-3.0-or-later. Trademark rights are reserved. */
+.gsn-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0;
+  overflow-y: hidden;
+  box-sizing: border-box;
+}
+
+/* The scrollable feed list – override inline gap with !important */
+.gsn-feed-list {
+  gap: 0 !important;
+}
+
+.gsn-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: rgba(11, 14, 23, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0;
+}
+
+.gsn-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-color);
+  padding: 3px;
+  border-radius: 10px;
+  gap: 2px;
+}
+
+.gsn-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 5px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: var(--transition-fast);
+  transform: translateY(-1px);
+}
+
+.gsn-tab.active {
+  color: var(--text-primary);
+  background: rgba(139, 92, 246, 0.18);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15);
+}
+
+/* Composer – matches existing JSX (no avatar, just textarea + actions) */
+.gsn-composer {
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-color);
+  padding: 14px 18px;
+  margin-bottom: 0;
+}
+
+.gsn-composer-layout {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.gsn-composer-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-item);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  border: 2px solid var(--border-color);
+}
+
+.gsn-composer-body {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.gsn-composer-textarea {
+  width: 100%;
+  min-height: 64px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 0;
+  line-height: 1.5;
+  font-family: var(--font-sans);
+}
+
+.gsn-composer-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.gsn-composer-preview-img {
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  margin-top: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+.gsn-composer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 8px;
+}
+
+/* Post Cards – refined Nebula style, matches existing JSX structure */
+.gsn-post-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 20px;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: background var(--transition-fast);
+}
+
+.gsn-post-card:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.gsn-post-avatar-col {
+  flex-shrink: 0;
+}
+
+.gsn-post-body-col {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.gsn-post-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.gsn-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bg-item);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 2px solid var(--border-color);
+  transition: border-color var(--transition-fast);
+}
+
+.gsn-avatar-image {
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+}
+
+.gsn-avatar-loading {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.gsn-avatar-profile {
+  font-size: 2.5rem;
+  height: 80px;
+  width: 80px;
+}
+
+.gsn-avatar-editor {
+  height: 48px;
+  width: 48px;
+}
+
+.gsn-avatar-color-0 { background: #475569; }
+.gsn-avatar-color-1 { background: #7c3aed; }
+.gsn-avatar-color-2 { background: #2563eb; }
+.gsn-avatar-color-3 { background: #0891b2; }
+.gsn-avatar-color-4 { background: #059669; }
+.gsn-avatar-color-5 { background: #65a30d; }
+.gsn-avatar-color-6 { background: #ca8a04; }
+.gsn-avatar-color-7 { background: #ea580c; }
+.gsn-avatar-color-8 { background: #dc2626; }
+.gsn-avatar-color-9 { background: #db2777; }
+.gsn-avatar-color-10 { background: #9333ea; }
+.gsn-avatar-color-11 { background: #0f766e; }
+
+.gsn-avatar:hover {
+  border-color: var(--brand-purple);
+}
+
+.gsn-post-avatar-trigger {
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  flex: 0 0 54px;
+  cursor: pointer;
+}
+
+.gsn-post-avatar-trigger .gsn-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  border-color: rgba(67, 227, 255, 0.24);
+  box-shadow: 0 12px 28px rgba(67, 227, 255, 0.12);
+}
+
+.gsn-post-avatar-trigger .gsn-avatar-image {
+  display: block;
+  object-fit: cover;
+}
+
+.gsn-comment-item .gsn-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 0.88rem;
+}
+
+.gsn-post-meta {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.gsn-post-author {
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.gsn-post-author:hover {
+  text-decoration: underline;
+}
+
+.gsn-post-gaiaid {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.gsn-badges {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-left: 6px;
+  flex-wrap: wrap;
+}
+
+.gsn-badge {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.gsn-badge-op {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.30);
+}
+
+.gsn-badge-gov {
+  background: rgba(88, 166, 255, 0.15);
+  color: #58a6ff;
+  border: 1px solid rgba(88, 166, 255, 0.30);
+}
+
+.gsn-badge-pass {
+  background: rgba(236, 72, 153, 0.15);
+  color: #ec4899;
+  border: 1px solid rgba(236, 72, 153, 0.30);
+}
+
+.gsn-post-body {
+  font-size: 0.96rem;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.55;
+  padding-left: 54px;
+}
+
+.gsn-post-img {
+  width: 100%;
+  max-height: 380px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  margin-top: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.gsn-img-placeholder {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  padding: 20px;
+  text-align: center;
+}
+
+.gsn-img-expired {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border-color);
+  border-radius: 6px;
+  color: var(--text-muted);
+  display: inline-block;
+  font-size: 0.8rem;
+  margin-top: 8px;
+  padding: 8px;
+}
+
+.gsn-img-error {
+  color: var(--danger);
+  font-size: 0.8rem;
+  padding: 8px;
+}
+
+.gsn-post-img-zoomable {
+  cursor: zoom-in;
+  margin-top: 8px;
+  max-width: 100%;
+}
+
+.gsn-image-zoom-overlay {
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.85);
+  bottom: 0;
+  cursor: zoom-out;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 99999;
+}
+
+.gsn-image-zoom-content {
+  max-height: 90%;
+  max-width: 90%;
+  object-fit: contain;
+}
+
+/* Action bar */
+.gsn-reactions-row {
+  display: flex;
+  gap: 2px;
+  padding-top: 6px;
+  padding-left: 50px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gsn-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 9999px;
+  transition: var(--transition-fast);
+}
+
+.gsn-action-btn:hover {
+  color: var(--brand-purple);
+  background: rgba(139, 92, 246, 0.10);
+}
+
+.gsn-action-btn.active {
+  color: var(--brand-purple);
+  background: rgba(139, 92, 246, 0.10);
+}
+
+/* Comments */
+.gsn-comments-section {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.gsn-comment-item {
+  display: flex;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+
+.gsn-comment-meta {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  flex-grow: 1;
+  border: 1px solid var(--border-color);
+}
+
+.gsn-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.gsn-comment-author {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.gsn-comment-time {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.gsn-comment-body {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.gsn-comment-composer {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.gsn-comment-input {
+  flex-grow: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  color: var(--text-primary);
+  padding: 7px 16px;
+  outline: none;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  transition: var(--transition-fast);
+}
+
+.gsn-comment-input:focus {
+  border-color: var(--brand-purple);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
+}
+
+/* Drawer / Modals */
+.gsn-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 440px;
+  height: 100%;
+  background: rgba(15, 15, 15, 0.95);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid var(--border-color);
+  z-index: 1000;
+  padding: 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.gsn-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.gsn-drawer-close {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.gsn-drawer-content {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 4px 10px 24px 0;
+}
+
+.gsn-profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.gsn-profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--bg-tertiary, rgba(255, 255, 255, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  border: 2px solid var(--border-color);
+}
+
+.gsn-profile-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.gsn-profile-gaiaid {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.gsn-profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.gsn-profile-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gsn-profile-stat-val {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.gsn-profile-stat-lbl {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.gsn-profile-view {
+  display: grid;
+  gap: 22px;
+}
+
+.gsn-profile-identity-card {
+  padding: 26px 20px !important;
+  gap: 18px !important;
+  margin-bottom: 0 !important;
+  border: 1px solid rgba(67, 227, 255, 0.18);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(124, 92, 255, 0.16), transparent 62%),
+    rgba(255, 255, 255, 0.035);
+}
+
+.gsn-profile-identity-card .gsn-avatar-profile {
+  width: 104px;
+  height: 104px;
+  border-radius: 28px;
+  border-color: rgba(67, 227, 255, 0.34);
+  box-shadow: 0 18px 44px rgba(67, 227, 255, 0.16), 0 0 0 8px rgba(67, 227, 255, 0.045);
+}
+
+.gsn-profile-identity-copy {
+  display: grid;
+  gap: 9px;
+  max-width: 100%;
+  justify-items: center;
+}
+
+.gsn-profile-identity-copy h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.gsn-profile-identity-copy span,
+.gsn-profile-realname {
+  color: var(--text-secondary) !important;
+  overflow-wrap: anywhere;
+}
+
+.gsn-profile-realname {
+  font-size: 0.9rem !important;
+  margin-top: 0 !important;
+}
+
+.gsn-profile-badges {
+  justify-content: center !important;
+  margin-top: 2px !important;
+  gap: 8px;
+}
+
+.gsn-profile-stats {
+  gap: 14px;
+  margin-bottom: 0;
+}
+
+.gsn-profile-stat {
+  min-width: 0;
+  flex: 1;
+  padding: 14px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.gsn-profile-info-panel,
+.gsn-profile-passport-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px !important;
+  border-radius: 16px !important;
+  line-height: 1.5;
+}
+
+.gsn-profile-info-panel strong,
+.gsn-profile-passport-panel strong {
+  display: block;
+  letter-spacing: 0;
+  line-height: 1.25;
+}
+
+.gsn-profile-info-panel p {
+  margin: 0 !important;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.gsn-profile-info-panel.compact {
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.gsn-profile-passport-panel strong {
+  margin-bottom: 0 !important;
+}
+
+.gsn-profile-passport-panel div {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--font-mono);
+}
+
+.gsn-profile-passport-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  white-space: normal !important;
+  font-family: var(--font-sans) !important;
+}
+
+.gsn-profile-passport-grid span {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.gsn-profile-passport-grid b {
+  display: block;
+  margin-top: 3px;
+  color: var(--text-primary);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.gsn-profile-action-row {
+  display: flex;
+  gap: 10px !important;
+  margin-top: 0 !important;
+  flex-wrap: wrap;
+}
+
+.gsn-profile-action-btn {
+  flex: 1 1 160px;
+}
+
+.gsn-profile-action-btn.muted {
+  border-color: var(--border-color);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.gsn-profile-action-btn.danger,
+.gsn-report-action-btn.danger {
+  border-color: var(--danger);
+  background: var(--danger-glow);
+  color: var(--danger);
+}
+
+.gsn-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.gsn-header-title h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.gsn-feed-state,
+.gsn-drawer-loading {
+  padding: 40px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.gsn-feed-spinner {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto 10px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.gsn-drawer-title {
+  margin: 0;
+  font-weight: 800;
+}
+
+.gsn-profile-info-panel a {
+  color: var(--accent-cyan);
+  overflow-wrap: anywhere;
+}
+
+.gsn-report-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+}
+
+.gsn-report-dialog {
+  width: min(100%, 420px);
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: var(--card-bg);
+}
+
+.gsn-report-dialog h3 {
+  margin: 0 0 16px;
+  font-weight: 800;
+}
+
+.gsn-report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gsn-report-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.gsn-report-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text-primary);
+}
+
+.gsn-report-textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.gsn-report-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.gsn-report-action-btn {
+  flex: 1;
+}
+
+.gsn-post-avatar-trigger {
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.gsn-post-avatar-trigger:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 4px;
+  border-radius: 999px;
+}
+
+.gsn-post-author-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gsn-post-time {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.gsn-post-admin-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.gsn-post-admin-btn {
+  padding: 4px;
+  font-size: 0.8rem;
+}
+
+.gsn-post-admin-btn.danger,
+.gsn-comment-delete-btn {
+  color: var(--danger);
+}
+
+.gsn-repost-card {
+  margin-top: 8px;
+  margin-left: 6px;
+  padding: 10px 10px 10px 12px;
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.gsn-repost-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.8rem;
+}
+
+.gsn-repost-author {
+  font-weight: 700;
+}
+
+.gsn-repost-gaiaid,
+.gsn-repost-missing,
+.gsn-comments-state {
+  color: var(--text-secondary);
+}
+
+.gsn-repost-body {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.gsn-repost-missing,
+.gsn-comments-state {
+  padding: 8px 6px;
+  font-size: 0.8rem;
+}
+
+.gsn-comments-state {
+  text-align: center;
+}
+
+.gsn-comment-side-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gsn-comment-delete-btn {
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.gsn-comment-submit-btn {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
