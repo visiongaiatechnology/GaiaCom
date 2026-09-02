@@ -1,6 +1,7 @@
+// STATUS: PLATIN
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub fn run() -> Result<(), tauri::Error> {
   tauri::Builder::default()
     .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+    .map_err(Into::into)
 }
