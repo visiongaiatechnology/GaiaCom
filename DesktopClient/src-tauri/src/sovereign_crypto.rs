@@ -73,10 +73,7 @@ fn decode_hex_bounded(
     Ok(Zeroizing::new(decoded))
 }
 
-fn decode_exact(
-    value: &str,
-    expected: usize,
-) -> Result<Zeroizing<Vec<u8>>, NativeCryptoError> {
+fn decode_exact(value: &str, expected: usize) -> Result<Zeroizing<Vec<u8>>, NativeCryptoError> {
     let decoded = decode_hex_bounded(value, expected)?;
     if decoded.len() != expected {
         return Err(NativeCryptoError::Boundary);
@@ -119,7 +116,9 @@ pub fn sovereign_hqc256_decapsulate(
             .map_err(|_| NativeCryptoError::Kem)?;
         let secret_key = HqcSecretKey::from_bytes(secret_key_bytes.as_slice())
             .map_err(|_| NativeCryptoError::Kem)?;
-        Ok(hex::encode(decapsulate(&ciphertext, &secret_key).as_bytes()))
+        Ok(hex::encode(
+            decapsulate(&ciphertext, &secret_key).as_bytes(),
+        ))
     })())
 }
 
@@ -134,8 +133,13 @@ pub fn sovereign_seal(
         let root = decode_exact(&root_secret_hex, ROOT_SECRET_BYTES)?;
         let aad = decode_hex_bounded(&aad_hex, 128 * 1024)?;
         let plaintext = decode_hex_bounded(&plaintext_hex, MAX_PAYLOAD_BYTES)?;
-        let ciphertext = seal(&profile, root.as_slice(), aad.as_slice(), plaintext.as_slice())
-            .map_err(|_| NativeCryptoError::Sovereign)?;
+        let ciphertext = seal(
+            &profile,
+            root.as_slice(),
+            aad.as_slice(),
+            plaintext.as_slice(),
+        )
+        .map_err(|_| NativeCryptoError::Sovereign)?;
         Ok(SovereignCiphertext {
             profile,
             ciphertext_hex: hex::encode(ciphertext),
@@ -154,8 +158,13 @@ pub fn sovereign_open(
         let root = decode_exact(&root_secret_hex, ROOT_SECRET_BYTES)?;
         let aad = decode_hex_bounded(&aad_hex, 128 * 1024)?;
         let ciphertext = decode_hex_bounded(&ciphertext_hex, MAX_PAYLOAD_BYTES + 128)?;
-        let plaintext = open(&profile, root.as_slice(), aad.as_slice(), ciphertext.as_slice())
-            .map_err(|_| NativeCryptoError::Sovereign)?;
+        let plaintext = open(
+            &profile,
+            root.as_slice(),
+            aad.as_slice(),
+            ciphertext.as_slice(),
+        )
+        .map_err(|_| NativeCryptoError::Sovereign)?;
         Ok(hex::encode(plaintext.as_slice()))
     })())
 }

@@ -74,8 +74,22 @@ Frontend:
 ```bash
 cd Frontend/frontend
 npm ci
+npm test
 npm run build
+npm run test:hqc-browser
 node src/adversarial_run.mjs
+```
+
+`test:hqc-browser` builds the locked HQC/WASM worker and executes HQC-256 key
+generation, encapsulation/decapsulation, and both Sovereign cipher profiles in
+headless Chrome. Set `CHROME_BIN` when Chrome is not installed in a standard
+location.
+
+Native Sovereign bridge:
+
+```bash
+cd DesktopClient/src-tauri
+cargo test --locked
 ```
 
 Security gates:

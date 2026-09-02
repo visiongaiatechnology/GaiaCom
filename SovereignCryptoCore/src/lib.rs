@@ -243,7 +243,12 @@ fn serpent_decrypt(
     serpent_transform(root, aad, layer, &mut plaintext)?;
     Ok(plaintext)
 }
-pub fn seal(profile: &str, root: &[u8], aad: &[u8], plaintext: &[u8]) -> Result<Vec<u8>, CryptoError> {
+pub fn seal(
+    profile: &str,
+    root: &[u8],
+    aad: &[u8],
+    plaintext: &[u8],
+) -> Result<Vec<u8>, CryptoError> {
     if plaintext.len() > MAX_PAYLOAD_BYTES {
         return Err(CryptoError::Boundary);
     }
@@ -343,7 +348,9 @@ mod tests {
         for profile in ["accelerated", "top-secret"] {
             let ciphertext = seal(profile, &root, aad, b"classified payload").expect("seal");
             assert_eq!(
-                open(profile, &root, aad, &ciphertext).expect("open").as_slice(),
+                open(profile, &root, aad, &ciphertext)
+                    .expect("open")
+                    .as_slice(),
                 b"classified payload"
             );
             let mut tampered = ciphertext;

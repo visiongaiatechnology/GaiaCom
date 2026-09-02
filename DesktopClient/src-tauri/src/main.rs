@@ -5,10 +5,10 @@
 use std::process::ExitCode;
 
 fn main() -> ExitCode {
-  if let Err(error) = gaiacom_lib::run() {
-    eprintln!("GaiaCom failed to start: {error}");
-    return ExitCode::FAILURE;
-  }
+    if let Err(error) = gaiacom_lib::run() {
+        eprintln!("GaiaCom failed to start: {error}");
+        return ExitCode::FAILURE;
+    }
 
-  ExitCode::SUCCESS
+    ExitCode::SUCCESS
 }

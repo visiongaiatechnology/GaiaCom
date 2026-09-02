@@ -11,7 +11,10 @@ fn native_client_preserves_the_hardened_runtime_contract() -> Result<(), serde_j
 
     assert_eq!(configuration["identifier"], "net.gaiacom.desktop");
     assert_eq!(configuration["build"]["devUrl"], "http://127.0.0.1:3000");
-    assert_eq!(configuration["app"]["windows"][0]["title"], "GaiaCom - AstraeaOS");
+    assert_eq!(
+        configuration["app"]["windows"][0]["title"],
+        "GaiaCom - AstraeaOS"
+    );
     assert_eq!(configuration["app"]["windows"][0]["minWidth"], 1024);
     assert_eq!(configuration["app"]["windows"][0]["minHeight"], 700);
     assert!(csp.is_some_and(|policy| policy.contains("default-src 'self'")));

@@ -10,7 +10,7 @@
 *.sqlite3
 uploads/
 data/
-storage/
+/storage/
 tmp/
 temp/
 cache/
@@ -26,6 +26,7 @@ Android/local.properties
 Android/.toolchains/
 Android/native/*.aar
 Android/native/*.aar.sha256
+Android/native/*.jar
 Backend/gaiacom-backend*
 Backend/backend.exe
 Frontend/frontend/build/
@@ -85,3 +86,5 @@ real-smtp-config.json
 /Frontend/frontend/src/utils/**/test_*.txt
 # Local Gradle state and alternate CI/test caches
 Android/.gradle*/
+Frontend/frontend/.hqc-smoke-dist/
+Frontend/frontend/.hqc-smoke-profile*/

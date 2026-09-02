@@ -22,7 +22,8 @@
   "scripts": {
     "start": "vite --host 127.0.0.1",
     "build": "vite build && node scripts/check-bundle-budget.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:hqc-browser": "vite build --config scripts/hqc-smoke.vite.config.mjs && node scripts/hqc-browser-smoke-runner.mjs"
   },
   "engines": {
     "node": ">=20.19.0"

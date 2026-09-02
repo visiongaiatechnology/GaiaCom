@@ -14,6 +14,14 @@ MAX_SOURCE_BYTES = 5 * 1024 * 1024
 TEXT_SCAN_BYTES = 1024 * 1024
 GRADLE_WRAPPER_PATH = "Android/gradle/wrapper/gradle-wrapper.jar"
 GRADLE_WRAPPER_SHA256 = "55243ef57851f12b070ad14f7f5bb8302daceeebc5bce5ece5fa6edb23e1145c"
+APPROVED_BINARY_SHA256 = {
+    "Frontend/frontend/src/sovereign/vendor/liboqs-hqc256/hqc-256.runtime.js": (
+        "702568b508256ca21f2177726602c5cf8be88c38335f74a670056647da04559c"
+    ),
+    "Frontend/frontend/src/sovereign/wasm/gaiacom_sovereign_wasm_bg.wasm": (
+        "29f40661b6b90325eb092697602b2fa12d2bf67e64cdaab9918c4fa8a1c35e19"
+    ),
+}
 
 FORBIDDEN_COMPONENTS = {
     ".cache",
@@ -77,6 +85,8 @@ def placeholder_secret(value: bytes) -> bool:
 def approved_binary_asset(path: str) -> bool:
     if path == GRADLE_WRAPPER_PATH:
         return True
+    if path in APPROVED_BINARY_SHA256:
+        return True
     lowered = path.lower()
     if not lowered.endswith((".png", ".webp", ".ico", ".icns")):
         return False
@@ -118,6 +128,10 @@ def inspect(path: str) -> list[str]:
         actual = hashlib.sha256(content).hexdigest()
         if actual != GRADLE_WRAPPER_SHA256:
             failures.append(f"Gradle wrapper checksum mismatch: {path}")
+    if path in APPROVED_BINARY_SHA256:
+        actual = hashlib.sha256(content).hexdigest()
+        if actual != APPROVED_BINARY_SHA256[path]:
+            failures.append(f"approved binary checksum mismatch: {path}")
     if b"\x00" in content:
         if not approved_binary_asset(path):
             failures.append(f"unapproved binary content is present: {path}")

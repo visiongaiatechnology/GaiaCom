@@ -42,8 +42,13 @@ pub fn sovereign_seal(
     let root = decode_exact(root_secret_hex, ROOT_SECRET_BYTES)?;
     let aad = decode_hex_bounded(aad_hex, MAX_AAD_BYTES)?;
     let plaintext = decode_hex_bounded(plaintext_hex, MAX_PAYLOAD_BYTES)?;
-    let mut ciphertext = seal(profile, root.as_slice(), aad.as_slice(), plaintext.as_slice())
-        .map_err(|_| rejected())?;
+    let mut ciphertext = seal(
+        profile,
+        root.as_slice(),
+        aad.as_slice(),
+        plaintext.as_slice(),
+    )
+    .map_err(|_| rejected())?;
     let encoded = hex::encode(&ciphertext);
     ciphertext.zeroize();
     Ok(encoded)
@@ -59,8 +64,13 @@ pub fn sovereign_open(
     let root = decode_exact(root_secret_hex, ROOT_SECRET_BYTES)?;
     let aad = decode_hex_bounded(aad_hex, MAX_AAD_BYTES)?;
     let ciphertext = decode_hex_bounded(ciphertext_hex, MAX_PAYLOAD_BYTES + 128)?;
-    let plaintext = open(profile, root.as_slice(), aad.as_slice(), ciphertext.as_slice())
-        .map_err(|_| rejected())?;
+    let plaintext = open(
+        profile,
+        root.as_slice(),
+        aad.as_slice(),
+        ciphertext.as_slice(),
+    )
+    .map_err(|_| rejected())?;
     Ok(hex::encode(plaintext.as_slice()))
 }
 
