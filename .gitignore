@@ -83,3 +83,5 @@ real-smtp-config.json
 /Frontend/frontend/src/refactor_*.py
 /Frontend/frontend/Textdokument (neu).txt
 /Frontend/frontend/src/utils/**/test_*.txt
+# Local Gradle state and alternate CI/test caches
+Android/.gradle*/
