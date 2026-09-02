@@ -11,6 +11,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://beta.gaiacom.de; media-src 'self' blob: https://beta.gaiacom.de; connect-src 'self' https://beta.gaiacom.de wss://beta.gaiacom.de; worker-src 'self' blob:; manifest-src 'self'; font-src 'self' data:" />
     <link rel="apple-touch-icon" href="/logo192.png" />
     <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="/startup.css" />
     <title>GaiaCom 2 — Secure Federated Messenger</title>
   </head>
   <body>
@@ -19,7 +20,15 @@
       <div class="light-orb orb-blue"></div>
     </div>
     <noscript>Sie müssen JavaScript aktivieren, um diese App auszuführen.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <main class="astraea-startup" role="status" aria-live="polite">
+        <div class="astraea-startup__mark"><img src="/astraeaos-logo.svg" alt="AstraeaOS" /></div>
+        <p class="astraea-startup__eyebrow">ASTRAEAOS // GAIA CELL</p>
+        <h1>GaiaCom wird geschützt gestartet</h1>
+        <p class="astraea-startup__copy">Lokale Schlüsselräume und Kommunikationsdienste werden initialisiert.</p>
+        <div class="astraea-startup__track" aria-hidden="true"><span class="astraea-startup__progress"></span></div>
+      </main>
+    </div>
 	<script type="module" src="/src/index.jsx"></script>
   </body>
 </html>
