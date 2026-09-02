@@ -81,6 +81,8 @@ func Setup(options SetupOptions) (SetupResult, error) {
 
 	values["GAIACOM_DEV_MODE"] = "false"
 	values["GAIACOM_SERVER_NAME"] = serverName
+	values["SERVER_BIND_ADDRESS"] = "127.0.0.1"
+	values["GAIACOM_ALLOW_PUBLIC_BIND"] = "false"
 	values["DB_DRIVER"] = "sqlite"
 	values["GAIACOM_COOKIE_SECURE"] = "true"
 	if strings.TrimSpace(values["DB_PATH"]) == "" {

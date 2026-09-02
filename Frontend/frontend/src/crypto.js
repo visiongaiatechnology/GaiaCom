@@ -1,7 +1,8 @@
 import * as bip39 from '@scure/bip39';
 import { wordlist } from '@scure/bip39/wordlists/english.js';
 import { ed25519, x25519 } from '@noble/curves/ed25519.js';
-import { shake256 } from '@noble/hashes/sha3.js';
+import { shake256, sha3_512 } from '@noble/hashes/sha3.js';
+import { hqc256Encapsulate, hqc256Decapsulate, sovereignSeal, sovereignOpen } from './sovereignCrypto.js';
 import { sha256 } from '@noble/hashes/sha2.js';
 import { hkdf } from '@noble/hashes/hkdf.js';
 import { ml_kem1024 } from '@noble/post-quantum/ml-kem.js';
@@ -9,7 +10,9 @@ import { ml_dsa87 } from '@noble/post-quantum/ml-dsa.js';
 
 const STANDARD_ALGORITHM_SUITE = 'GaiaCom/v0.1/hybrid-kem/X25519+ML-KEM-1024/AES-256-GCM';
 const TOP_SECRET_ALGORITHM_SUITE = 'GaiaCom/v0.2/top-secret/X25519+ML-KEM-1024/AES-256-GCM/Ed25519+ML-DSA-87';
-export const TOP_SECRET_CHAT_ALGORITHM_SUITE = TOP_SECRET_ALGORITHM_SUITE;
+const SOVEREIGN_ACCELERATED_SUITE = 'GaiaCom/v1.0/sovereign-accelerated/X25519+ML-KEM-1024+HQC-256/Twofish-256-EAX+AES-256-GCM/Ed25519';
+const SOVEREIGN_TOP_SECRET_SUITE = 'GaiaCom/v1.0/sovereign-top-secret/X25519+ML-KEM-1024+HQC-256/Serpent-256-CTR-HMAC-SHA3-512+Twofish-256-EAX+XChaCha20-Poly1305+AES-256-GCM-SIV/Ed25519+ML-DSA-87';
+export const TOP_SECRET_CHAT_ALGORITHM_SUITE = SOVEREIGN_TOP_SECRET_SUITE;
 
 // --- Utility Helpers ---
 
@@ -91,7 +94,9 @@ export function buildCanonicalAAD({
   const ephemBytes = typeof ephemeral_x25519_public_key === 'string' ? hexToBytes(ephemeral_x25519_public_key) : ephemeral_x25519_public_key;
   
   // Hash KEM ciphertext to 32 bytes to keep the AAD compact and fixed size
-  const kemHash = sha256(mlkem_ciphertext);
+  const kemHash = protocol_version === 'v1.0'
+    ? shake256(mlkem_ciphertext, { dkLen: 32 })
+    : sha256(mlkem_ciphertext);
   
   const deviceIdBytes = recipient_device_key_id ? encodeStringPrefixed(recipient_device_key_id) : new Uint8Array(0);
   const msgIdBytes = encodeStringPrefixed(message_id);
@@ -258,6 +263,40 @@ export function getMldsa87PublicKey(privateKeyHex) {
   return bytesToHex(ml_dsa87.getPublicKey(privateKeyBytes));
 }
 
+const SOVEREIGN_KEYSET_PROOF_VERSION = 'gaiacom-sovereign-keyset-v1';
+
+function sovereignKeysetTranscript(publicKeys) {
+  const fieldSizes = { identity: 32, box: 32, pke: 1568, mldsa87: 2592, hqc256: 7245 };
+  const fields = Object.keys(fieldSizes);
+  for (const field of fields) {
+    const value = publicKeys?.[field];
+    if (typeof value !== 'string' || value.length !== fieldSizes[field] * 2 || !/^[0-9a-f]+$/i.test(value)) {
+      throw new Error('Souveräner Keyset wurde verworfen.');
+    }
+  }
+  return [SOVEREIGN_KEYSET_PROOF_VERSION, ...fields.map(field => publicKeys[field].toLowerCase())].join('\n');
+}
+
+export function createSovereignKeysetProof(publicKeys, identityPrivateKeyHex) {
+  return {
+    version: SOVEREIGN_KEYSET_PROOF_VERSION,
+    ed25519: signGsnMessage(sovereignKeysetTranscript(publicKeys), identityPrivateKeyHex)
+  };
+}
+
+export function verifySovereignKeysetProof(publicRecord) {
+  const publicKeys = publicRecord?.public_keys;
+  const proof = publicRecord?.keyset_proof;
+  if (proof?.version !== SOVEREIGN_KEYSET_PROOF_VERSION || typeof proof?.ed25519 !== 'string') return false;
+  const identityPublic = hexToBytes(publicKeys?.identity || '');
+  const signature = hexToBytes(proof.ed25519);
+  if (identityPublic.length !== 32 || signature.length !== 64) return false;
+  try {
+    return ed25519.verify(signature, new TextEncoder().encode(sovereignKeysetTranscript(publicKeys)), identityPublic);
+  } catch (_) {
+    return false;
+  }
+}
 // --- Passphrase-Based Mnemonic Encryption (WebCrypto PBKDF2 + AES-GCM) ---
 
 async function deriveEncryptionKey(password, salt, iterations = 600000) {
@@ -512,7 +551,176 @@ export async function decryptDevicePairingPayload(encryptedPayload, pairing, pri
 
 // --- Hybrid E2E Encryption ---
 
+function combineSecretSet(secrets) {
+  const total = secrets.reduce((size, secret) => size + 4 + secret.length, 0);
+  const combined = new Uint8Array(total);
+  const view = new DataView(combined.buffer);
+  let offset = 0;
+  for (const secret of secrets) {
+    view.setUint32(offset, secret.length, false);
+    offset += 4;
+    combined.set(secret, offset);
+    offset += secret.length;
+  }
+  return combined;
+}
+
+function isSovereignSuite(suite) {
+  return suite === SOVEREIGN_ACCELERATED_SUITE || suite === SOVEREIGN_TOP_SECRET_SUITE;
+}
+
+async function encryptSovereignPayload(plaintext, recipientPubKeysHex, senderSignPrivHex, messageId, timestamp, options) {
+  const profile = options.sovereignProfile;
+  if (profile !== 'accelerated' && profile !== 'top-secret') throw new Error('Souveränes GaiaCom-Profil wurde verworfen.');
+  const topSecret = profile === 'top-secret';
+  const algorithmSuite = topSecret ? SOVEREIGN_TOP_SECRET_SUITE : SOVEREIGN_ACCELERATED_SUITE;
+  const candidateProof = recipientPubKeysHex.keyset_proof || createSovereignKeysetProof(recipientPubKeysHex, senderSignPrivHex);
+  if (!verifySovereignKeysetProof({ public_keys: recipientPubKeysHex, keyset_proof: candidateProof })) {
+    throw new Error('Souveräne Keyset-Signatur fehlt oder ist ungültig.');
+  }
+  const recipientPkeBytes = hexToBytes(recipientPubKeysHex.pke);
+  const recipientBoxBytes = hexToBytes(recipientPubKeysHex.box);
+  const recipientSignBytes = hexToBytes(recipientPubKeysHex.identity);
+  const recipientMldsaBytes = hexToBytes(recipientPubKeysHex.mldsa87 || '');
+  if (recipientPkeBytes.length !== 1568 || recipientBoxBytes.length !== 32 || recipientSignBytes.length !== 32) {
+    throw new Error('Souveräner Empfängerschlüsselsatz wurde verworfen.');
+  }
+  if (typeof recipientPubKeysHex.hqc256 !== 'string' || recipientPubKeysHex.hqc256.length < 1024) {
+    throw new Error('HQC-256 Capability des Empfängers fehlt; Downgrade wurde blockiert.');
+  }
+  if (topSecret && recipientMldsaBytes.length !== ml_dsa87.lengths.publicKey) {
+    throw new Error('Top Secret erfordert ML-DSA-87 Capability des Empfängers.');
+  }
+
+  const { cipherText: mlkemCiphertext, sharedSecret: mlkemSecret } = ml_kem1024.encapsulate(recipientPkeBytes);
+  const hqc = await hqc256Encapsulate(recipientPubKeysHex.hqc256);
+  const hqcCiphertext = hexToBytes(hqc.ciphertextHex);
+  const hqcSecret = hexToBytes(hqc.sharedSecretHex);
+  const ephemeralPrivate = window.crypto.getRandomValues(new Uint8Array(32));
+  const ephemeralPublic = x25519.getPublicKey(ephemeralPrivate);
+  const x25519Secret = x25519.getSharedSecret(ephemeralPrivate, recipientBoxBytes);
+  ephemeralPrivate.fill(0);
+
+  const kemTranscript = combineSecretSet([mlkemCiphertext, hqcCiphertext]);
+  const salt = combineSecretSet([ephemeralPublic, mlkemCiphertext, hqcCiphertext]);
+  const ikm = combineSecretSet([x25519Secret, mlkemSecret, hqcSecret]);
+  const rootSecret = hkdf(sha3_512, ikm, salt, new TextEncoder().encode(algorithmSuite), 32);
+  x25519Secret.fill(0);
+  mlkemSecret.fill(0);
+  hqcSecret.fill(0);
+  ikm.fill(0);
+
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+  const senderPrivate = hexToBytes(senderSignPrivHex);
+  const senderPublic = ed25519.getPublicKey(senderPrivate);
+  const clientMessageId = messageId || generateUUID();
+  const sentAt = timestamp || Date.now();
+  const recipientDeviceKeyId = String(options.recipientDeviceKeyId || '');
+  const aad = buildCanonicalAAD({
+    protocol_version: 'v1.0', algorithm_suite: algorithmSuite,
+    sender_identity_key: senderPublic, recipient_identity_key: recipientSignBytes,
+    recipient_device_key: recipientBoxBytes, recipient_device_key_id: recipientDeviceKeyId,
+    ephemeral_x25519_public_key: ephemeralPublic, mlkem_ciphertext: kemTranscript,
+    message_id: clientMessageId, timestamp: sentAt, iv
+  });
+  let payloadCiphertext;
+  try {
+    payloadCiphertext = hexToBytes(await sovereignSeal(profile, bytesToHex(rootSecret), bytesToHex(aad), bytesToHex(new TextEncoder().encode(String(plaintext)))));
+  } finally {
+    rootSecret.fill(0);
+  }
+
+  const signaturePayload = buildCanonicalSignaturePayload({
+    protocol_version: 'v1.0', algorithm_suite: algorithmSuite,
+    sender: senderPublic, recipient: recipientSignBytes, device_key: recipientBoxBytes,
+    recipient_device_key_id: recipientDeviceKeyId, ephemeral_key: ephemeralPublic,
+    mlkem_ciphertext_hash: shake256(kemTranscript, { dkLen: 32 }), message_id: clientMessageId,
+    timestamp: sentAt, iv, ciphertext_hash: shake256(payloadCiphertext, { dkLen: 32 })
+  });
+  const signature = ed25519.sign(signaturePayload, senderPrivate);
+  const signatureBundle = { ed25519: bytesToHex(signature) };
+  if (topSecret) {
+    const mldsaPrivate = hexToBytes(options.senderMldsa87PrivHex || '');
+    if (mldsaPrivate.length !== ml_dsa87.lengths.secretKey) throw new Error('Top Secret erfordert lokalen ML-DSA-87 Private Key.');
+    signatureBundle.ml_dsa_87 = bytesToHex(ml_dsa87.sign(signaturePayload, mldsaPrivate));
+    signatureBundle.ml_dsa_87_public = bytesToHex(ml_dsa87.getPublicKey(mldsaPrivate));
+    mldsaPrivate.fill(0);
+  }
+  senderPrivate.fill(0);
+
+  return {
+    algorithm_suite: algorithmSuite,
+    kem_ciphertext: bytesToHex(mlkemCiphertext), hqc_ciphertext: bytesToHex(hqcCiphertext),
+    ephemeral_pub: bytesToHex(ephemeralPublic), payload_ciphertext: bytesToHex(payloadCiphertext),
+    iv: bytesToHex(iv), signature: bytesToHex(signature), signature_bundle: signatureBundle,
+    sender_mldsa87_public: signatureBundle.ml_dsa_87_public || '', client_message_id: clientMessageId,
+    timestamp: sentAt, recipient_device_key_id: recipientDeviceKeyId,
+    recipient_device_box_public: bytesToHex(recipientBoxBytes), sovereign_profile: profile
+  };
+}
+
+async function decryptSovereignPayload(envelope, senderSignPubHex, recipientPubKeysHex, recipientPrivKeysHex, options) {
+  const algorithmSuite = envelope.algorithm_suite;
+  const topSecret = algorithmSuite === SOVEREIGN_TOP_SECRET_SUITE;
+  const profile = topSecret ? 'top-secret' : 'accelerated';
+  if (!isSovereignSuite(algorithmSuite) || envelope.sovereign_profile !== profile) throw new Error('Souveräne Suite-Bindung wurde verworfen.');
+  const mlkemCiphertext = hexToBytes(envelope.kem_ciphertext);
+  const hqcCiphertext = hexToBytes(envelope.hqc_ciphertext);
+  const ephemeralPublic = hexToBytes(envelope.ephemeral_pub);
+  const payloadCiphertext = hexToBytes(envelope.payload_ciphertext);
+  const iv = hexToBytes(envelope.iv);
+  const senderPublic = hexToBytes(senderSignPubHex);
+  const recipientPke = hexToBytes(recipientPubKeysHex.pke);
+  const recipientBox = hexToBytes(recipientPubKeysHex.box);
+  const recipientIdentity = hexToBytes(recipientPubKeysHex.identity);
+  if (mlkemCiphertext.length !== 1568 || ephemeralPublic.length !== 32 || iv.length !== 12 || senderPublic.length !== 32 || recipientPke.length !== 1568 || recipientBox.length !== 32 || recipientIdentity.length !== 32) {
+    throw new Error('Souveräne Nachrichtengrenzen wurden verletzt.');
+  }
+  if (!envelope.client_message_id || !envelope.timestamp || !recipientPrivKeysHex.hqc256) throw new Error('Souveräne Nachricht oder HQC-256 Key fehlt.');
+
+  const kemTranscript = combineSecretSet([mlkemCiphertext, hqcCiphertext]);
+  const recipientDeviceKeyId = String(envelope.recipient_device_key_id || '');
+  const aad = buildCanonicalAAD({
+    protocol_version: 'v1.0', algorithm_suite: algorithmSuite,
+    sender_identity_key: senderPublic, recipient_identity_key: recipientIdentity,
+    recipient_device_key: recipientBox, recipient_device_key_id: recipientDeviceKeyId,
+    ephemeral_x25519_public_key: ephemeralPublic, mlkem_ciphertext: kemTranscript,
+    message_id: envelope.client_message_id, timestamp: envelope.timestamp, iv
+  });
+  const signaturePayload = buildCanonicalSignaturePayload({
+    protocol_version: 'v1.0', algorithm_suite: algorithmSuite,
+    sender: senderPublic, recipient: recipientIdentity, device_key: recipientBox,
+    recipient_device_key_id: recipientDeviceKeyId, ephemeral_key: ephemeralPublic,
+    mlkem_ciphertext_hash: shake256(kemTranscript, { dkLen: 32 }), message_id: envelope.client_message_id,
+    timestamp: envelope.timestamp, iv, ciphertext_hash: shake256(payloadCiphertext, { dkLen: 32 })
+  });
+  if (!ed25519.verify(hexToBytes(envelope.signature), signaturePayload, senderPublic)) throw new Error('Souveräne Nachrichtensignatur wurde verworfen.');
+  if (topSecret) {
+    const publicKey = hexToBytes(envelope.signature_bundle?.ml_dsa_87_public || '');
+    const expected = hexToBytes(options?.expectedSenderMldsa87PubHex || '');
+    const signature = hexToBytes(envelope.signature_bundle?.ml_dsa_87 || '');
+    if (publicKey.length !== ml_dsa87.lengths.publicKey || expected.length !== ml_dsa87.lengths.publicKey || bytesToHex(publicKey) !== bytesToHex(expected) || !ml_dsa87.verify(signature, signaturePayload, publicKey)) {
+      throw new Error('Top-Secret-Hybridsignatur wurde verworfen.');
+    }
+  }
+
+  const mlkemSecret = ml_kem1024.decapsulate(mlkemCiphertext, hexToBytes(recipientPrivKeysHex.pke));
+  const hqcSecret = hexToBytes(await hqc256Decapsulate(envelope.hqc_ciphertext, recipientPrivKeysHex.hqc256));
+  const x25519Secret = x25519.getSharedSecret(hexToBytes(recipientPrivKeysHex.box), ephemeralPublic);
+  const salt = combineSecretSet([ephemeralPublic, mlkemCiphertext, hqcCiphertext]);
+  const ikm = combineSecretSet([x25519Secret, mlkemSecret, hqcSecret]);
+  const rootSecret = hkdf(sha3_512, ikm, salt, new TextEncoder().encode(algorithmSuite), 32);
+  x25519Secret.fill(0); mlkemSecret.fill(0); hqcSecret.fill(0); ikm.fill(0);
+  let plaintextHex;
+  try {
+    plaintextHex = await sovereignOpen(profile, bytesToHex(rootSecret), bytesToHex(aad), envelope.payload_ciphertext);
+  } finally {
+    rootSecret.fill(0);
+  }
+  return new TextDecoder().decode(hexToBytes(plaintextHex));
+}
 export async function encryptPayload(plaintext, recipientPubKeysHex, senderSignPrivHex, messageId, timestamp, options = {}) {
+  if (options?.sovereignProfile) return encryptSovereignPayload(plaintext, recipientPubKeysHex, senderSignPrivHex, messageId, timestamp, options);
   const topSecret = options?.topSecret === true;
   const recipientDeviceKeyId = String(options?.recipientDeviceKeyId || '');
   const algorithmSuite = topSecret ? TOP_SECRET_ALGORITHM_SUITE : STANDARD_ALGORITHM_SUITE;
@@ -643,6 +851,7 @@ export async function encryptPayload(plaintext, recipientPubKeysHex, senderSignP
 
 export async function decryptPayload(envelope, senderSignPubHex, recipientPubKeysHex, recipientPrivKeysHex, options = {}) {
   const algorithmSuite = envelope.algorithm_suite || STANDARD_ALGORITHM_SUITE;
+  if (isSovereignSuite(algorithmSuite)) return decryptSovereignPayload(envelope, senderSignPubHex, recipientPubKeysHex, recipientPrivKeysHex, options);
   const topSecret = algorithmSuite === TOP_SECRET_ALGORITHM_SUITE;
   const kemCiphertextBytes = hexToBytes(envelope.kem_ciphertext);
   const ephemeralPubBytes = hexToBytes(envelope.ephemeral_pub);

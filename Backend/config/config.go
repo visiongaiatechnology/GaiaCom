@@ -5,6 +5,7 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"errors"
+	"net"
 	"os"
 	"sort"
 	"strconv"
@@ -12,15 +13,16 @@ import (
 )
 
 type Config struct {
-	ServerPort   string
-	DBDriver     string // "postgres" oder "sqlite"
-	DBHost       string
-	DBUser       string
-	DBPassword   string
-	DBName       string
-	DBPort       string
-	DatabasePath string
-	MetricsToken string
+	ServerBindAddress string
+	ServerPort        string
+	DBDriver          string // "postgres" oder "sqlite"
+	DBHost            string
+	DBUser            string
+	DBPassword        string
+	DBName            string
+	DBPort            string
+	DatabasePath      string
+	MetricsToken      string
 }
 
 func LoadConfig() (*Config, error) {
@@ -32,15 +34,16 @@ func LoadConfig() (*Config, error) {
 	metricsToken := getEnv("GAIACOM_METRICS_TOKEN", "")
 
 	return &Config{
-		ServerPort:   getEnv("SERVER_PORT", "8080"),
-		DBDriver:     dbDriver,
-		DBHost:       getEnv("DB_HOST", "localhost"),
-		DBUser:       getEnv("DB_USER", "postgres"),
-		DBPassword:   dbPassword,
-		DBName:       getEnv("DB_NAME", "gaiacom"),
-		DBPort:       getEnv("DB_PORT", "5432"),
-		DatabasePath: getEnv("DB_PATH", "gaiacom.db"),
-		MetricsToken: metricsToken,
+		ServerBindAddress: getEnv("SERVER_BIND_ADDRESS", "127.0.0.1"),
+		ServerPort:        getEnv("SERVER_PORT", "8080"),
+		DBDriver:          dbDriver,
+		DBHost:            getEnv("DB_HOST", "localhost"),
+		DBUser:            getEnv("DB_USER", "postgres"),
+		DBPassword:        dbPassword,
+		DBName:            getEnv("DB_NAME", "gaiacom"),
+		DBPort:            getEnv("DB_PORT", "5432"),
+		DatabasePath:      getEnv("DB_PATH", "gaiacom.db"),
+		MetricsToken:      metricsToken,
 	}, nil
 }
 
@@ -95,6 +98,13 @@ func ValidateProductionEnvironment(lookup func(string) (string, bool)) error {
 	trustSecret, err := hex.DecodeString(environmentValue(lookup, "GAIACOM_TRUSTMESH_EPOCH_SECRET"))
 	if err != nil || len(trustSecret) != 32 {
 		problems = append(problems, "GAIACOM_TRUSTMESH_EPOCH_SECRET must encode exactly 32 bytes")
+	}
+	serverBindAddress := normalizedEnvironmentValue(lookup, "SERVER_BIND_ADDRESS", "127.0.0.1")
+	bindIP := net.ParseIP(serverBindAddress)
+	if bindIP == nil || bindIP.IsMulticast() {
+		problems = append(problems, "SERVER_BIND_ADDRESS must be a unicast IP literal")
+	} else if bindIP.IsUnspecified() && !environmentBoolean(lookup, "GAIACOM_ALLOW_PUBLIC_BIND") {
+		problems = append(problems, "unspecified SERVER_BIND_ADDRESS requires GAIACOM_ALLOW_PUBLIC_BIND=true")
 	}
 	serverPort := normalizedEnvironmentValue(lookup, "SERVER_PORT", "8080")
 	port, err := strconv.Atoi(serverPort)

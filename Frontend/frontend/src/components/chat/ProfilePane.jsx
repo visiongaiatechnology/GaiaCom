@@ -197,6 +197,7 @@ export const ProfilePane = ({
       const encryptedPayload = await crypto.encryptDevicePairingPayload({
         mnemonic,
         identityId: activeIdentity.ID,
+        sovereignKeys: derivedKeys.hqc256 || null,
         issuedAt: new Date().toISOString()
       }, pairing);
       const transcript = crypto.buildDevicePairingApprovalPayload(pairing, encryptedPayload);
@@ -242,7 +243,7 @@ export const ProfilePane = ({
       );
       const pairing = started?.pairing;
       if (!pairing?.id || !started?.secret) throw new Error('Rotation konnte nicht initialisiert werden.');
-      const encryptedPayload = await crypto.encryptDevicePairingPayload({ mnemonic, identityId: activeIdentity.ID, issuedAt: new Date().toISOString(), replacesDeviceKeyId: deviceKeyVault?.deviceKeyId || '' }, pairing);
+      const encryptedPayload = await crypto.encryptDevicePairingPayload({ mnemonic, identityId: activeIdentity.ID, sovereignKeys: derivedKeys.hqc256 || null, issuedAt: new Date().toISOString(), replacesDeviceKeyId: deviceKeyVault?.deviceKeyId || '' }, pairing);
       const signature = crypto.signGsnMessage(crypto.buildDevicePairingApprovalPayload(pairing, encryptedPayload), derivedKeys.sign.private);
       const deviceApproval = crypto.signDevicePairingApproval(pairing, encryptedPayload, deviceKeyVault);
       await api.approveDevicePairing(pairing.id, started.secret, encryptedPayload, signature, deviceApproval.approverDeviceKeyId, deviceApproval.deviceSignature);

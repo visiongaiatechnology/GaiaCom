@@ -115,7 +115,7 @@ func (s *MessagingService) SaveAndDistributeMessage(ctx context.Context, userID 
 					return uuid.Nil, errors.New("room is read-only for members")
 				}
 				if room.TopSecret {
-					if meta.AlgorithmSuite != "GaiaCom/v0.2/top-secret/X25519+ML-KEM-1024/AES-256-GCM/Ed25519+ML-DSA-87" {
+					if meta.AlgorithmSuite != "GaiaCom/v1.0/sovereign-top-secret/X25519+ML-KEM-1024+HQC-256/Serpent-256-CTR-HMAC-SHA3-512+Twofish-256-EAX+XChaCha20-Poly1305+AES-256-GCM-SIV/Ed25519+ML-DSA-87" {
 						return uuid.Nil, errors.New("top secret room requires top secret algorithm suite")
 					}
 					if meta.SignatureBundle.MLDSA87 == "" || meta.SignatureBundle.MLDSA87Public == "" {

@@ -442,8 +442,8 @@ export default function useChat({
             };
 
             const plaintext = JSON.stringify(chatContent);
-            const encryptedEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: res.id, recipientPublicKeys: pubRecord.public_keys, senderSignPrivate: derivedKeys.sign.private, topSecret: activeDirectTopSecret, senderMldsa87Private: derivedKeys.mldsa87?.private, senderDeviceVault: deviceKeyVault });
-            const selfEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: activeIdentity.ID, recipientPublicKeys: { pke: derivedKeys.pke.public, box: derivedKeys.box.public, identity: derivedKeys.sign.public, mldsa87: derivedKeys.mldsa87?.public }, senderSignPrivate: derivedKeys.sign.private, topSecret: activeDirectTopSecret, senderMldsa87Private: derivedKeys.mldsa87?.private, senderDeviceVault: deviceKeyVault });
+            const encryptedEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: res.id, recipientPublicKeys: { ...pubRecord.public_keys, keyset_proof: pubRecord.keyset_proof }, senderSignPrivate: derivedKeys.sign.private, topSecret: activeDirectTopSecret, senderMldsa87Private: derivedKeys.mldsa87?.private, senderDeviceVault: deviceKeyVault });
+            const selfEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: activeIdentity.ID, recipientPublicKeys: { pke: derivedKeys.pke.public, box: derivedKeys.box.public, hqc256: derivedKeys.hqc256?.public, identity: derivedKeys.sign.public, mldsa87: derivedKeys.mldsa87?.public }, senderSignPrivate: derivedKeys.sign.private, topSecret: activeDirectTopSecret, senderMldsa87Private: derivedKeys.mldsa87?.private, senderDeviceVault: deviceKeyVault });
             selfEnvelopes.forEach(envelope => { envelope.recipient_gaia = recipientGaiaFormat; });
 
             if (hasAttachments) {
@@ -517,24 +517,26 @@ export default function useChat({
 
               const peerEnvelope = await crypto.encryptPayload(
                 JSON.stringify(editedContent),
-                { pke: pubRecord.public_keys.pke, box: pubRecord.public_keys.box, identity: pubRecord.public_keys.identity, mldsa87: pubRecord.public_keys.mldsa87 },
+                { pke: pubRecord.public_keys.pke, box: pubRecord.public_keys.box, hqc256: pubRecord.public_keys.hqc256, identity: pubRecord.public_keys.identity, mldsa87: pubRecord.public_keys.mldsa87, keyset_proof: pubRecord.keyset_proof },
                 derivedKeys.sign.private,
                 message.clientMessageId,
                 editTimestamp,
                 {
                   topSecret: editTopSecret,
+                  sovereignProfile: editTopSecret ? 'top-secret' : 'accelerated',
                   senderMldsa87PrivHex: derivedKeys.mldsa87?.private
                 }
               );
 
               const selfEnvelope = await crypto.encryptPayload(
                 JSON.stringify(editedContent),
-                { pke: derivedKeys.pke.public, box: derivedKeys.box.public, identity: derivedKeys.sign.public, mldsa87: derivedKeys.mldsa87?.public },
+                { pke: derivedKeys.pke.public, box: derivedKeys.box.public, hqc256: derivedKeys.hqc256?.public, identity: derivedKeys.sign.public, mldsa87: derivedKeys.mldsa87?.public },
                 derivedKeys.sign.private,
                 message.clientMessageId,
                 editTimestamp,
                 {
                   topSecret: editTopSecret,
+                  sovereignProfile: editTopSecret ? 'top-secret' : 'accelerated',
                   senderMldsa87PrivHex: derivedKeys.mldsa87?.private
                 }
               );
@@ -598,7 +600,8 @@ export default function useChat({
               pke: derivedKeys.pke.public,
               box: derivedKeys.box.public,
               identity: derivedKeys.sign.public,
-              mldsa87: derivedKeys.mldsa87?.public || ''
+              mldsa87: derivedKeys.mldsa87?.public || '',
+              hqc256: derivedKeys.hqc256?.public || ''
             }
           };
           m.Identity = m.Identity || {
@@ -651,7 +654,7 @@ export default function useChat({
           const sendPromises = memberObjects.map(async (m, index) => {
             try {
               const pubRecord = pubRecords[index];
-              const envelopes = await encryptForRecipientDevices({ plaintext: JSON.stringify(emailContent), recipientIdentityId: m.IdentityID, recipientPublicKeys: pubRecord.public_keys, senderSignPrivate: derivedKeys.sign.private, topSecret: activeRoom.TopSecret || activeRoom.topSecret || false, senderMldsa87Private: derivedKeys.mldsa87?.private, senderDeviceVault: deviceKeyVault });
+              const envelopes = await encryptForRecipientDevices({ plaintext: JSON.stringify(emailContent), recipientIdentityId: m.IdentityID, recipientPublicKeys: { ...pubRecord.public_keys, keyset_proof: pubRecord.keyset_proof }, senderSignPrivate: derivedKeys.sign.private, topSecret: activeRoom.TopSecret || activeRoom.topSecret || false, senderMldsa87Private: derivedKeys.mldsa87?.private, senderDeviceVault: deviceKeyVault });
               envelopes.forEach(envelope => { envelope.room_id = activeRoom.ID; envelope.channel_id = activeChannel.id; });
               await deliverDeviceEnvelopes(activeIdentity.ID, m.IdentityID, envelopes);
             } catch (err) {

@@ -134,7 +134,7 @@ export const DashboardPane = ({
             {activeIdentity ? (activeIdentity.DisplayName || activeIdentity.displayName) : (t('no_id') || 'Keine ID')}
           </div>
           <div className="dashboard-card-footer-pill verified">
-            <span>{'\u{1F512}'} ML-KEM VERIFIED</span>
+            <span>{'\u{1F512}'} HQC-256 + ML-KEM-1024 VERIFIED</span>
           </div>
         </div>
 

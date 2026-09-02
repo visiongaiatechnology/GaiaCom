@@ -246,7 +246,7 @@ export default function GroupSettingsModal({
                       style={{ width: 'auto', margin: 0, cursor: (activeRoom?.TopSecret || activeRoom?.topSecret) ? 'not-allowed' : 'pointer' }}
                     />
                     <label htmlFor="settingsTopSecret" style={{ margin: 0, fontSize: '0.8rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
-                      Top Secret Mode aktivieren (Ed25519 + ML-DSA-87, downgrade-geschuetzt)
+                      Top Secret aktivieren (Dual-PQC, Hybrid-Signatur, 4-fache Cipher-Kaskade, downgrade-geschuetzt)
                     </label>
                   </div>
 

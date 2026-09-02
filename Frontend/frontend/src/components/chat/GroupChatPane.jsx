@@ -906,7 +906,7 @@ export const GroupChatPane = ({
                         </div>
                       )}
                       <ReplyContext replyTo={message.replyTo} t={t} />
-                      {message.topSecret && <div className="top-secret-badge">PQ Signature Active · ML-DSA-87</div>}
+                      {message.topSecret && <div className="top-secret-badge">TOP SECRET · HQC-256 + ML-KEM-1024 · ML-DSA-87 · 4x AE</div>}
                       <div>{renderMarkdown(message.body, { mentionHandles: ownMentionHandles })}</div>
                       <MessageReactionStrip meta={meta} />
                       <div className="chat-bubble-meta">

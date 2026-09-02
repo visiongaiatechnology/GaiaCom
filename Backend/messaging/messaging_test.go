@@ -398,12 +398,12 @@ func TestMessagingServiceTopSecretRoomRequiresSignatureSuite(t *testing.T) {
 		t.Fatalf("top secret room accepted normal algorithm suite")
 	}
 
-	missingMLDSA := []byte(`{"client_message_id":"` + uuid.New().String() + `","room_id":"` + roomID.String() + `","channel_id":"` + channelID.String() + `","algorithm_suite":"GaiaCom/v0.2/top-secret/X25519+ML-KEM-1024/AES-256-GCM/Ed25519+ML-DSA-87","signature":"ed","signature_bundle":{"ed25519":"ed"}}`)
+	missingMLDSA := []byte(`{"client_message_id":"` + uuid.New().String() + `","room_id":"` + roomID.String() + `","channel_id":"` + channelID.String() + `","algorithm_suite":"GaiaCom/v1.0/sovereign-top-secret/X25519+ML-KEM-1024+HQC-256/Serpent-256-CTR-HMAC-SHA3-512+Twofish-256-EAX+XChaCha20-Poly1305+AES-256-GCM-SIV/Ed25519+ML-DSA-87","signature":"ed","signature_bundle":{"ed25519":"ed"}}`)
 	if _, err := svc.SaveAndDistributeMessage(ctx, user1.ID, ident1.ID, missingMLDSA, []uuid.UUID{ident2.ID}); err == nil {
 		t.Fatalf("top secret room accepted missing ML-DSA-87 bundle")
 	}
 
-	validBundle := []byte(`{"client_message_id":"` + uuid.New().String() + `","room_id":"` + roomID.String() + `","channel_id":"` + channelID.String() + `","algorithm_suite":"GaiaCom/v0.2/top-secret/X25519+ML-KEM-1024/AES-256-GCM/Ed25519+ML-DSA-87","signature":"ed","signature_bundle":{"ed25519":"ed","ml_dsa_87":"pq-sig","ml_dsa_87_public":"pq-pub"}}`)
+	validBundle := []byte(`{"client_message_id":"` + uuid.New().String() + `","room_id":"` + roomID.String() + `","channel_id":"` + channelID.String() + `","algorithm_suite":"GaiaCom/v1.0/sovereign-top-secret/X25519+ML-KEM-1024+HQC-256/Serpent-256-CTR-HMAC-SHA3-512+Twofish-256-EAX+XChaCha20-Poly1305+AES-256-GCM-SIV/Ed25519+ML-DSA-87","signature":"ed","signature_bundle":{"ed25519":"ed","ml_dsa_87":"pq-sig","ml_dsa_87_public":"pq-pub"}}`)
 	if _, err := svc.SaveAndDistributeMessage(ctx, user1.ID, ident1.ID, validBundle, []uuid.UUID{ident2.ID}); err != nil {
 		t.Fatalf("top secret room rejected complete signature bundle: %v", err)
 	}

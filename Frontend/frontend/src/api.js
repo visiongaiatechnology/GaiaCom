@@ -23,7 +23,7 @@ const getBaseUrl = () => {
   const configuredOrigin = configuredApiOrigin();
   if (typeof window !== 'undefined') {
     if (isDesktopRuntime()) {
-      return configuredOrigin || DESKTOP_API_ORIGIN;
+      return DESKTOP_API_ORIGIN;
     }
     return configuredOrigin;
   }

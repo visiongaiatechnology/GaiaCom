@@ -1108,8 +1108,8 @@ export const ChatPane = ({
               <span>{activeDirectTopSecret ? 'Top Secret Chat deaktivieren' : 'Top Secret Chat aktivieren'}</span>
               <small style={{ color: activeDirectTopSecret ? '#ff5bb0' : 'var(--text-secondary)', lineHeight: 1.3 }}>
                 {activeDirectTopSecret
-                  ? 'PQ Signature Active: Ed25519 + ML-DSA-87'
-                  : (peerTopSecretHint ? 'Empfaenger-Capability erkannt.' : 'ML-DSA-87 Capability wird beim Senden geprueft.')}
+                  ? 'Dual-PQC + hybride Signatur + 4-fache Cipher-Kaskade aktiv'
+                  : (peerTopSecretHint ? 'Dual-PQC-Capability erkannt.' : 'HQC-256, ML-KEM-1024 und ML-DSA-87 werden beim Senden geprueft.')}
               </small>
             </button>
             <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '4px 0' }} />
@@ -1206,7 +1206,7 @@ export const ChatPane = ({
                 style={{ paddingBottom: '16px' }}
               >
                 <ReplyContext replyTo={msg.replyTo} t={t} />
-                {msg.topSecret && <div className="top-secret-badge">PQ Signature Active · ML-DSA-87</div>}
+                {msg.topSecret && <div className="top-secret-badge">TOP SECRET · HQC-256 + ML-KEM-1024 · ML-DSA-87 · 4x AE</div>}
 
                 {isEditing ? (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '6px' }}>

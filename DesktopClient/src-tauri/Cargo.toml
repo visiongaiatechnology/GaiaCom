@@ -5,7 +5,7 @@ description = "GaiaCom secure federated communications client for AstraeaOS"
 authors = ["VisionGaiaTechnology"]
 license = "AGPL-3.0-only"
 edition = "2021"
-rust-version = "1.77.2"
+rust-version = "1.85"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -17,6 +17,11 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2.6.3", features = [] }
 
 [dependencies]
+gaiacom-sovereign-core = { path = "../../SovereignCryptoCore" }
+hex = "0.4.3"
+pqcrypto-hqc = "0.2.2"
+pqcrypto-traits = "0.3.5"
+zeroize = "1.8.2"
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "2.11.3", features = [] }

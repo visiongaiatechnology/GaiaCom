@@ -2,6 +2,7 @@ package security
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -23,10 +24,17 @@ type plainEnvelope struct {
 	} `json:"signature_bundle"`
 	Payload           string `json:"payload"`
 	PayloadCiphertext string `json:"payload_ciphertext"`
+	HQCCiphertext     string `json:"hqc_ciphertext"`
+	SovereignProfile  string `json:"sovereign_profile"`
 	RoomID            string `json:"room_id"`
 }
 
-const topSecretAlgorithmSuite = "GaiaCom/v0.2/top-secret/X25519+ML-KEM-1024/AES-256-GCM/Ed25519+ML-DSA-87"
+const (
+	legacyStandardAlgorithmSuite       = "GaiaCom/v0.1/hybrid-kem/X25519+ML-KEM-1024/AES-256-GCM"
+	legacyTopSecretAlgorithmSuite      = "GaiaCom/v0.2/top-secret/X25519+ML-KEM-1024/AES-256-GCM/Ed25519+ML-DSA-87"
+	sovereignAcceleratedAlgorithmSuite = "GaiaCom/v1.0/sovereign-accelerated/X25519+ML-KEM-1024+HQC-256/Twofish-256-EAX+AES-256-GCM/Ed25519"
+	sovereignTopSecretAlgorithmSuite   = "GaiaCom/v1.0/sovereign-top-secret/X25519+ML-KEM-1024+HQC-256/Serpent-256-CTR-HMAC-SHA3-512+Twofish-256-EAX+XChaCha20-Poly1305+AES-256-GCM-SIV/Ed25519+ML-DSA-87"
+)
 
 func (s *SecuritySystem) CheckMessageEnvelope(ctx context.Context, senderID uuid.UUID, envelopeData []byte, r *http.Request) error {
 	if len(envelopeData) > 30*1024*1024 {
@@ -108,7 +116,20 @@ func (s *SecuritySystem) CheckMessageEnvelope(ctx context.Context, senderID uuid
 			"Kryptografische Signatur fehlt im Nachrichten-Umschlag.", "reject", r)
 		return errors.New("invalid envelope: signature required")
 	}
-	if env.AlgorithmSuite == topSecretAlgorithmSuite {
+	switch env.AlgorithmSuite {
+	case legacyStandardAlgorithmSuite, legacyTopSecretAlgorithmSuite, sovereignAcceleratedAlgorithmSuite, sovereignTopSecretAlgorithmSuite:
+	default:
+		return errors.New("unsupported message algorithm suite")
+	}
+	if env.AlgorithmSuite == sovereignAcceleratedAlgorithmSuite || env.AlgorithmSuite == sovereignTopSecretAlgorithmSuite {
+		profileMatchesSuite := (env.AlgorithmSuite == sovereignAcceleratedAlgorithmSuite && env.SovereignProfile == "accelerated") ||
+			(env.AlgorithmSuite == sovereignTopSecretAlgorithmSuite && env.SovereignProfile == "top-secret")
+		hqcCiphertext, decodeErr := hex.DecodeString(env.HQCCiphertext)
+		if !profileMatchesSuite || decodeErr != nil || len(hqcCiphertext) != 14421 {
+			return errors.New("invalid sovereign envelope")
+		}
+	}
+	if env.AlgorithmSuite == legacyTopSecretAlgorithmSuite || env.AlgorithmSuite == sovereignTopSecretAlgorithmSuite {
 		if env.SignatureBundle.MLDSA87 == "" || env.SignatureBundle.MLDSA87Public == "" {
 			s.RecordSecurityEvent(ctx, nil, &senderID, "message_tamper", "critical", "message_guard",
 				"Top Secret Umschlag ohne ML-DSA-87 Signatur-Bundle.", "reject", r)

@@ -74,6 +74,62 @@ const (
 	mldsa87SignatureHexLen  = 4627 * 2
 )
 
+type sovereignKeysetRecord struct {
+	PublicKeys struct {
+		Identity string `json:"identity"`
+		Box      string `json:"box"`
+		PKE      string `json:"pke"`
+		MLDSA87  string `json:"mldsa87"`
+		HQC256   string `json:"hqc256"`
+	} `json:"public_keys"`
+	Proof struct {
+		Version string `json:"version"`
+		Ed25519 string `json:"ed25519"`
+	} `json:"keyset_proof"`
+}
+
+func decodeExactHex(value string, size int) ([]byte, bool) {
+	if len(value) != size*2 {
+		return nil, false
+	}
+	decoded, err := hex.DecodeString(value)
+	return decoded, err == nil && len(decoded) == size
+}
+
+func validateSovereignKeyset(value map[string]interface{}) error {
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	var record sovereignKeysetRecord
+	if err := json.Unmarshal(encoded, &record); err != nil {
+		return err
+	}
+	if record.PublicKeys.HQC256 == "" {
+		return nil
+	}
+	identityKey, identityOK := decodeExactHex(record.PublicKeys.Identity, ed25519.PublicKeySize)
+	_, boxOK := decodeExactHex(record.PublicKeys.Box, 32)
+	_, pkeOK := decodeExactHex(record.PublicKeys.PKE, 1568)
+	_, mldsaOK := decodeExactHex(record.PublicKeys.MLDSA87, 2592)
+	_, hqcOK := decodeExactHex(record.PublicKeys.HQC256, 7245)
+	signature, signatureOK := decodeExactHex(record.Proof.Ed25519, ed25519.SignatureSize)
+	if record.Proof.Version != "gaiacom-sovereign-keyset-v1" || !identityOK || !boxOK || !pkeOK || !mldsaOK || !hqcOK || !signatureOK {
+		return errors.New("invalid sovereign keyset proof")
+	}
+	transcript := strings.Join([]string{
+		record.Proof.Version,
+		strings.ToLower(record.PublicKeys.Identity),
+		strings.ToLower(record.PublicKeys.Box),
+		strings.ToLower(record.PublicKeys.PKE),
+		strings.ToLower(record.PublicKeys.MLDSA87),
+		strings.ToLower(record.PublicKeys.HQC256),
+	}, "\n")
+	if !ed25519.Verify(ed25519.PublicKey(identityKey), []byte(transcript), signature) {
+		return errors.New("invalid sovereign keyset signature")
+	}
+	return nil
+}
 func NewIdentityService(store repository.IdentityStore) *Service {
 	return &Service{Store: store}
 }
@@ -87,6 +143,9 @@ func (s *Service) CreateIdentity(userID uuid.UUID, input CreateIdentityInput) (*
 	}
 	if len(input.PublicRecord) == 0 {
 		return nil, errors.New("publicRecord is required")
+	}
+	if err := validateSovereignKeyset(input.PublicRecord); err != nil {
+		return nil, errors.New("sovereign keyset rejected")
 	}
 
 	// Enforce limit of maximum 2 identities per user

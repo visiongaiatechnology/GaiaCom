@@ -29,7 +29,7 @@ import (
 	"gaiacom/backend/utils"
 )
 
-const federationTopSecretAlgorithmSuite = "GaiaCom/v0.2/top-secret/X25519+ML-KEM-1024/AES-256-GCM/Ed25519+ML-DSA-87"
+const federationTopSecretAlgorithmSuite = "GaiaCom/v1.0/sovereign-top-secret/X25519+ML-KEM-1024+HQC-256/Serpent-256-CTR-HMAC-SHA3-512+Twofish-256-EAX+XChaCha20-Poly1305+AES-256-GCM-SIV/Ed25519+ML-DSA-87"
 
 type Service struct {
 	store          repository.FederationStore

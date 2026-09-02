@@ -116,7 +116,7 @@ func run() error {
 		return fmt.Errorf("initialize HTTP routes: %w", err)
 	}
 
-	address := "0.0.0.0:" + cfg.ServerPort
+	address := net.JoinHostPort(cfg.ServerBindAddress, cfg.ServerPort)
 	server := &http.Server{
 		Addr:              address,
 		Handler:           handler,

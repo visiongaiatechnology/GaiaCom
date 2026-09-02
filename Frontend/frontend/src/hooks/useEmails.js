@@ -394,11 +394,11 @@ export default function useEmails({
               
               if (senderPubKeys?.identity) {
                 const recipientPublicKeys = targetDeviceKeyId
-                  ? { pke: deviceKeyVault.publicKeys.pke, box: deviceKeyVault.publicKeys.box, identity: derivedKeys.sign.public }
-                  : { pke: derivedKeys.pke.public, box: derivedKeys.box.public, identity: derivedKeys.sign.public };
+                  ? { pke: deviceKeyVault.publicKeys.pke, box: deviceKeyVault.publicKeys.box, hqc256: derivedKeys.hqc256?.public, identity: derivedKeys.sign.public }
+                  : { pke: derivedKeys.pke.public, box: derivedKeys.box.public, hqc256: derivedKeys.hqc256?.public, identity: derivedKeys.sign.public };
                 const recipientPrivateKeys = targetDeviceKeyId
-                  ? { pke: deviceKeyVault.privateKeys.pke, box: deviceKeyVault.privateKeys.box }
-                  : { pke: derivedKeys.pke.private, box: derivedKeys.box.private };
+                  ? { pke: deviceKeyVault.privateKeys.pke, box: deviceKeyVault.privateKeys.box, hqc256: derivedKeys.hqc256?.private }
+                  : { pke: derivedKeys.pke.private, box: derivedKeys.box.private, hqc256: derivedKeys.hqc256?.private };
                 const decryptedStr = await crypto.decryptPayload(
                   payloadObj,
                   senderPubKeys.identity,
@@ -885,8 +885,8 @@ export default function useEmails({
           };
 
           const plaintext = JSON.stringify(emailContent);
-          const encryptedEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: res.id, recipientPublicKeys: pubRecord.public_keys, senderSignPrivate: derivedKeys.sign.private, senderDeviceVault: deviceKeyVault });
-          const selfEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: activeIdentity.ID, recipientPublicKeys: { pke: derivedKeys.pke.public, box: derivedKeys.box.public, identity: derivedKeys.sign.public }, senderSignPrivate: derivedKeys.sign.private, senderDeviceVault: deviceKeyVault });
+          const encryptedEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: res.id, recipientPublicKeys: { ...pubRecord.public_keys, keyset_proof: pubRecord.keyset_proof }, senderSignPrivate: derivedKeys.sign.private, senderDeviceVault: deviceKeyVault });
+          const selfEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: activeIdentity.ID, recipientPublicKeys: { pke: derivedKeys.pke.public, box: derivedKeys.box.public, hqc256: derivedKeys.hqc256?.public, identity: derivedKeys.sign.public, mldsa87: derivedKeys.mldsa87?.public || '' }, senderSignPrivate: derivedKeys.sign.private, senderDeviceVault: deviceKeyVault });
 
           const envelopeDraftData = {
             recipientEnvelopes: encryptedEnvelopes.map(envelope => ({ recipientId: res.id, envelope })),
@@ -974,8 +974,8 @@ export default function useEmails({
               };
 
               const plaintext = JSON.stringify(emailContent);
-              const encryptedEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: res.id, recipientPublicKeys: pubRecord.public_keys, senderSignPrivate: derivedKeys.sign.private, senderDeviceVault: deviceKeyVault });
-              const selfEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: activeIdentity.ID, recipientPublicKeys: { pke: derivedKeys.pke.public, box: derivedKeys.box.public, identity: derivedKeys.sign.public }, senderSignPrivate: derivedKeys.sign.private, senderDeviceVault: deviceKeyVault });
+              const encryptedEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: res.id, recipientPublicKeys: { ...pubRecord.public_keys, keyset_proof: pubRecord.keyset_proof }, senderSignPrivate: derivedKeys.sign.private, senderDeviceVault: deviceKeyVault });
+              const selfEnvelopes = await encryptForRecipientDevices({ plaintext, recipientIdentityId: activeIdentity.ID, recipientPublicKeys: { pke: derivedKeys.pke.public, box: derivedKeys.box.public, hqc256: derivedKeys.hqc256?.public, identity: derivedKeys.sign.public, mldsa87: derivedKeys.mldsa87?.public || '' }, senderSignPrivate: derivedKeys.sign.private, senderDeviceVault: deviceKeyVault });
 
               if (attachmentsList.length > 0) {
                 await api.grantAttachmentsAccess(attachmentsList, [res.id, activeIdentity.ID]);

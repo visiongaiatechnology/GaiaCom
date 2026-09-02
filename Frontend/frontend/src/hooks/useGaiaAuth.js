@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import * as api from '../api';
 import * as crypto from '../crypto';
+import { generateHqc256KeyPair } from '../sovereignCrypto.js';
 import { displayGaiaID } from '../utils/gaiaAddress';
 import { safeJsonParse, safeStorageJson } from '../utils/safeJson';
 import { decryptWebAuthnMnemonicEnvelope } from '../utils/webauthnPrf';
@@ -8,6 +9,7 @@ import { decryptWebAuthnMnemonicEnvelope } from '../utils/webauthnPrf';
 const CRYPTO_SESSION_KEY = 'gaia_crypto_session';
 const PIN_UNLOCK_GUARD_KEY = 'gaia_pin_unlock_guard';
 const DEVICE_KEY_VAULT_KEY = 'gaia_device_key_vault_enc';
+const SOVEREIGN_KEY_VAULT_KEY = 'gaiacom_sovereign_hqc256_v1_enc';
 let volatileCryptoSession = null;
 
 function readPinUnlockGuard() {
@@ -59,7 +61,7 @@ function readCryptoSession(expectedUserId, enabledMinutes) {
   }
 }
 
-function writeCryptoSession(userValue, mnemonicValue, enabledMinutes) {
+function writeCryptoSession(userValue, mnemonicValue, enabledMinutes, hqc256 = null) {
   if (!userValue?.id || !mnemonicValue || !enabledMinutes || enabledMinutes <= 0) {
     volatileCryptoSession = null;
     sessionStorage.removeItem(CRYPTO_SESSION_KEY);
@@ -71,6 +73,7 @@ function writeCryptoSession(userValue, mnemonicValue, enabledMinutes) {
     username: userValue.username || '',
     allowAnonymousStats: userValue.allowAnonymousStats !== false,
     mnemonic: mnemonicValue,
+    hqc256,
     expiresAt: Date.now() + enabledMinutes * 60 * 1000
   };
 }
@@ -80,6 +83,23 @@ function clearCryptoSession() {
   sessionStorage.removeItem(CRYPTO_SESSION_KEY);
 }
 
+async function loadSovereignKeys(password) {
+  const raw = localStorage.getItem(SOVEREIGN_KEY_VAULT_KEY);
+  if (!raw) return null;
+  const record = await crypto.decryptLocalRecord(safeJsonParse(raw, null), password);
+  if (record?.version !== 1 || typeof record?.public !== 'string' || typeof record?.private !== 'string' || record.public.length < 1024 || record.private.length < 1024) {
+    throw new Error('Lokaler HQC-256 Keyvault wurde verworfen.');
+  }
+  return { public: record.public, private: record.private };
+}
+
+async function createSovereignKeys(password) {
+  const generated = await generateHqc256KeyPair();
+  const hqc256 = { public: generated.publicKeyHex, private: generated.secretKeyHex };
+  const envelope = await crypto.encryptLocalRecord({ version: 1, ...hqc256 }, password);
+  localStorage.setItem(SOVEREIGN_KEY_VAULT_KEY, JSON.stringify(envelope));
+  return hqc256;
+}
 export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllData, cryptoSessionMinutes = 0 }) {
   // Auth states
   const [user, setUser] = useState(null);
@@ -148,6 +168,7 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
         const cryptoSession = readCryptoSession(statusRes.user_id, cryptoSessionMinutes);
         if (cryptoSession) {
           const keys = crypto.deriveKeysFromMnemonic(cryptoSession.mnemonic);
+          if (cryptoSession.hqc256) keys.keys.hqc256 = cryptoSession.hqc256;
           setMnemonic(cryptoSession.mnemonic);
           setDerivedKeys(keys.keys);
           setUser({
@@ -216,13 +237,16 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
       const fullGaiaID = `@${wizardGaiaUsername}:${domain}`;
       const displayName = wizardGaiaUsername.charAt(0).toUpperCase() + wizardGaiaUsername.slice(1);
 
+      const publicKeys = {
+        identity: derivedKeys.sign.public,
+        box: derivedKeys.box.public,
+        pke: derivedKeys.pke.public,
+        mldsa87: derivedKeys.mldsa87?.public || '',
+        hqc256: derivedKeys.hqc256?.public || ''
+      };
       const publicRecord = {
-        public_keys: {
-          identity: derivedKeys.sign.public,
-          box: derivedKeys.box.public,
-          pke: derivedKeys.pke.public,
-          mldsa87: derivedKeys.mldsa87?.public || ''
-        },
+        public_keys: publicKeys,
+        keyset_proof: crypto.createSovereignKeysetProof(publicKeys, derivedKeys.sign.private),
         routing: {
           primary: domain,
           alternatives: wizardFallbackNodes.split(',').map(n => n.trim()).filter(n => n !== '')
@@ -286,6 +310,13 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
 
     try {
       const keys = crypto.deriveKeysFromMnemonic(mnemonic);
+      let hqc256;
+      if (isRegister) {
+        hqc256 = await createSovereignKeys(passwordInput);
+      } else {
+        hqc256 = await loadSovereignKeys(passwordInput);
+      }
+      if (hqc256) keys.keys.hqc256 = hqc256;
 
       if (isRegister) {
         const registerData = await api.register(usernameInput, passwordInput, keys.keys.sign.public);
@@ -302,7 +333,7 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
         const nextUser = { id: registerData.user_id, username: usernameInput, allowAnonymousStats: registerData.allowAnonymousStats !== false };
         setUser(nextUser);
         await hydrateDeviceKeyVault(passwordInput);
-        writeCryptoSession(nextUser, mnemonic, cryptoSessionMinutes);
+        writeCryptoSession(nextUser, mnemonic, cryptoSessionMinutes, keys.keys.hqc256 || null);
         setCopiedMnemonic(false);
         setWizardStep(1);
         setWizardGaiaUsername(usernameInput.toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 32));
@@ -317,7 +348,7 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
         const nextUser = { id: loginData.user_id, username: usernameInput, allowAnonymousStats: loginData.allowAnonymousStats !== false };
         setUser(nextUser);
         await hydrateDeviceKeyVault(passwordInput);
-        writeCryptoSession(nextUser, mnemonic, cryptoSessionMinutes);
+        writeCryptoSession(nextUser, mnemonic, cryptoSessionMinutes, keys.keys.hqc256 || null);
       }
     } catch (err) {
       setAuthError(err.message);
@@ -363,6 +394,9 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
       const consumed = await api.consumeDevicePairing(pairing.id, devicePairing.secret);
       if (!consumed?.deviceKey?.id) throw new Error('Geraeteschluessel wurde nicht registriert.');
       const keys = crypto.deriveKeysFromMnemonic(handover.mnemonic);
+      if (!handover.sovereignKeys?.public || !handover.sovereignKeys?.private) throw new Error('Pairing-Paket enthält keinen HQC-256 Keyvault.');
+      keys.keys.hqc256 = handover.sovereignKeys;
+      const sovereignEnvelope = await crypto.encryptLocalRecord({ version: 1, ...handover.sovereignKeys }, devicePairing.password);
       const localEnvelope = await crypto.encryptMnemonic(handover.mnemonic, devicePairing.password);
       const deviceKeyVault = await crypto.encryptLocalRecord({
         version: 1,
@@ -377,6 +411,7 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
       }, devicePairing.password);
       localStorage.setItem('gaia_mnemonic_enc', JSON.stringify(localEnvelope));
       localStorage.setItem(DEVICE_KEY_VAULT_KEY, JSON.stringify(deviceKeyVault));
+      localStorage.setItem(SOVEREIGN_KEY_VAULT_KEY, JSON.stringify(sovereignEnvelope));
       localStorage.setItem('gaia_username', usernameInput);
       const nextUser = {
         id: devicePairing.login.user_id,
@@ -386,7 +421,7 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
       setMnemonic(handover.mnemonic);
       setDerivedKeys(keys.keys);
       setUser(nextUser);
-      writeCryptoSession(nextUser, handover.mnemonic, cryptoSessionMinutes);
+      writeCryptoSession(nextUser, handover.mnemonic, cryptoSessionMinutes, keys.keys.hqc256);
       setDevicePairing(null);
       setDeviceKeyVault({
         version: 1,
@@ -445,6 +480,10 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
       }
 
       const keys = crypto.deriveKeysFromMnemonic(decMnemonic);
+      if (unlockMode === 'password') {
+        const hqc256 = await loadSovereignKeys(unlockPassword);
+        if (hqc256) keys.keys.hqc256 = hqc256;
+      }
       setMnemonic(decMnemonic);
       setDerivedKeys(keys.keys);
       const nextUser = { id: tempUserId, username: tempUsername, allowAnonymousStats: tempAllowAnonymousStats };
@@ -454,7 +493,7 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
       } else {
         setDeviceKeyVault(null);
       }
-      writeCryptoSession(nextUser, decMnemonic, cryptoSessionMinutes);
+      writeCryptoSession(nextUser, decMnemonic, cryptoSessionMinutes, keys.keys.hqc256 || null);
       setIsLocked(false);
       setUnlockPassword('');
       if (unlockMode === 'pin') {
@@ -476,6 +515,7 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
     localStorage.removeItem('gaia_pin_mnemonic_enc');
     localStorage.removeItem('gaia_webauthn_mnemonic_enc');
     localStorage.removeItem(DEVICE_KEY_VAULT_KEY);
+    // The encrypted identity HQC key survives logout; only explicit device data destruction may remove it.
     clearPinUnlockGuard();
     localStorage.removeItem('gaia_username');
     setUser(null);
