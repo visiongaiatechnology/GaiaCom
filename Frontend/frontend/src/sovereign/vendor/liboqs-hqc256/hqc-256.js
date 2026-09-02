@@ -134,8 +134,8 @@ export class HQC256 {
    *
    * @example
    * const { publicKey, secretKey } = kem.generateKeyPair();
-   * console.log('Public key:', publicKey.length);  // 7245 bytes
-   * console.log('Secret key:', secretKey.length);  // 7317 bytes
+   * // publicKey.length === 7245
+   * // secretKey.length === 7317
    */
   generateKeyPair() {
     this.#checkDestroyed();
@@ -178,8 +178,8 @@ export class HQC256 {
    *
    * @example
    * const { ciphertext, sharedSecret } = kem.encapsulate(publicKey);
-   * console.log('Ciphertext:', ciphertext.length);      // 14421 bytes
-   * console.log('Shared secret:', sharedSecret.length); // 64 bytes
+   * // ciphertext.length === 14421
+   * // sharedSecret.length === 64
    */
   encapsulate(publicKey) {
     this.#checkDestroyed();
@@ -233,7 +233,7 @@ export class HQC256 {
    *
    * @example
    * const sharedSecret = kem.decapsulate(ciphertext, secretKey);
-   * console.log('Recovered secret:', sharedSecret.length); // 64 bytes
+   * // sharedSecret.length === 64
    */
   decapsulate(ciphertext, secretKey) {
     this.#checkDestroyed();
@@ -310,9 +310,9 @@ export class HQC256 {
    * @returns {typeof HQC_256_INFO} Algorithm metadata
    *
    * @example
-   * console.log(kem.info.name);           // 'HQC-256'
-   * console.log(kem.info.securityLevel);  // 5
-   * console.log(kem.info.keySize);        // { publicKey: 7245, secretKey: 7317, ciphertext: 14421, sharedSecret: 64 }
+   * // kem.info.name === 'HQC-256'
+   * // kem.info.securityLevel === 5
+   * // kem.info.keySize describes the public, secret, ciphertext and shared-secret byte lengths.
    */
   get info() {
     return HQC_256_INFO;
