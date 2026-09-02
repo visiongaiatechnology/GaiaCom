@@ -1,0 +1,220 @@
+{
+  "tests": [
+    {
+      "id": "POC-00",
+      "area": "clean_build",
+      "name": "Clean Build & Baseline Verification",
+      "expected": "PASS",
+      "severity": "INFO"
+    },
+    {
+      "id": "POC-01",
+      "area": "crypto",
+      "name": "Cryptographic Mutations & Oracle Checks",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "POC-02",
+      "area": "vault",
+      "name": "Mnemonic & Secret leak scan in local storage",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "POC-03",
+      "area": "auth_session",
+      "name": "JWT bypasses and auth session validations",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "POC-04",
+      "area": "api_authz",
+      "name": "BOLA & BFLA permission check across resources",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "POC-05",
+      "area": "mail",
+      "name": "Mail Isolation & SMTP legacy validations",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "POC-06",
+      "area": "chat",
+      "name": "Chat permission & meta data leak validations",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "POC-07",
+      "area": "rooms",
+      "name": "Room join / invite & admin privilege checks",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "POC-08",
+      "area": "channels",
+      "name": "Public channel ownership & verification",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "POC-09",
+      "area": "governance",
+      "name": "Governance privilege escalation checks",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "POC-10",
+      "area": "gaiashield",
+      "name": "GaiaShield event logging and privacy",
+      "expected": "PASS",
+      "severity": "MITTEL"
+    },
+    {
+      "id": "POC-11",
+      "area": "federation",
+      "name": "SSRF & DNS Rebinding controls",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "POC-12",
+      "area": "smtp",
+      "name": "SMTP relaying & HTML injection guards",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "POC-13",
+      "area": "attachments_voice",
+      "name": "Attachment EXIF leakage & Base64 audits",
+      "expected": "PASS",
+      "severity": "MITTEL"
+    },
+    {
+      "id": "POC-14",
+      "area": "frontend_xss",
+      "name": "Frontend XSS & DOM Clobbering checks",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "POC-15",
+      "area": "privacy_metadata",
+      "name": "Timing leaks and user enumeration checks",
+      "expected": "PASS",
+      "severity": "MITTEL"
+    },
+    {
+      "id": "POC-16",
+      "area": "storage_db",
+      "name": "SQL injection & DB write contention checks",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "POC-17",
+      "area": "dos_resource",
+      "name": "Large JSON & request flooding limits",
+      "expected": "PASS",
+      "severity": "MITTEL"
+    },
+    {
+      "id": "POC-18",
+      "area": "deployment_config",
+      "name": "TLS, NGINX configuration audits",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "POC-19",
+      "area": "supply_chain",
+      "name": "Supply chain package and postinstall checks",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "POC-20",
+      "area": "combo_attack_chains",
+      "name": "Combination attack chain simulations",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "POC-21",
+      "area": "regression_claims",
+      "name": "Forbidden marketing claims regression checks",
+      "expected": "PASS",
+      "severity": "MITTEL"
+    }
+  ],
+  "combo_chains": [
+    {
+      "id": "CHAIN-001",
+      "name": "XSS to Account Takeover Attempt",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "CHAIN-002",
+      "name": "SMTP to Native Trust Confusion",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "CHAIN-003",
+      "name": "Federation SSRF to Secret Leak",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "CHAIN-004",
+      "name": "Governance Abuse by Normal User",
+      "expected": "PASS",
+      "severity": "KRITISCH"
+    },
+    {
+      "id": "CHAIN-005",
+      "name": "Node Operator Overreach Attempt",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "CHAIN-006",
+      "name": "Attachment Trust Bypass Attempt",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "CHAIN-007",
+      "name": "Privacy Enumeration via Timing/API",
+      "expected": "PASS",
+      "severity": "MITTEL"
+    },
+    {
+      "id": "CHAIN-008",
+      "name": "DoS + SQLite Write Pressure",
+      "expected": "PASS",
+      "severity": "MITTEL"
+    },
+    {
+      "id": "CHAIN-009",
+      "name": "Crypto Replay + UI Confusion",
+      "expected": "PASS",
+      "severity": "HOCH"
+    },
+    {
+      "id": "CHAIN-010",
+      "name": "Security Center XSS Log Injection",
+      "expected": "PASS",
+      "severity": "HOCH"
+    }
+  ]
+}

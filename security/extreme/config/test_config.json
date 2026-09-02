@@ -1,0 +1,11 @@
+{
+  "backend_url": "http://localhost:8080",
+  "backend_src_dir": "../../Backend",
+  "backend_binary": "../../Backend/gaiacom-backend.exe",
+  "test_db_path": "extreme_test_gaiacom.db",
+  "timeout_seconds": 5,
+  "priming_delay_seconds": 3,
+  "run_static_scans": true,
+  "run_dynamic_scans": true,
+  "run_combo_chains": true
+}

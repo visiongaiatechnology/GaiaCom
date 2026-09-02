@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- STATUS: DIAMANT VGT SUPREME -->
+<resources>
+    <string name="vault_unlock_title">Unlock GaiaCom</string>
+    <string name="vault_unlock_subtitle">Protect your identity and encrypted data</string>
+</resources>

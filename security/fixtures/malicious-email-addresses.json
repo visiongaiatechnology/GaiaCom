@@ -1,0 +1,22 @@
+[
+  {
+    "email": "user\r\nBcc:victim@example.com",
+    "description": "CRLF injection in email address local-part"
+  },
+  {
+    "email": "admin@gaiacоm.de",
+    "description": "Unicode confusable attack (Cyrillic 'о')"
+  },
+  {
+    "email": "file:///etc/passwd",
+    "description": "File scheme URI spoofing as email"
+  },
+  {
+    "email": "gopher://127.0.0.1:70",
+    "description": "Gopher scheme URI spoofing as email"
+  },
+  {
+    "email": "http://127.0.0.1/api",
+    "description": "HTTP scheme URI spoofing as email"
+  }
+]

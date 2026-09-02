@@ -1,0 +1,34 @@
+[
+  {
+    "domain": "localhost",
+    "description": "Loopback address ipv4"
+  },
+  {
+    "domain": "127.0.0.1",
+    "description": "Loopback IP ipv4"
+  },
+  {
+    "domain": "[::1]",
+    "description": "Loopback address ipv6"
+  },
+  {
+    "domain": "10.0.0.1",
+    "description": "Private class A address"
+  },
+  {
+    "domain": "192.168.0.1",
+    "description": "Private class C address"
+  },
+  {
+    "domain": "169.254.169.254",
+    "description": "Link-local cloud metadata service"
+  },
+  {
+    "domain": "::ffff:127.0.0.1",
+    "description": "IPv4-mapped IPv6 loopback"
+  },
+  {
+    "domain": "rebinding.gaiacom.local",
+    "description": "Simulated DNS rebinding domain (public then private)"
+  }
+]

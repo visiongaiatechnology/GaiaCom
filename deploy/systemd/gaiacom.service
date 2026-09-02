@@ -1,0 +1,45 @@
+# STATUS: DIAMANT VGT SUPREME
+[Unit]
+Description=GaiaCom 2 Backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=gaiacom
+Group=gaiacom
+WorkingDirectory=/var/lib/gaiacom
+EnvironmentFile=/etc/gaiacom/gaiacom.env
+ExecStart=/opt/gaiacom/gaiacom-backend
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+ProtectProc=invisible
+ProcSubset=pid
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+StateDirectory=gaiacom
+StateDirectoryMode=0700
+ConfigurationDirectory=gaiacom
+ConfigurationDirectoryMode=0700
+ReadWritePaths=/var/lib/gaiacom /opt/gaiacom/storage
+UMask=0077
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

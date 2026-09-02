@@ -1,0 +1,9 @@
+[
+  {
+    "id": "55555555-5555-4555-8555-555555555555",
+    "name": "Synthetic Crisis Room",
+    "owner": "alice@gaiacom.test",
+    "members": ["alice@gaiacom.test", "bob@gaiacom.test"],
+    "non_member": "attacker@gaiacom.test"
+  }
+]

@@ -1,0 +1,168 @@
+# STATUS: DIAMANT VGT SUPREME
+name: GaiaCom V1 Security Gate
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v1-security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GOTOOLCHAIN: auto
+
+jobs:
+  repository:
+    name: Repository hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout immutable source
+        uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+      - name: Reject secrets and generated artifacts
+        run: python3 scripts/repository_hygiene.py
+
+  backend:
+    name: Go backend
+    needs: repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout immutable source
+        uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+      - name: Install Go toolchain
+        uses: actions/setup-go@v6.4.0
+        with:
+          go-version-file: Backend/go.mod
+          cache-dependency-path: Backend/go.sum
+      - name: Verify module integrity
+        working-directory: Backend
+        run: go mod verify
+      - name: Vet backend
+        working-directory: Backend
+        run: go vet ./...
+      - name: Scan reachable Go vulnerabilities
+        working-directory: Backend
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+      - name: Test backend with race detector
+        working-directory: Backend
+        run: go test -race -count=1 ./...
+      - name: Build server CLI from importable backend library
+        working-directory: Backend
+        run: go build -trimpath -o "$RUNNER_TEMP/gaiacom" ./cmd/gaiacom
+      - name: Validate Android and iOS binding surfaces
+        working-directory: Backend
+        run: |
+          go tool gobind -lang java -javapkg de.gaiacom.nativecore -outdir "$RUNNER_TEMP/gobind-java" gaiacom/backend/mobileapi
+          go tool gobind -lang objc -prefix GCM -outdir "$RUNNER_TEMP/gobind-objc" gaiacom/backend/mobileapi
+
+  frontend:
+    name: Web client
+    needs: repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: Frontend/frontend
+    steps:
+      - name: Checkout immutable source
+        uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+      - name: Install Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: Frontend/frontend/package-lock.json
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
+      - name: Audit all dependencies
+        run: npm audit --audit-level=low
+      - name: Run frontend tests
+        run: npm test
+      - name: Build production frontend
+        run: npm run build
+
+  rust-core:
+    name: Rust cryptographic core
+    needs: repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: Core/rust/gaiacore
+    steps:
+      - name: Checkout immutable source
+        uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+      - name: Install pinned Rust and Android targets
+        run: rustup toolchain install 1.95.0 --profile minimal --component clippy --component rustfmt --target aarch64-linux-android --target x86_64-linux-android
+      - name: Verify locked build and tests
+        run: cargo test --locked --all-targets
+      - name: Deny Rust lints
+        run: cargo clippy --locked --all-targets -- -D warnings
+      - name: Check GaiaCore Android targets
+        run: |
+          cargo check --locked --target aarch64-linux-android
+          cargo check --locked --target x86_64-linux-android
+
+  android-kernel:
+    name: Android node kernel
+    needs: repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout immutable source
+        uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+      - name: Install Temurin JDK
+        uses: actions/setup-java@v5.2.0
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+      - name: Enforce Android architecture boundaries
+        run: python3 scripts/android_architecture_gate.py
+      - name: Compile and test Android contracts and kernel
+        working-directory: Android
+        run: ./gradlew test --no-daemon
+
+  adversarial:
+    name: Integrated adversarial suite
+    needs: [backend, frontend, rust-core, android-kernel]
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout immutable source
+        uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+      - name: Install Go toolchain
+        uses: actions/setup-go@v6.4.0
+        with:
+          go-version-file: Backend/go.mod
+          cache-dependency-path: Backend/go.sum
+      - name: Install Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: Frontend/frontend/package-lock.json
+      - name: Install locked frontend dependencies
+        working-directory: Frontend/frontend
+        run: npm ci --ignore-scripts
+      - name: Run master security gate
+        run: python3 security/master_security_suite.py

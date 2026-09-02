@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- STATUS: DIAMANT VGT SUPREME -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-feature
+        android:name="android.hardware.strongbox_keystore"
+        android:required="false" />
+</manifest>

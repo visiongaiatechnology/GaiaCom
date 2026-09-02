@@ -1,0 +1,85 @@
+# GaiaCom release hygiene
+.env
+.env.*
+!.env.example
+
+# Local databases and runtime state
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+uploads/
+data/
+storage/
+tmp/
+temp/
+cache/
+.cache/
+logs/
+*.log
+*.pid
+
+# Build artifacts
+Android/.gradle/
+Android/**/build/
+Android/local.properties
+Android/.toolchains/
+Android/native/*.aar
+Android/native/*.aar.sha256
+Backend/gaiacom-backend*
+Backend/backend.exe
+Frontend/frontend/build/
+Frontend/frontend/dist/
+Frontend/frontend/src/scratch/
+DesktopClient/src-tauri/target/
+Core/rust/**/target/
+Release_Desktop/
+Frontend_backup*/
+GaiaCom-[0-9]*/
+GaiaCom_GitHub_Source_*/
+GaiaCom-*.tar.gz
+GaiaCom-*.tar.gz.sha256
+GaiaCom-*.zip
+GaiaCom-*.zip.sha256
+build/
+dist/
+coverage/
+*.bak
+*.bak_*
+
+# Dependencies and generated caches
+node_modules/
+__pycache__/
+*.pyc
+.gocache/
+.gocache-*/
+.gomodcache-*/
+.embedded-node-test-*/
+target/
+
+# Secrets and production fixtures
+private_keys/
+secrets/
+node_secrets.json
+production-config.json
+real-users.json
+real-messages.json
+real-jwts.json
+real-smtp-config.json
+
+# Local editor state
+.idea/
+.vscode/
+
+# Local review inputs and workstation helpers (not product source)
+/a.txt
+/Textdokument (neu).txt
+/[{]
+/powershell.bat
+/GAIACOM EXTREME ADVERSARIAL SECURITY GATE.pdf
+
+# One-off local source transformation helpers and editor probes
+/Frontend/frontend/src/inspect_*.py
+/Frontend/frontend/src/refactor_*.py
+/Frontend/frontend/Textdokument (neu).txt
+/Frontend/frontend/src/utils/**/test_*.txt

@@ -1,0 +1,501 @@
+/* STATUS: PLATIN */
+/* Final layout contract. This file intentionally loads last to neutralize legacy theme collisions. */
+
+.mail-content-pane {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chat-container.nebula-chat-shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  height: 100%;
+  min-width: 0;
+  padding: 12px;
+}
+
+.chat-reader-header.nebula-chat-hero {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: 12px;
+}
+
+.chat-header-primary,
+.chat-peer-header,
+.chat-peer-summary,
+.chat-peer-name-row {
+  min-width: 0;
+}
+
+.chat-peer-summary {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.chat-peer-name-row,
+.chat-peer-subline {
+  max-width: 100%;
+}
+
+.chat-peer-name-row .contact-name-button {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-header-tools {
+  margin-left: auto;
+}
+
+.chat-messages.nebula-chat-timeline {
+  width: 100%;
+  min-height: 0;
+  padding: clamp(12px, 2vw, 24px);
+  border-radius: 12px;
+  scroll-padding-bottom: 20px;
+}
+
+.chat-bubble {
+  width: fit-content;
+  max-width: min(76%, 760px);
+  border-radius: 14px;
+}
+
+.chat-bubble.incoming {
+  border-bottom-left-radius: 4px;
+}
+
+.chat-bubble.outgoing {
+  border-bottom-right-radius: 4px;
+}
+
+.chat-composer-stack.nebula-composer-dock {
+  min-width: 0;
+  margin: 0;
+  padding: 9px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: rgba(7, 12, 22, 0.94);
+}
+
+.chat-input-row.nebula-chat-input-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.chat-input-row.nebula-chat-input-row > .input-field {
+  flex: 1 1 280px;
+  width: auto;
+  min-width: 120px;
+  height: 42px;
+  margin: 0;
+}
+
+.chat-input-row.nebula-chat-input-row > .btn-primary {
+  flex: 0 0 auto;
+  min-width: 92px;
+  height: 42px;
+  padding-inline: 18px;
+}
+
+.chat-input-row.nebula-chat-input-row .emoji-toggle,
+.chat-input-row.nebula-chat-input-row > .btn-secondary,
+.chat-drive-attach-control > .btn-secondary {
+  display: grid;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  place-items: center;
+}
+
+/* Groups: room rail, conversation and optional members are explicit columns. */
+.group-chat-layout,
+.group-chat-layout:has(.group-members-panel) {
+  display: grid !important;
+  grid-template-columns: minmax(240px, 290px) minmax(0, 1fr);
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+  padding: 12px;
+}
+
+.group-chat-layout > .group-sidebar:not(.group-members-panel):not(.empty-group-state) {
+  display: flex !important;
+  grid-column: 1 !important;
+  grid-row: 1;
+  width: auto !important;
+  max-width: none !important;
+  min-height: 0;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px;
+}
+
+.group-chat-layout > .group-main-chat {
+  display: flex !important;
+  grid-column: 2 !important;
+  grid-row: 1;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 12px;
+}
+
+.group-chat-layout:has(.group-members-panel) {
+  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr) minmax(220px, 270px);
+}
+
+.group-chat-layout:has(.group-members-panel) > .group-main-chat {
+  grid-column: 2 !important;
+}
+
+.group-chat-layout > .group-members-panel {
+  display: flex !important;
+  grid-column: 3 !important;
+  grid-row: 1;
+  width: auto !important;
+  max-width: none !important;
+  min-height: 0;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px;
+}
+
+/* Public channels: posts expand with their content instead of clipping it. */
+.public-channel-pane {
+  min-width: 0;
+  min-height: 0;
+  padding: 12px;
+}
+
+.public-channel-header {
+  flex: 0 0 auto;
+  margin-bottom: 10px;
+  border-radius: 12px;
+}
+
+.public-channel-posts {
+  align-items: stretch;
+  gap: 12px !important;
+  min-height: 0;
+  margin: 0 0 10px;
+  padding: 12px !important;
+}
+
+.public-channel-post {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  overflow: visible;
+  border-radius: 12px;
+}
+
+.public-channel-post-body,
+.public-channel-post-body > * {
+  max-height: none;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.public-channel-composer {
+  flex: 0 0 auto;
+  border-radius: 12px;
+}
+
+/* GSN always occupies the detail pane; only its feed scrolls. */
+.gsn-container {
+  width: 100% !important;
+  max-width: none !important;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.gsn-social-layout {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 310px);
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.gsn-feed-column,
+.gsn-feed-list {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gsn-feed-list {
+  overflow-y: auto;
+}
+
+.gsn-post-card,
+.gsn-post-body {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1180px) {
+  .group-chat-layout:has(.group-members-panel) {
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+  }
+
+  .group-chat-layout > .group-members-panel {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    bottom: 12px;
+    z-index: 30;
+    width: min(300px, calc(100% - 24px)) !important;
+    background: rgba(7, 12, 22, 0.98) !important;
+    box-shadow: -20px 0 50px rgba(0, 0, 0, 0.45);
+  }
+
+  .gsn-social-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .gsn-right-rail {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .chat-container.nebula-chat-shell {
+    padding: 6px;
+    gap: 6px;
+  }
+
+  .chat-reader-header.nebula-chat-hero {
+    padding: 8px 10px;
+  }
+
+  .chat-peer-icon {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+  }
+
+  .chat-role-pill,
+  .chat-peer-subline code {
+    display: none;
+  }
+
+  .chat-messages.nebula-chat-timeline {
+    padding: 10px 8px;
+    border-radius: 10px;
+  }
+
+  .chat-bubble {
+    max-width: 88%;
+    padding: 9px 12px;
+  }
+
+  .chat-composer-stack.nebula-composer-dock {
+    padding: 7px;
+    padding-bottom: calc(7px + env(safe-area-inset-bottom));
+  }
+
+  .chat-input-row.nebula-chat-input-row {
+    display: grid;
+    grid-template-columns: repeat(4, 38px) minmax(0, 1fr) 44px;
+    gap: 6px;
+  }
+
+  .chat-input-row.nebula-chat-input-row > .input-field {
+    grid-column: 1 / -2;
+    grid-row: 1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .chat-input-row.nebula-chat-input-row > .btn-primary {
+    grid-column: -2 / -1;
+    grid-row: 1;
+    min-width: 44px;
+    width: 44px;
+    padding: 0;
+    overflow: hidden;
+    font-size: 0;
+  }
+
+  .chat-input-row.nebula-chat-input-row > .btn-primary::after {
+    content: '➤';
+    font-size: 1rem;
+  }
+
+  .chat-input-row.nebula-chat-input-row > :not(.input-field):not(.btn-primary) {
+    grid-row: 2;
+  }
+
+  .group-chat-layout,
+  .group-chat-layout:has(.group-members-panel) {
+    display: flex !important;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .group-chat-layout > .group-sidebar:not(.group-members-panel):not(.empty-group-state) {
+    width: 100% !important;
+    max-height: none;
+  }
+
+  .group-chat-layout:has(.chat-input-row) > .group-sidebar:not(.group-members-panel):not(.empty-group-state) {
+    display: none !important;
+  }
+
+  .group-chat-layout > .group-main-chat {
+    width: 100% !important;
+    height: 100%;
+  }
+
+  .group-chat-layout:not(:has(.chat-input-row)) > .group-main-chat {
+    display: none !important;
+  }
+
+  .group-chat-layout > .group-members-panel {
+    inset: 6px;
+    width: auto !important;
+  }
+
+  .group-main-chat .chat-input-row {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 46px;
+  }
+
+  .group-main-chat .chat-input-row .input-field {
+    min-width: 0;
+  }
+
+  .group-main-chat .chat-input-row .btn-primary {
+    width: 46px;
+    min-width: 46px;
+    padding: 0;
+    overflow: hidden;
+    font-size: 0;
+  }
+
+  .group-main-chat .chat-input-row .btn-primary::after {
+    content: '➤';
+    font-size: 1rem;
+  }
+
+  .public-channel-pane {
+    padding: 6px;
+  }
+
+  .public-channel-header {
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .public-channel-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .public-channel-header-actions {
+    width: 100%;
+  }
+
+  .public-channel-posts {
+    padding: 8px !important;
+  }
+
+  .public-channel-post {
+    padding: 12px;
+  }
+
+  .gsn-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .gsn-tabs {
+    width: 100%;
+  }
+
+  .gsn-tab {
+    flex: 1;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Mobile navigation adds an extra row, so flex flow prevents header/timeline overlap. */
+  .chat-container.nebula-chat-shell {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chat-container.nebula-chat-shell > .detail-mobile-actions,
+  .chat-container.nebula-chat-shell > .chat-reader-header,
+  .chat-container.nebula-chat-shell > .chat-composer-stack {
+    flex: 0 0 auto;
+  }
+
+  .chat-container.nebula-chat-shell > .chat-messages {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .chat-reader-header.nebula-chat-hero {
+    position: relative !important;
+    z-index: 4;
+    min-height: 0;
+    margin: 0;
+    overflow: visible !important;
+  }
+
+  .chat-reader-header.nebula-chat-hero::before {
+    content: none;
+  }
+
+  .chat-reader-header .chat-peer-subline {
+    max-width: min(58vw, 360px);
+  }
+
+  /* Both GSN feeds remain visible as equal-width tabs below the title. */
+  .nebula-view-gsn .gsn-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .nebula-view-gsn .gsn-header-title {
+    min-width: 0;
+  }
+
+  .nebula-view-gsn .gsn-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    max-width: none;
+    overflow: visible;
+  }
+
+  .nebula-view-gsn .gsn-tab {
+    width: 100%;
+    min-width: 0;
+    padding-inline: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
