@@ -1071,6 +1071,16 @@ GaiaCom is security-critical infrastructure. All contributions undergo cryptogra
 
 ## 🧾 Changelog
 
+### Sovereign Beta v2.1 — 2026-09-04 (Argon2id Cryptographic Hardening)
+
+#### Authentication & Password Security
+- **Bcrypt Deprecation & Argon2id Migration**: Completely upgraded all backend password hashing from Bcrypt to **Argon2id** (RFC 9106 / PHC string format).
+- **OWASP & RFC 9106 Parameters**: Enforced memory-hard parameters ($m=65536\text{ KiB}$ / 64 MiB, $t=3$ iterations, $p=4$ parallelism, 128-bit CSPRNG salt, 256-bit derived key) resistant to GPU/ASIC brute-force attacks.
+- **Timing-Attack & Enumeration Defense**: Introduced constant-time dummy verification with an RFC 9106-compliant precomputed Argon2id dummy hash (`dummyPasswordHash`) for non-existent users, defeating timing-based username enumeration.
+- **Transparent Auto-Rehash**: Legacy accounts using Bcrypt (`$2a$`, `$2b$`, `$2y$`) are seamlessly verified and automatically upgraded to Argon2id in SQLite on their next successful authentication without user disruption.
+- **Dedicated Module**: Added `Backend/auth/password.go` with strict boundary validation (12 to 512 characters) and timing-resistant comparison (`subtle.ConstantTimeCompare`).
+- **Comprehensive Test Suite**: Added `Backend/auth/password_test.go` covering password boundaries, PHC parsing, legacy Bcrypt migration, corrupted input handling, and timing defense.
+
 ### Sovereign Beta v2 — 2026-09-02
 
 #### Cryptography

@@ -17,11 +17,7 @@ import (
 	"gaiacom/backend/core/uuid"
 	"gaiacom/backend/models"
 	"gaiacom/backend/repository"
-
-	"golang.org/x/crypto/bcrypt"
 )
-
-var dummyPasswordHash = []byte("$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy")
 
 const (
 	ContextUserIDKey = "user_id"
@@ -98,7 +94,7 @@ func (s *AuthService) RegisterUser(username, password, publicKey string) (*model
 		return nil, errors.New("username already taken")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := HashPassword(password)
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +102,7 @@ func (s *AuthService) RegisterUser(username, password, publicKey string) (*model
 	user := models.User{
 		ID:                  uuid.New(),
 		Username:            username,
-		PasswordHash:        string(hashedPassword),
+		PasswordHash:        hashedPassword,
 		PublicKey:           publicKey,
 		AllowAnonymousStats: true,
 	}
@@ -125,11 +121,20 @@ func (s *AuthService) LoginUser(username, password string) (string, *models.User
 func (s *AuthService) LoginUserWithDevice(username, password string, metadata DeviceMetadata) (string, string, *models.User, error) {
 	user, err := s.Store.FindUserByUsername(strings.TrimSpace(username))
 	if err != nil {
-		_ = bcrypt.CompareHashAndPassword(dummyPasswordHash, []byte(password))
+		_, _, _ = VerifyPassword(password, dummyPasswordHash)
 		return "", "", nil, errors.New("invalid credentials")
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+
+	match, needsRehash, err := VerifyPassword(password, user.PasswordHash)
+	if err != nil || !match {
 		return "", "", nil, errors.New("invalid credentials")
+	}
+
+	// Transparent Auto-Rehash: Upgrade legacy Bcrypt or out-of-date Argon2id parameters
+	if needsRehash {
+		if newHash, hashErr := HashPassword(password); hashErr == nil {
+			_ = s.Store.UpdateUserPasswordHash(context.Background(), user.ID, newHash)
+		}
 	}
 
 	session := models.DeviceSession{
@@ -228,15 +233,16 @@ func (s *AuthService) ChangePassword(ctx context.Context, userID, currentSession
 	if err != nil {
 		return errors.New("invalid credentials")
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(currentPassword)); err != nil {
+	match, _, err := VerifyPassword(currentPassword, user.PasswordHash)
+	if err != nil || !match {
 		return errors.New("invalid credentials")
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	hashedPassword, err := HashPassword(newPassword)
 	if err != nil {
 		return err
 	}
-	return s.Store.UpdateUserPasswordAndRevokeSessions(ctx, userID, string(hashedPassword), currentSessionID)
+	return s.Store.UpdateUserPasswordAndRevokeSessions(ctx, userID, hashedPassword, currentSessionID)
 }
 
 func (s *AuthService) Logout(ctx context.Context, userID, sessionID uuid.UUID) error {
@@ -254,7 +260,8 @@ func (s *AuthService) DeleteAccount(ctx context.Context, userID uuid.UUID, curre
 	if err != nil {
 		return errors.New("invalid credentials")
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(currentPassword)); err != nil {
+	match, _, err := VerifyPassword(currentPassword, user.PasswordHash)
+	if err != nil || !match {
 		return errors.New("invalid credentials")
 	}
 	return s.Store.DeleteUserAccount(ctx, userID)
