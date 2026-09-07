@@ -39,6 +39,131 @@ func setupTestIdentityDBAndStore(t *testing.T) (*sql.DB, *repository.SQLStore, f
 	return db, store, cleanup
 }
 
+func sovereignMigrationInput(t *testing.T, identityPublic ed25519.PublicKey, identityPrivate ed25519.PrivateKey, hqcByte string) SovereignKeysetMigrationInput {
+	t.Helper()
+	publicKeys := map[string]string{
+		"identity": hex.EncodeToString(identityPublic),
+		"box":      strings.Repeat("22", 32),
+		"pke":      strings.Repeat("33", 1568),
+		"mldsa87":  strings.Repeat("44", 2592),
+		"hqc256":   strings.Repeat(hqcByte, 7245),
+	}
+	transcript := strings.Join([]string{
+		"gaiacom-sovereign-keyset-v1",
+		publicKeys["identity"],
+		publicKeys["box"],
+		publicKeys["pke"],
+		publicKeys["mldsa87"],
+		publicKeys["hqc256"],
+	}, "\n")
+	return SovereignKeysetMigrationInput{
+		PublicKeys: publicKeys,
+		KeysetProof: map[string]string{
+			"version": "gaiacom-sovereign-keyset-v1",
+			"ed25519": hex.EncodeToString(ed25519.Sign(identityPrivate, []byte(transcript))),
+		},
+	}
+}
+
+func TestMigrateSovereignKeysetUpgradesLegacyIdentityAtomically(t *testing.T) {
+	_, store, cleanup := setupTestIdentityDBAndStore(t)
+	defer cleanup()
+
+	service := NewIdentityService(store)
+	user := &models.User{ID: uuid.New(), Username: "legacy", PasswordHash: "hash", PublicKey: "pk"}
+	if err := store.CreateUser(user); err != nil {
+		t.Fatalf("create user: %v", err)
+	}
+	identityPublic, identityPrivate, err := ed25519.GenerateKey(nil)
+	if err != nil {
+		t.Fatalf("generate identity key: %v", err)
+	}
+	migration := sovereignMigrationInput(t, identityPublic, identityPrivate, "55")
+	legacyKeys := map[string]string{
+		"identity": migration.PublicKeys["identity"],
+		"box":      migration.PublicKeys["box"],
+		"pke":      migration.PublicKeys["pke"],
+		"mldsa87":  migration.PublicKeys["mldsa87"],
+	}
+	identity, err := service.CreateIdentity(user.ID, CreateIdentityInput{
+		GaiaID:      "@legacy:gaiacom.local",
+		DisplayName: "Legacy",
+		PublicRecord: map[string]interface{}{
+			"public_keys": legacyKeys,
+			"routing":     map[string]interface{}{"primary": "gaiacom.local"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("create legacy identity: %v", err)
+	}
+
+	updated, err := service.MigrateSovereignKeyset(context.Background(), user.ID, identity.ID, migration)
+	if err != nil {
+		t.Fatalf("migrate sovereign keyset: %v", err)
+	}
+	var record map[string]interface{}
+	if err := json.Unmarshal(updated.PublicRecord, &record); err != nil {
+		t.Fatalf("decode migrated public record: %v", err)
+	}
+	keys, ok := record["public_keys"].(map[string]interface{})
+	if !ok || keys["hqc256"] != migration.PublicKeys["hqc256"] {
+		t.Fatal("migrated HQC-256 public key missing")
+	}
+	if _, ok := record["routing"]; !ok {
+		t.Fatal("migration discarded existing routing metadata")
+	}
+	if _, err := service.MigrateSovereignKeyset(context.Background(), user.ID, identity.ID, migration); err != nil {
+		t.Fatalf("idempotent migration failed: %v", err)
+	}
+}
+
+func TestMigrateSovereignKeysetRejectsRotationAndWrongOwner(t *testing.T) {
+	_, store, cleanup := setupTestIdentityDBAndStore(t)
+	defer cleanup()
+
+	service := NewIdentityService(store)
+	owner := &models.User{ID: uuid.New(), Username: "owner", PasswordHash: "hash", PublicKey: "pk"}
+	attacker := &models.User{ID: uuid.New(), Username: "attacker", PasswordHash: "hash", PublicKey: "pk"}
+	if err := store.CreateUser(owner); err != nil {
+		t.Fatalf("create owner: %v", err)
+	}
+	if err := store.CreateUser(attacker); err != nil {
+		t.Fatalf("create attacker: %v", err)
+	}
+	identityPublic, identityPrivate, _ := ed25519.GenerateKey(nil)
+	first := sovereignMigrationInput(t, identityPublic, identityPrivate, "55")
+	identity, err := service.CreateIdentity(owner.ID, CreateIdentityInput{
+		GaiaID:      "@owner:gaiacom.local",
+		DisplayName: "Owner",
+		PublicRecord: map[string]interface{}{
+			"public_keys": map[string]string{
+				"identity": first.PublicKeys["identity"],
+				"box":      first.PublicKeys["box"],
+				"pke":      first.PublicKeys["pke"],
+				"mldsa87":  first.PublicKeys["mldsa87"],
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("create identity: %v", err)
+	}
+	if _, err := service.MigrateSovereignKeyset(context.Background(), attacker.ID, identity.ID, first); err == nil {
+		t.Fatal("foreign user migrated identity keyset")
+	}
+	if _, err := service.MigrateSovereignKeyset(context.Background(), owner.ID, identity.ID, first); err != nil {
+		t.Fatalf("initial migration failed: %v", err)
+	}
+	rotation := sovereignMigrationInput(t, identityPublic, identityPrivate, "66")
+	if _, err := service.MigrateSovereignKeyset(context.Background(), owner.ID, identity.ID, rotation); err == nil {
+		t.Fatal("silent HQC-256 rotation was accepted")
+	}
+	tampered := first
+	tampered.KeysetProof = map[string]string{"version": "gaiacom-sovereign-keyset-v1", "ed25519": strings.Repeat("00", 64)}
+	if _, err := service.MigrateSovereignKeyset(context.Background(), owner.ID, identity.ID, tampered); err == nil {
+		t.Fatal("tampered keyset proof was accepted")
+	}
+}
+
 func TestIdentityService(t *testing.T) {
 	_, store, cleanup := setupTestIdentityDBAndStore(t)
 	defer cleanup()

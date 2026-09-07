@@ -5,11 +5,13 @@ import { generateHqc256KeyPair } from '../sovereignCrypto.js';
 import { displayGaiaID } from '../utils/gaiaAddress';
 import { safeJsonParse, safeStorageJson } from '../utils/safeJson';
 import { decryptWebAuthnMnemonicEnvelope } from '../utils/webauthnPrf';
+import { reconcileSovereignKeyset } from '../sovereignKeyMigration.js';
 
 const CRYPTO_SESSION_KEY = 'gaia_crypto_session';
 const PIN_UNLOCK_GUARD_KEY = 'gaia_pin_unlock_guard';
 const DEVICE_KEY_VAULT_KEY = 'gaia_device_key_vault_enc';
 const SOVEREIGN_KEY_VAULT_KEY = 'gaiacom_sovereign_hqc256_v1_enc';
+const SOVEREIGN_KEY_PENDING_VAULT_KEY = 'gaiacom_sovereign_hqc256_v1_pending_enc';
 let volatileCryptoSession = null;
 
 function readPinUnlockGuard() {
@@ -83,8 +85,7 @@ function clearCryptoSession() {
   sessionStorage.removeItem(CRYPTO_SESSION_KEY);
 }
 
-async function loadSovereignKeys(password) {
-  const raw = localStorage.getItem(SOVEREIGN_KEY_VAULT_KEY);
+async function decodeSovereignKeys(raw, password) {
   if (!raw) return null;
   const record = await crypto.decryptLocalRecord(safeJsonParse(raw, null), password);
   if (record?.version !== 1 || typeof record?.public !== 'string' || typeof record?.private !== 'string' || record.public.length < 1024 || record.private.length < 1024) {
@@ -93,12 +94,42 @@ async function loadSovereignKeys(password) {
   return { public: record.public, private: record.private };
 }
 
+async function loadSovereignKeyState(password) {
+  const committed = localStorage.getItem(SOVEREIGN_KEY_VAULT_KEY);
+  if (committed) return { keys: await decodeSovereignKeys(committed, password), pending: false };
+  const pending = localStorage.getItem(SOVEREIGN_KEY_PENDING_VAULT_KEY);
+  if (pending) return { keys: await decodeSovereignKeys(pending, password), pending: true };
+  return { keys: null, pending: false };
+}
+
+async function loadSovereignKeys(password) {
+  return (await loadSovereignKeyState(password)).keys;
+}
+
+async function persistSovereignKeys(storageKey, password, hqc256) {
+  const envelope = await crypto.encryptLocalRecord({ version: 1, ...hqc256 }, password);
+  localStorage.setItem(storageKey, JSON.stringify(envelope));
+  return hqc256;
+}
+
 async function createSovereignKeys(password) {
   const generated = await generateHqc256KeyPair();
   const hqc256 = { public: generated.publicKeyHex, private: generated.secretKeyHex };
-  const envelope = await crypto.encryptLocalRecord({ version: 1, ...hqc256 }, password);
-  localStorage.setItem(SOVEREIGN_KEY_VAULT_KEY, JSON.stringify(envelope));
-  return hqc256;
+  return persistSovereignKeys(SOVEREIGN_KEY_VAULT_KEY, password, hqc256);
+}
+
+async function createPendingSovereignKeys(password) {
+  const generated = await generateHqc256KeyPair();
+  const hqc256 = { public: generated.publicKeyHex, private: generated.secretKeyHex };
+  return persistSovereignKeys(SOVEREIGN_KEY_PENDING_VAULT_KEY, password, hqc256);
+}
+
+function commitPendingSovereignKeys() {
+  const pending = localStorage.getItem(SOVEREIGN_KEY_PENDING_VAULT_KEY);
+  if (pending) {
+    localStorage.setItem(SOVEREIGN_KEY_VAULT_KEY, pending);
+    localStorage.removeItem(SOVEREIGN_KEY_PENDING_VAULT_KEY);
+  }
 }
 export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllData, cryptoSessionMinutes = 0 }) {
   // Auth states
@@ -310,13 +341,9 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
 
     try {
       const keys = crypto.deriveKeysFromMnemonic(mnemonic);
-      let hqc256;
       if (isRegister) {
-        hqc256 = await createSovereignKeys(passwordInput);
-      } else {
-        hqc256 = await loadSovereignKeys(passwordInput);
+        keys.keys.hqc256 = await createSovereignKeys(passwordInput);
       }
-      if (hqc256) keys.keys.hqc256 = hqc256;
 
       if (isRegister) {
         const registerData = await api.register(usernameInput, passwordInput, keys.keys.sign.public);
@@ -341,6 +368,18 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
         setShowWizard(true);
       } else {
         const loginData = await api.login(usernameInput, passwordInput);
+        const keyState = await loadSovereignKeyState(passwordInput);
+        const reconciled = await reconcileSovereignKeyset({
+          identities: await api.getMyIdentities(),
+          derivedKeys: keys.keys,
+          localHqc: keyState.keys,
+          generatePendingHqc: () => createPendingSovereignKeys(passwordInput),
+          migrateIdentity: api.migrateSovereignKeyset,
+          createProof: crypto.createSovereignKeysetProof,
+          verifyProof: crypto.verifySovereignKeysetProof
+        });
+        keys.keys.hqc256 = reconciled.hqc;
+        if (keyState.pending || reconciled.generated) commitPendingSovereignKeys();
         const encData = await crypto.encryptMnemonic(mnemonic, passwordInput);
         localStorage.setItem('gaia_mnemonic_enc', JSON.stringify(encData));
         localStorage.setItem('gaia_username', usernameInput);
@@ -481,8 +520,18 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
 
       const keys = crypto.deriveKeysFromMnemonic(decMnemonic);
       if (unlockMode === 'password') {
-        const hqc256 = await loadSovereignKeys(unlockPassword);
-        if (hqc256) keys.keys.hqc256 = hqc256;
+        const keyState = await loadSovereignKeyState(unlockPassword);
+        const reconciled = await reconcileSovereignKeyset({
+          identities: await api.getMyIdentities(),
+          derivedKeys: keys.keys,
+          localHqc: keyState.keys,
+          generatePendingHqc: () => createPendingSovereignKeys(unlockPassword),
+          migrateIdentity: api.migrateSovereignKeyset,
+          createProof: crypto.createSovereignKeysetProof,
+          verifyProof: crypto.verifySovereignKeysetProof
+        });
+        keys.keys.hqc256 = reconciled.hqc;
+        if (keyState.pending || reconciled.generated) commitPendingSovereignKeys();
       }
       setMnemonic(decMnemonic);
       setDerivedKeys(keys.keys);

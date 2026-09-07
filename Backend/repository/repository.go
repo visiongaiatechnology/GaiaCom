@@ -69,6 +69,7 @@ type IdentityStore interface {
 	FindIdentityByID(id uuid.UUID) (*models.Identity, error)
 	FindIdentitiesByUserID(userID uuid.UUID) ([]models.Identity, error)
 	IdentityBelongsToUser(identityID uuid.UUID, userID uuid.UUID) (bool, error)
+	CompareAndSwapIdentityPublicRecord(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, expected models.JSONB, replacement models.JSONB) (*models.Identity, error)
 	UpdateIdentityPublicProfile(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, profile models.IdentityPublicProfile) (*models.Identity, error)
 	UpdateIdentityHumanProof(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, proof map[string]interface{}) (*models.Identity, error)
 	FindAllIdentities(ctx context.Context) ([]models.Identity, error)

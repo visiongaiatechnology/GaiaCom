@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/ed25519"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -31,6 +32,11 @@ type CreateIdentityInput struct {
 	GaiaID       string                 `json:"gaiaId"`
 	DisplayName  string                 `json:"displayName"`
 	PublicRecord map[string]interface{} `json:"publicRecord"`
+}
+
+type SovereignKeysetMigrationInput struct {
+	PublicKeys  map[string]string `json:"publicKeys"`
+	KeysetProof map[string]string `json:"keysetProof"`
 }
 
 type HumanProofEnvelope struct {
@@ -129,6 +135,80 @@ func validateSovereignKeyset(value map[string]interface{}) error {
 		return errors.New("invalid sovereign keyset signature")
 	}
 	return nil
+}
+
+func equalFixedHex(left string, right string, size int) bool {
+	leftBytes, leftOK := decodeExactHex(left, size)
+	rightBytes, rightOK := decodeExactHex(right, size)
+	return leftOK && rightOK && subtle.ConstantTimeCompare(leftBytes, rightBytes) == 1
+}
+
+func (s *Service) MigrateSovereignKeyset(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, input SovereignKeysetMigrationInput) (*models.Identity, error) {
+	if userID == uuid.Nil || identityID == uuid.Nil {
+		return nil, errors.New("invalid identity scope")
+	}
+	identity, err := s.Store.FindIdentityByID(identityID)
+	if err != nil || identity.UserID != userID || !identity.IsActive {
+		return nil, errors.New("identity not found")
+	}
+
+	candidate := map[string]interface{}{
+		"public_keys":  input.PublicKeys,
+		"keyset_proof": input.KeysetProof,
+	}
+	if input.PublicKeys["hqc256"] == "" {
+		return nil, errors.New("sovereign keyset migration requires HQC-256")
+	}
+	if err := validateSovereignKeyset(candidate); err != nil {
+		return nil, errors.New("sovereign keyset migration rejected")
+	}
+
+	var currentRecord map[string]interface{}
+	if err := json.Unmarshal(identity.PublicRecord, &currentRecord); err != nil {
+		return nil, errors.New("invalid identity public record")
+	}
+	var current sovereignKeysetRecord
+	if err := json.Unmarshal(identity.PublicRecord, &current); err != nil {
+		return nil, errors.New("invalid identity public record")
+	}
+	if !equalFixedHex(current.PublicKeys.Identity, input.PublicKeys["identity"], ed25519.PublicKeySize) {
+		return nil, errors.New("sovereign keyset identity mismatch")
+	}
+	for field, value := range map[string]string{
+		"box":     current.PublicKeys.Box,
+		"pke":     current.PublicKeys.PKE,
+		"mldsa87": current.PublicKeys.MLDSA87,
+	} {
+		if value != "" && !strings.EqualFold(value, input.PublicKeys[field]) {
+			return nil, errors.New("sovereign keyset migration changes existing key material")
+		}
+	}
+	if current.PublicKeys.HQC256 != "" {
+		if !strings.EqualFold(current.PublicKeys.HQC256, input.PublicKeys["hqc256"]) {
+			return nil, errors.New("sovereign keyset rotation requires device recovery")
+		}
+		if validateSovereignKeyset(currentRecord) == nil {
+			return identity, nil
+		}
+	}
+
+	currentRecord["public_keys"] = input.PublicKeys
+	currentRecord["keyset_proof"] = input.KeysetProof
+	replacement, err := json.Marshal(currentRecord)
+	if err != nil {
+		return nil, errors.New("sovereign keyset migration encoding failed")
+	}
+	updated, err := s.Store.CompareAndSwapIdentityPublicRecord(
+		ctx,
+		userID,
+		identityID,
+		identity.PublicRecord,
+		models.JSONB(replacement),
+	)
+	if err != nil {
+		return nil, errors.New("sovereign keyset migration conflict")
+	}
+	return updated, nil
 }
 func NewIdentityService(store repository.IdentityStore) *Service {
 	return &Service{Store: store}

@@ -2,6 +2,7 @@ package identity
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"net/http"
 
@@ -84,6 +85,46 @@ func (h *IdentityHandler) GetMyIdentities(w http.ResponseWriter, r *http.Request
 	}
 
 	httpx.WriteJSON(w, http.StatusOK, identities)
+}
+
+func (h *IdentityHandler) MigrateSovereignKeyset(w http.ResponseWriter, r *http.Request) {
+	userID, ok := auth.UserIDFromContext(r.Context())
+	if !ok {
+		httpx.WriteError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 96*1024)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	var request struct {
+		IdentityID string                        `json:"identityId"`
+		Migration  SovereignKeysetMigrationInput `json:"migration"`
+	}
+	if err := decoder.Decode(&request); err != nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid keyset migration request")
+		return
+	}
+	if err := decoder.Decode(&struct{}{}); err != io.EOF {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid keyset migration request")
+		return
+	}
+	identityID, err := uuid.Parse(request.IdentityID)
+	if err != nil || identityID == uuid.Nil {
+		httpx.WriteError(w, http.StatusBadRequest, "Invalid keyset migration request")
+		return
+	}
+
+	updated, err := h.Service.MigrateSovereignKeyset(r.Context(), userID, identityID, request.Migration)
+	if err != nil {
+		log.Printf("sovereign keyset migration rejected for user %s identity %s: %v", userID.String(), identityID.String(), err)
+		httpx.WriteError(w, http.StatusConflict, "Sovereign keyset migration rejected")
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]interface{}{
+		"status":     "ok",
+		"identityId": updated.ID.String(),
+	})
 }
 
 func (h *IdentityHandler) SaveHumanProof(w http.ResponseWriter, r *http.Request) {

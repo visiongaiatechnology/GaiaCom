@@ -257,6 +257,7 @@ func SetupRoutesWithRuntimeConfig(rootContext context.Context, store repository.
 	protected.POST("/api/v1/devices/keys/:id/revoke", devicePairingHandler.RevokeKey)
 	protected.POST("/api/v1/identity/create", identityHandler.CreateIdentity)
 	protected.GET("/api/v1/identity/me", identityHandler.GetMyIdentities)
+	protected.POST("/api/v1/identity/sovereign-keyset/migrate", identityHandler.MigrateSovereignKeyset)
 	protected.POST("/api/v1/identity/human-proof", identityHandler.SaveHumanProof)
 	protected.POST("/api/v1/messaging/send", msgHandler.SendMessage)
 	protected.POST("/api/v1/smtp/send", smtpBridgeHandler.Send)

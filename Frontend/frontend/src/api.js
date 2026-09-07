@@ -331,6 +331,15 @@ export async function getMyIdentities() {
   return handleResponse(res);
 }
 
+export async function migrateSovereignKeyset(identityId, migration) {
+  const res = await apiFetch(`${BASE_URL}/api/v1/identity/sovereign-keyset/migrate`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ identityId, migration })
+  });
+  return handleResponse(res);
+}
+
 export async function getPublicIdentity(gaiaId) {
   const res = await apiFetch(`${BASE_URL}/api/v1/public/identity/${encodeURIComponent(gaiaId)}`, {
     method: 'GET',

@@ -89,6 +89,52 @@ func (s *SQLStore) IdentityBelongsToUser(identityID uuid.UUID, userID uuid.UUID)
 	return count == 1, err
 }
 
+func (s *SQLStore) CompareAndSwapIdentityPublicRecord(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, expected models.JSONB, replacement models.JSONB) (*models.Identity, error) {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	now := utcNow()
+	result, err := tx.ExecContext(
+		ctx,
+		`UPDATE identities SET public_record = ?, updated_at = ?
+		 WHERE id = ? AND user_id = ? AND is_active = 1 AND public_record = ?`,
+		[]byte(replacement),
+		formatTime(now),
+		identityID,
+		userID,
+		[]byte(expected),
+	)
+	if err != nil {
+		return nil, err
+	}
+	updated, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	if updated != 1 {
+		return nil, sql.ErrNoRows
+	}
+
+	row := tx.QueryRowContext(
+		ctx,
+		`SELECT id, user_id, gaia_id, display_name, keys, public_record, is_active, created_at, updated_at
+		 FROM identities WHERE id = ? AND user_id = ? LIMIT 1`,
+		identityID,
+		userID,
+	)
+	identity, err := scanIdentity(row)
+	if err != nil {
+		return nil, err
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return identity, nil
+}
+
 func (s *SQLStore) UpdateIdentityPublicProfile(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, profile models.IdentityPublicProfile) (*models.Identity, error) {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
