@@ -16,6 +16,14 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Pure pass-through fetch: NO CACHING (zero local file storage) for maximum security
-  event.respondWith(fetch(event.request));
+  // Pure pass-through fetch: NO CACHING (zero local file storage) for maximum security.
+  // A failed/aborted request (offline, tab swap, cancelled media probe) must be
+  // answered, not thrown: an unhandled rejection here floods the console and
+  // shows up as "Uncaught (in promise) TypeError: Failed to fetch".
+  event.respondWith(
+    fetch(event.request).catch(() => new Response('', {
+      status: 504,
+      statusText: 'Network unavailable'
+    }))
+  );
 });

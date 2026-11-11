@@ -1,6 +1,7 @@
 import React from 'react';
 import Icon from '../../../ui/Icon';
 import GaiaPassportCard from '../../../common/GaiaPassportCard';
+import VerificationBadges from '../../../common/VerificationBadges';
 import { unavailable } from '../utils/securityFormat';
 
 /**
@@ -133,6 +134,26 @@ export default function SecurityPassportTab({
                 : (t('sc_btn_verify_human') || 'Ich bin ein Mensch verifizieren')}
           </button>
         </div>
+      </section>
+
+      <section className="vgt-sec-proof" aria-labelledby="vgt-sec-attestations-title">
+        <span className="vgt-eyebrow">Attestierungen</span>
+        <h2 className="vgt-h4" id="vgt-sec-attestations-title">Verifizierungs-Abzeichen</h2>
+        <p className="vgt-body vgt-body--sm">
+          Abzeichen sind signierte Aussagen eines Ausstellers (z. B. deines Node-Operators),
+          keine globale Garantie. Der Client prüft Signatur, Ablauf und Widerruf lokal.
+        </p>
+        <div className="vgt-sec-attestations">
+          <VerificationBadges
+            gaiaID={activeIdentity?.GaiaID}
+            showIssuer
+            showExpired
+          />
+        </div>
+        <p className="vgt-caption">
+          Noch keine Abzeichen sichtbar? Dein Node-Operator kann Mensch-, Organisations- oder
+          Rollen-Abzeichen ausstellen; jede Ausstellung wird mit Aussteller und Ablauf angezeigt.
+        </p>
       </section>
     </div>
   );

@@ -3,6 +3,7 @@ import Icon from '../ui/Icon';
 import DialogShell from './DialogShell';
 import GaiaPassportCard from '../common/GaiaPassportCard';
 import DecryptedAvatar from '../chat/gsn/DecryptedAvatar';
+import VerificationBadges from '../common/VerificationBadges';
 import { getHumanProof } from '../../utils/humanProof';
 import { safeWebsiteUrl } from '../../utils/safeHttpUrl';
 
@@ -96,6 +97,7 @@ export const ContactProfileModal = ({
         </div>
         <div className="vgt-contact-hero__copy">
           <span className="vgt-id">{displayGaiaID(contactProfile.gaiaID)}</span>
+          <VerificationBadges gaiaID={contactProfile.gaiaID} showIssuer />
           <dl className="vgt-contact-hero__stats">
             <div>
               <dt>Reputation</dt>

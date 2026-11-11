@@ -97,9 +97,9 @@ func TestCorruptedAndInvalidHashFormats(t *testing.T) {
 		"no_password_stub_hash",
 		"$argon2id$",
 		"$argon2id$v=19$m=65536,t=3,p=4$",
-		"$argon2i$v=19$m=65536,t=3,p=4$AAAA$BBBB", // Wrong algorithm
-		"$argon2id$v=18$m=65536,t=3,p=4$AAAA$BBBB", // Wrong version
-		"$argon2id$v=19$m=invalid,t=3,p=4$AAAA$BBBB", // Malformed params
+		"$argon2i$v=19$m=65536,t=3,p=4$AAAA$BBBB",               // Wrong algorithm
+		"$argon2id$v=18$m=65536,t=3,p=4$AAAA$BBBB",              // Wrong version
+		"$argon2id$v=19$m=invalid,t=3,p=4$AAAA$BBBB",            // Malformed params
 		"$argon2id$v=19$m=65536,t=3,p=4$invalid_base64!!!$BBBB", // Corrupted salt base64
 	}
 

@@ -135,8 +135,24 @@ export function createAuthActions(ctx) {
       return;
     }
 
+    // A hand-typed seed must be a valid BIP39 phrase (12 English words with a
+    // correct checksum); otherwise key derivation throws a raw
+    // "Ungültiges Mnemonic" later and the user has no actionable guidance.
+    // Normalise whitespace/case first so a valid phrase typed with odd casing
+    // keeps working.
+    const normalizedMnemonic = String(mnemonic).trim().toLowerCase().replace(/\s+/g, ' ');
+    if (!crypto.validateMnemonic(normalizedMnemonic)) {
+      setAuthError(
+        'Die Mnemonic-Phrase ist ungültig. Nutze den Button „Seed generieren“ oder gib eine gültige 12-Wörter-BIP39-Phrase ein.'
+      );
+      return;
+    }
+    if (normalizedMnemonic !== mnemonic) {
+      setMnemonic(normalizedMnemonic);
+    }
+
     try {
-      const keys = crypto.deriveKeysFromMnemonic(mnemonic);
+      const keys = crypto.deriveKeysFromMnemonic(normalizedMnemonic);
       let hqc256;
       if (isRegister) {
         hqc256 = await createSovereignKeys(passwordInput);
@@ -150,7 +166,7 @@ export function createAuthActions(ctx) {
         // Automatically login to retrieve session cookie
         await api.login(usernameInput, passwordInput);
 
-        const encData = await crypto.encryptMnemonic(mnemonic, passwordInput);
+        const encData = await crypto.encryptMnemonic(normalizedMnemonic, passwordInput);
         localStorage.setItem('gaia_mnemonic_enc', JSON.stringify(encData));
         localStorage.setItem('gaia_username', usernameInput);
         setTempUserId(registerData.user_id);
@@ -160,7 +176,7 @@ export function createAuthActions(ctx) {
         const nextUser = { id: registerData.user_id, username: usernameInput, allowAnonymousStats: registerData.allowAnonymousStats !== false };
         setUser(nextUser);
         await hydrateDeviceKeyVault(passwordInput);
-        writeCryptoSession(nextUser, mnemonic, cryptoSessionMinutes, keys.keys.hqc256 || null);
+        writeCryptoSession(nextUser, normalizedMnemonic, cryptoSessionMinutes, keys.keys.hqc256 || null);
         setCopiedMnemonic(false);
         setWizardStep(1);
         setWizardGaiaUsername(usernameInput.toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 32));
@@ -168,14 +184,14 @@ export function createAuthActions(ctx) {
         setShowWizard(true);
       } else {
         const loginData = await api.login(usernameInput, passwordInput);
-        const encData = await crypto.encryptMnemonic(mnemonic, passwordInput);
+        const encData = await crypto.encryptMnemonic(normalizedMnemonic, passwordInput);
         localStorage.setItem('gaia_mnemonic_enc', JSON.stringify(encData));
         localStorage.setItem('gaia_username', usernameInput);
         setDerivedKeys(keys.keys);
         const nextUser = { id: loginData.user_id, username: usernameInput, allowAnonymousStats: loginData.allowAnonymousStats !== false };
         setUser(nextUser);
         await hydrateDeviceKeyVault(passwordInput);
-        writeCryptoSession(nextUser, mnemonic, cryptoSessionMinutes, keys.keys.hqc256 || null);
+        writeCryptoSession(nextUser, normalizedMnemonic, cryptoSessionMinutes, keys.keys.hqc256 || null);
       }
     } catch (err) {
       setAuthError(err.message);

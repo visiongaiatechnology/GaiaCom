@@ -24,6 +24,7 @@ export default function SecurityHead({
     tabs.push({ key: 'node_operator', icon: 'server', label: t('sc_tab_node') || 'Node-Sicherheit' });
   }
   if (isOperator) {
+    tabs.push({ key: 'identity_admin', icon: 'seal', label: 'Identitäten & Abzeichen' });
     tabs.push({ key: 'node_system', icon: 'layers', label: t('sc_tab_node_system') || 'Nodesystem' });
   }
 

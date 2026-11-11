@@ -3,7 +3,7 @@
    historical public surface (140 named exports, no default) from src/api/**.
    Shared internals of ./api/client.js are intentionally not re-exported. */
 
-export { setAuthToken, getAuthToken, isDesktopRuntime, isTrustedDesktopLocation } from './api/client';
+export { setAuthToken, getAuthToken, isDesktopRuntime, isTrustedDesktopLocation, rotateSession } from './api/client';
 export * from './api/auth';
 export * from './api/devices';
 export * from './api/identity';
@@ -18,3 +18,4 @@ export * from './api/gaiadrop';
 export * from './api/security';
 export * from './api/drive';
 export * from './api/gsn';
+export * from './api/attestations';

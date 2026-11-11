@@ -9,6 +9,7 @@ import {
   limitError
 } from '../../../utils/mediaLimits';
 import Icon from '../../ui/Icon';
+import { isMediaKnownMissing, markMediaMissing, isMissingMediaError } from '../../../utils/mediaFailureCache';
 import useDialogA11y from '../../common/useDialogA11y';
 
 /**
@@ -34,6 +35,11 @@ export default function DecryptedGsnImage({ attachmentJson }) {
       try {
         const att = safeJsonParse(attachmentJson, null);
         if (!att) throw new Error('Invalid attachment envelope.');
+        if (isMediaKnownMissing(att.fileId)) {
+          // Already resolved as expired/deleted in this session: no second request.
+          if (active) { setIsExpired(true); setLoading(false); }
+          return;
+        }
         const blob = await api.downloadFileAttachment(att.fileId, { maxBytes: MAX_GSN_IMAGE_BYTES });
         if (exceedsLimit(blob?.size, MAX_GSN_IMAGE_BYTES)) {
           throw limitError('Das Bild', MAX_GSN_IMAGE_BYTES);
@@ -50,7 +56,8 @@ export default function DecryptedGsnImage({ attachmentJson }) {
         }
       } catch (err) {
         const message = String(err?.message || err || '');
-        const expectedMissingFile = message.includes('File expired or deleted');
+        const expectedMissingFile = isMissingMediaError(err);
+        if (expectedMissingFile) markMediaMissing(safeJsonParse(attachmentJson, null)?.fileId);
         if (!expectedMissingFile) {
           console.error('Failed to decrypt GSN image:', err);
         }

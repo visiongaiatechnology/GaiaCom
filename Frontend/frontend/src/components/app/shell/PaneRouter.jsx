@@ -7,6 +7,7 @@ import PaneNetworkHealth from './panes/PaneNetworkHealth';
 import PaneComposer from './panes/PaneComposer';
 import PaneReader from './panes/PaneReader';
 import PaneProfile from './panes/PaneProfile';
+import PaneContacts from './panes/PaneContacts';
 import PaneStorage from './panes/PaneStorage';
 import PaneGovernance from './panes/PaneGovernance';
 import PaneGsn from './panes/PaneGsn';
@@ -25,6 +26,7 @@ export default function PaneRouter(props) {
       <PaneNetworkHealth {...props} />
       <PaneComposer {...props} />
       <PaneReader {...props} />
+      <PaneContacts {...props} />
       <PaneProfile {...props} />
       <PaneStorage {...props} />
       <PaneGovernance {...props} />

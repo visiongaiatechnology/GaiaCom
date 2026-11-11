@@ -2,12 +2,65 @@ import React, { useEffect, useRef, useState } from 'react';
 import Icon from '../../ui/Icon';
 import { formatClock } from '../shared/formatTime';
 
-/** Voice note attachment: local audio playback with honest progress + duration. */
+/**
+ * Voice note attachment: local audio playback with honest progress + duration.
+ *
+ * Security/robustness notes:
+ * - Received voice notes arrive as `data:audio/webm;base64,...`. The CSP allows
+ *   `media-src 'self' blob:` (no `data:`), so the data URL is decoded once into
+ *   a Blob object URL instead of being assigned to <audio src> directly.
+ * - The object URL is revoked on unmount (and when the note changes).
+ * - A decode/playback failure renders a factual fallback instead of an
+ *   unhandled promise rejection.
+ */
+function dataUrlToBlobUrl(dataUrl) {
+  const comma = dataUrl.indexOf(',');
+  if (comma < 0) throw new Error('Invalid inline media data URL');
+  const meta = dataUrl.slice(5, comma);
+  const payload = dataUrl.slice(comma + 1);
+  const isBase64 = /;base64/i.test(meta);
+  const mime = (meta.split(';')[0] || 'audio/webm').trim() || 'audio/webm';
+  if (!isBase64) {
+    return URL.createObjectURL(new Blob([decodeURIComponent(payload)], { type: mime }));
+  }
+  const binary = atob(payload);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return URL.createObjectURL(new Blob([bytes], { type: mime }));
+}
+
 export default function VoiceNotePlayer({ inlineData }) {
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [src, setSrc] = useState('');
+  const [failed, setFailed] = useState(false);
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    let createdUrl = '';
+    setPlaying(false);
+    setProgress(0);
+    setDuration(0);
+    setFailed(false);
+    try {
+      if (inlineData) {
+        createdUrl = String(inlineData).startsWith('data:')
+          ? dataUrlToBlobUrl(String(inlineData))
+          : String(inlineData);
+        setSrc(createdUrl);
+      } else {
+        setSrc('');
+        setFailed(true);
+      }
+    } catch (_) {
+      setSrc('');
+      setFailed(true);
+    }
+    return () => {
+      if (createdUrl && createdUrl.startsWith('blob:')) URL.revokeObjectURL(createdUrl);
+    };
+  }, [inlineData]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -18,33 +71,49 @@ export default function VoiceNotePlayer({ inlineData }) {
       setPlaying(false);
       setProgress(0);
     };
+    const onError = () => {
+      setPlaying(false);
+      setFailed(true);
+    };
     audio.addEventListener('timeupdate', onTimeUpdate);
     audio.addEventListener('loadedmetadata', onLoadedMetadata);
     audio.addEventListener('ended', onEnded);
+    audio.addEventListener('error', onError);
     return () => {
       audio.removeEventListener('timeupdate', onTimeUpdate);
       audio.removeEventListener('loadedmetadata', onLoadedMetadata);
       audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('error', onError);
     };
-  }, []);
+  }, [src]);
 
   const togglePlay = () => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || failed) return;
     if (playing) {
       audio.pause();
       setPlaying(false);
     } else {
-      audio.play();
-      setPlaying(true);
+      Promise.resolve(audio.play())
+        .then(() => setPlaying(true))
+        .catch(() => setFailed(true));
     }
   };
 
   const percent = duration ? Math.min(100, Math.max(0, (progress / duration) * 100)) : 0;
 
+  if (failed) {
+    return (
+      <div className="vgt-voice vgt-voice--failed" role="status">
+        <Icon name="alertTriangle" size={15} />
+        <span>Sprachnachricht nicht verfügbar.</span>
+      </div>
+    );
+  }
+
   return (
     <div className="vgt-voice">
-      <audio ref={audioRef} src={inlineData} preload="metadata" />
+      {src ? <audio ref={audioRef} src={src} preload="metadata" /> : null}
       <button
         type="button"
         className="vgt-voice__play"

@@ -443,3 +443,178 @@
 .vgt-inbox__toolbar { justify-content: flex-start; }
 .vgt-inbox__segments { flex: 1 1 auto; min-width: 0; margin-left: 0 !important; margin-right: 0; justify-content: flex-start; }
 .vgt-inbox__segment:first-child { margin-left: 0; }
+
+/* ============================================================================
+   Reader composition v2 — one message, one reading surface.
+   The reader header owns subject/sender/recipients/time; the message body comes
+   first, actions follow it, and all evidence (delivery path, notices, trust
+   passport, GaiaProof, routing) is grouped in a collapsible security block.
+   ========================================================================== */
+
+/* Single-message thread: no duplicated disclosure header inside the reader. */
+.vgt-mail-msg--single {
+  padding: 0;
+  border-bottom: 0;
+}
+.vgt-mail-msg--single.is-open::before { display: none; }
+.vgt-mail-msg--single .vgt-mail-msg__panel { padding: 0; gap: 14px; }
+
+/* Reading order inside a message. */
+.vgt-mail-msg__panel { gap: 12px; }
+.vgt-mail-msg__body { margin: 0 0 2px; max-width: 72ch; }
+.vgt-mail-msg__body p:first-child { margin-top: 0; }
+.vgt-mail-msg__body p:last-child { margin-bottom: 0; }
+
+.vgt-mail-msg__actions {
+  order: 2;
+  padding-top: 12px;
+  border-top: 1px solid rgba(84, 116, 146, 0.18);
+}
+.vgt-mail-msg__action--danger { color: #ff9aa8; }
+.vgt-mail-msg__action--danger:hover { border-color: rgba(255, 154, 168, 0.4); }
+
+/* Collapsible security evidence block. */
+.vgt-mail-msg__security {
+  order: 4;
+  border: 1px solid rgba(84, 116, 146, 0.22);
+  border-radius: 10px;
+  background: rgba(8, 17, 30, 0.55);
+  overflow: hidden;
+}
+.vgt-mail-msg__security-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  color: #9fb6c8;
+  cursor: pointer;
+  list-style: none;
+}
+.vgt-mail-msg__security-summary::-webkit-details-marker { display: none; }
+.vgt-mail-msg__security-summary:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+.vgt-mail-msg__security-summary > svg { color: #7ef3ff; flex: none; }
+.vgt-mail-msg__security-chips { display: flex; gap: 6px; margin-left: auto; }
+.vgt-mail-msg__security-chevron { display: grid; place-items: center; transition: transform 160ms ease; }
+.vgt-mail-msg__security[open] .vgt-mail-msg__security-chevron { transform: rotate(180deg); }
+.vgt-mail-msg__security-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px 14px;
+  border-top: 1px solid rgba(84, 116, 146, 0.18);
+}
+
+/* Compact routing line inside the security block (no repeated dl block). */
+.vgt-mail-msg__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0;
+  color: #c3d6e2;
+  font-size: 0.74rem;
+  min-width: 0;
+}
+.vgt-mail-msg__meta-part { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.vgt-mail-msg__meta .vgt-label { color: #7f99ad; }
+.vgt-mail-msg__meta .vgt-mail-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #7ef3ff;
+  font: inherit;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+/* Attachments between actions and evidence. */
+.vgt-mail-msg__panel > .vgt-mail-attachments { order: 3; }
+.vgt-mail-msg__panel > .vgt-mail-routing { display: none; }
+
+/* ============================================================================
+   Reader surface v3 — one surface, full pane width.
+   The reader header and the message now share the same plane: no nested card /
+   inset box around the message. Actions, security evidence and attachments span
+   the reading pane; only the running text keeps a readable measure.
+   ========================================================================== */
+
+.vgt-mail-reader { position: relative; }
+
+.vgt-mail-reader__thread {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.vgt-mail-reader__thread::after { content: none; }
+
+.vgt-mail-reader__scroll {
+  padding: 22px clamp(20px, 3vw, 40px) 30px;
+}
+
+.vgt-mail-msg {
+  /* No card frame: the message sits directly on the reader surface.
+     (dashboard-mail.css still carries a legacy 1px border/radius/background card.) */
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* Multi-message threads keep one quiet separator between messages, not a frame. */
+.vgt-mail-msg + .vgt-mail-msg {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-mail-msg__panel {
+  max-width: none;
+  gap: 18px;
+  padding: 0;
+}
+
+.vgt-mail-msg--single .vgt-mail-msg__panel { padding: 0; }
+
+.vgt-mail-msg__body {
+  width: 100%;
+  max-width: min(100%, 92ch);
+  font-size: 0.97rem;
+  line-height: 1.76;
+}
+
+.vgt-mail-msg__actions,
+.vgt-mail-msg__security,
+.vgt-mail-attachments {
+  width: 100%;
+}
+
+.vgt-mail-msg__actions {
+  padding: 14px 0 0;
+  gap: 8px;
+}
+
+.vgt-mail-msg__security { border-radius: 12px; }
+
+/* Wider screens: keep the message column aligned to the header padding and let
+   the action/evidence rows breathe across the pane. */
+@media (min-width: 1600px) {
+  .vgt-mail-reader__scroll { padding-inline: clamp(28px, 4vw, 56px); }
+  .vgt-mail-msg__body { max-width: 96ch; }
+}
+
+/* Header and body share the same horizontal rhythm. */
+.vgt-mail-reader__head {
+  padding-inline: clamp(20px, 3vw, 40px);
+}
+
+@media (min-width: 1600px) {
+  .vgt-mail-reader__head { padding-inline: clamp(28px, 4vw, 56px); }
+}

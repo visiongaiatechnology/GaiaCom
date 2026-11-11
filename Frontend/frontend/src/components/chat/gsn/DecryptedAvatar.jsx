@@ -9,6 +9,7 @@ import {
   limitError
 } from '../../../utils/mediaLimits';
 import Icon from '../../ui/Icon';
+import { isMediaKnownMissing, markMediaMissing, isMissingMediaError } from '../../../utils/mediaFailureCache';
 
 /**
  * Bounded object-URL cache (SEC-FE FE-10): at most 64 decrypted avatars stay
@@ -66,6 +67,10 @@ export default function DecryptedAvatar({ avatarJson, displayName, variant = 'de
           return;
         }
 
+        if (isMediaKnownMissing(att.fileId)) {
+          if (active) { setError(true); setLoading(false); }
+          return;
+        }
         const blob = await api.downloadFileAttachment(att.fileId, { maxBytes: MAX_AVATAR_BYTES });
         if (exceedsLimit(blob?.size, MAX_AVATAR_BYTES)) {
           throw limitError('Der Avatar', MAX_AVATAR_BYTES);
@@ -82,8 +87,9 @@ export default function DecryptedAvatar({ avatarJson, displayName, variant = 'de
           setLoading(false);
         }
       } catch (err) {
-        const message = String(err?.message || err || '');
-        if (!message.includes('File expired or deleted')) {
+        const expectedMissingFile = isMissingMediaError(err);
+        if (expectedMissingFile) markMediaMissing(safeJsonParse(avatarJson, null)?.fileId);
+        if (!expectedMissingFile) {
           console.error('Failed to decrypt GSN avatar:', err);
         }
         if (active) {

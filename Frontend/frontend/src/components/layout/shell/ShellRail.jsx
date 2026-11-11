@@ -13,8 +13,8 @@ const GAIA_MAIL_MENUS = [
 /**
  * ShellRail — Sovereign navigation rail matching the GaiaCOM reference interface.
  * Displays the glowing logo, clean primary destinations (Dashboard, GaiaMail, Quanten-Chat,
- * Gruppen-Chats, Channels, GSN Social, Dateien, GaiaDrive, Security Center, Einstellungen),
- * and the glowing network globe footer with live status.
+ * Gruppen-Chats, Channels, GSN Social, Dateien, GaiaDrive, Security Center, Network Health,
+ * Abuse Center, Einstellungen), and the glowing network globe footer with live status.
  */
 export default function ShellRail({
   currentMenu,
@@ -138,7 +138,7 @@ export default function ShellRail({
 
           <ShellNavItem
             icon="folderTree"
-            label={t('ui_files') || 'Dateien'}
+            label="GaiaDrop"
             active={currentMenu === 'gaiadrop'}
             badge={dropBadge}
             badgeLabel={dropBadge ? `${dropBadge} neue Dateien` : null}
@@ -151,10 +151,28 @@ export default function ShellRail({
             onSelect={onVault}
           />
           <ShellNavItem
+            icon="users"
+            label={t('adressbuch') || 'Adressbuch'}
+            active={currentMenu === 'contacts'}
+            onSelect={onContacts}
+          />
+          <ShellNavItem
             icon="shieldCheck"
             label={t('sc_title') || 'Security Center'}
             active={currentMenu === 'security_center'}
             onSelect={onSecurityCenter}
+          />
+          <ShellNavItem
+            icon="server"
+            label="Network Health"
+            active={currentMenu === 'network_health'}
+            onSelect={onNetworkHealth}
+          />
+          <ShellNavItem
+            icon="warning"
+            label={t('abuse_center_title') || 'Abuse Center'}
+            active={currentMenu === 'abuse_center'}
+            onSelect={onAbuseCenter}
           />
           <ShellNavItem
             icon="settings"

@@ -1,5 +1,6 @@
 import React from 'react';
 import Icon from '../../ui/Icon';
+import { validateMnemonic } from '../../../crypto';
 import { SECRET_CLIPBOARD_WARNING } from '../../../utils/secureClipboard';
 
 export default function AuthAccessPanel({
@@ -23,6 +24,14 @@ export default function AuthAccessPanel({
   onSwitchRecovery
 }) {
   const [showPassword, setShowPassword] = React.useState(false);
+  const trimmedMnemonic = String(mnemonic || '').trim();
+  const mnemonicValid = trimmedMnemonic
+    ? validateMnemonic(trimmedMnemonic.toLowerCase().replace(/\s+/g, ' '))
+    : false;
+  const mnemonicInvalid = Boolean(trimmedMnemonic) && !mnemonicValid;
+  const submitDisabled =
+    (isRegister && (!legalAccepted || !mnemonicValid)) ||
+    (!isRegister && Boolean(trimmedMnemonic) && !mnemonicValid);
 
   return (
     <form className="vgt-auth-form" onSubmit={onSubmit} noValidate={false}>
@@ -79,12 +88,25 @@ export default function AuthAccessPanel({
           rows={2}
           spellCheck={false}
           required
+          aria-invalid={mnemonicInvalid || undefined}
+          aria-describedby={mnemonicInvalid ? 'vgt-auth-mnemonic-error' : undefined}
         />
         <div className="vgt-field__hint-row">
           <span className="field-hint">{t('ui_auth_seed_hint') || 'Der Seed wird ausschließlich lokal zur Schlüsselableitung verwendet.'}</span>
-          {isRegister && !mnemonic && (
-            <button type="button" className="btn-action" onClick={onGenerateMnemonic}>
-              {t('auth_generate_seed') || 'Seed generieren'}
+          {isRegister && (
+            <button
+              type="button"
+              className="btn-action"
+              onClick={onGenerateMnemonic}
+              title={
+                trimmedMnemonic
+                  ? 'Ersetzt die aktuelle Phrase durch einen neuen Zufalls-Seed'
+                  : 'Erzeugt einen neuen 12-Wörter-BIP39-Seed'
+              }
+            >
+              {trimmedMnemonic
+                ? (t('auth_generate_new_seed') || 'Neuen Seed generieren')
+                : (t('auth_generate_seed') || 'Seed generieren')}
             </button>
           )}
           {mnemonic && (
@@ -94,6 +116,23 @@ export default function AuthAccessPanel({
             </button>
           )}
         </div>
+        {mnemonicInvalid ? (
+          <p className="field-error" id="vgt-auth-mnemonic-error" role="alert">
+            {t('auth_seed_invalid') ||
+              'Ungültige Mnemonic-Phrase: benötigt werden 12 Wörter aus der BIP39-Wortliste mit gültiger Prüfsumme.'}
+            {isRegister ? ' Nutze „Seed generieren“ für einen gültigen Seed.' : ''}
+          </p>
+        ) : (isRegister && !trimmedMnemonic ? (
+          <p className="field-hint">
+            {t('auth_seed_autogenerate_hint') ||
+              'Der Seed wird beim Wechsel in den Registrierungsmodus automatisch erzeugt — oder hier über „Seed generieren“.'}
+          </p>
+        ) : (isRegister && mnemonicValid ? (
+          <p className="field-hint">
+            {t('auth_seed_backup_hint') ||
+              'Dieser Seed wurde für deine Registrierung erzeugt. Kopiere ihn jetzt — ohne ihn lässt sich das Konto auf einem anderen Gerät nicht wiederherstellen.'}
+          </p>
+        ) : null))}
         <p className="field-hint" role={copiedMnemonic ? 'status' : undefined}>
           {copiedMnemonic
             ? SECRET_CLIPBOARD_WARNING
@@ -120,7 +159,7 @@ export default function AuthAccessPanel({
         </label>
       )}
 
-      <button type="submit" className="btn-primary vgt-auth-form__submit" disabled={isRegister && !legalAccepted}>
+      <button type="submit" className="btn-primary vgt-auth-form__submit" disabled={submitDisabled}>
         {isRegister ? (t('auth_btn_register') || 'Konto erstellen') : (t('auth_btn_login') || 'Anmelden')}
         <Icon name="arrowRight" size={16} />
       </button>

@@ -1,5 +1,6 @@
 import React from 'react';
 import Icon from '../../../ui/Icon';
+import TransparencyAccessList from '../ui/TransparencyAccessList';
 import {
   countCategory,
   formatEpochSeconds,
@@ -145,6 +146,8 @@ export default function SecurityStatusTab({ summary, events, eventsLoaded, handl
           </ul>
         </section>
       ) : null}
+
+      <TransparencyAccessList t={t} />
     </div>
   );
 }

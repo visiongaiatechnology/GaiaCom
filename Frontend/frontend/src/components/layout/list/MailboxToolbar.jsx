@@ -60,6 +60,7 @@ export default function MailboxToolbar({
     t('search_placeholder') || 'Mails nach Betreff, Sender, Text suchen...'
   )) || 'Mails nach Betreff, Sender, Text suchen...';
   const labels = Array.isArray(labelsList) ? labelsList : [];
+  const tr = (key, fallback) => (typeof t === 'function' && key ? (t(key) || fallback) : fallback);
 
   return (
     <div className="vgt-inbox__toolbar">
@@ -99,7 +100,7 @@ export default function MailboxToolbar({
               onClick={() => onFolderChange(folder.key)}
             >
               <Icon name={folder.icon} size={14} />
-              <span>{folder.label}</span>
+              <span>{tr(folder.labelKey, folder.label)}</span>
             </button>
           );
         })}

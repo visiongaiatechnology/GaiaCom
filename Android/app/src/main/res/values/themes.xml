@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- STATUS: DIAMANT VGT SUPREME -->
 <resources>
     <style name="Theme.GaiaCom" parent="android:style/Theme.Material.NoActionBar">
         <item name="android:fontFamily">sans</item>

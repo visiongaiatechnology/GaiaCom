@@ -3,8 +3,8 @@ import { displayGaiaID, parseToGaiaID } from '../../utils/gaiaAddress';
 
 /* Derived mailbox list, unread counters and badge formatter (moved verbatim; memo deps unchanged). */
 export default function useAppDerived({ auth, ui, data }) {
-  const { currentMenu, contacts } = ui;
-  const { activeIdentity } = auth;
+  // `activeIdentity` lives in the UI shell (identity wiring), not in the auth hook.
+  const { currentMenu, contacts, activeIdentity } = ui;
   const { draftsList, mailThreads, mailboxSearch, mailboxLabel, allMails } = data.emails;
   const { chatMessages, rooms } = data.chat;
   const { gaiaDropInbox } = data.drop;

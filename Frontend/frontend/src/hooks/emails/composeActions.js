@@ -302,7 +302,11 @@ export function createComposeActions(ctx) {
               setUploadProgress(0);
               setIsComposing(false);
               fetchMailboxMetadata();
-              triggerAlert('Mail gesendet', 'Ihre GaiaCOM Nachricht wurde verschlüsselt und versendet!');
+              triggerAlert(
+                'Mail gesendet',
+                'Ihre GaiaCOM Nachricht wurde verschlüsselt und versendet!',
+                'success'
+              );
               pollEmails();
             } catch (err) {
               setComposeError(err.message);

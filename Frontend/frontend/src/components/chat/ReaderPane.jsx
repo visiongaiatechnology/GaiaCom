@@ -237,7 +237,7 @@ export const ReaderPane = ({
     downloadJSON(`gaiaproof-${msgId}.json`, proof);
   };
 
-  if (isComposing || currentMenu === 'dashboard' || currentMenu === 'chat' || currentMenu === 'profile' || currentMenu === 'groups' || currentMenu === 'vault' || currentMenu === 'gaiadrop' || currentMenu === 'network_health' || currentMenu === 'public_channels' || currentMenu === 'abuse_center' || currentMenu === 'security_center' || currentMenu === 'gsn') {
+  if (isComposing || currentMenu === 'dashboard' || currentMenu === 'chat' || currentMenu === 'profile' || currentMenu === 'groups' || currentMenu === 'vault' || currentMenu === 'gaiadrop' || currentMenu === 'network_health' || currentMenu === 'public_channels' || currentMenu === 'abuse_center' || currentMenu === 'security_center' || currentMenu === 'gsn' || currentMenu === 'contacts') {
     return null;
   }
 
@@ -285,6 +285,7 @@ export const ReaderPane = ({
               msg={msg}
               index={index}
               contact={findContact(contacts, msg.sender)}
+              single={messages.length === 1}
               isExpanded={Boolean(expandedMsgs[msg.id])}
               onToggle={() => toggleExpand(msg.id, msg.isSmtp)}
               trustPassport={trustPassports[msg.sender]}

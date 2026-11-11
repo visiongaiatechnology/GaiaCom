@@ -71,6 +71,9 @@ export default function createInboxActions({
     setComposeBody('');
     setComposeReplyTo(null);
     setSelectedMail(null);
+    // Compose lives in the mail workspace: leave the address book surface so the
+    // composer and the contact list can never be mounted on top of each other.
+    if (typeof setCurrentMenu === 'function') setCurrentMenu('inbox');
   };
 
   const handleOpenChat = (contact) => {

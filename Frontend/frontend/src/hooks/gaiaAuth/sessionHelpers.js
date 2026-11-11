@@ -39,33 +39,41 @@ export function recordPinUnlockFailure() {
   });
 }
 
+/*
+ * "Unlock after reload" (/Einstellungen/Sicherheit) is a per-tab setting: the
+ * session has to survive an F5 within the configured window, so the record is
+ * kept in sessionStorage (tab-scoped, gone when the tab closes) as well as in
+ * memory. The mnemonic therefore persists in this tab's sessionStorage for the
+ * user-chosen duration only; setting the window to 0 removes it immediately.
+ * Storage access is wrapped so a blocked/quota-full sessionStorage still leaves
+ * the in-memory session working.
+ */
 export function readCryptoSession(expectedUserId, enabledMinutes) {
   if (!enabledMinutes || enabledMinutes <= 0) {
     volatileCryptoSession = null;
-    sessionStorage.removeItem(CRYPTO_SESSION_KEY);
+    try { sessionStorage.removeItem(CRYPTO_SESSION_KEY); } catch (_) {}
     return null;
   }
+  let parsed = volatileCryptoSession;
   try {
-    sessionStorage.removeItem(CRYPTO_SESSION_KEY);
-    const parsed = volatileCryptoSession;
-    if (!parsed || parsed.userId !== expectedUserId || !parsed.mnemonic || Number(parsed.expiresAt) <= Date.now()) {
-      volatileCryptoSession = null;
-      return null;
-    }
-    return parsed;
-  } catch (_) {
+    const stored = safeJsonParse(sessionStorage.getItem(CRYPTO_SESSION_KEY), null);
+    if (stored && typeof stored === 'object') parsed = stored;
+  } catch (_) {}
+  if (!parsed || parsed.userId !== expectedUserId || !parsed.mnemonic || Number(parsed.expiresAt) <= Date.now()) {
     volatileCryptoSession = null;
+    try { sessionStorage.removeItem(CRYPTO_SESSION_KEY); } catch (_) {}
     return null;
   }
+  volatileCryptoSession = parsed;
+  return parsed;
 }
 
 export function writeCryptoSession(userValue, mnemonicValue, enabledMinutes, hqc256 = null) {
   if (!userValue?.id || !mnemonicValue || !enabledMinutes || enabledMinutes <= 0) {
     volatileCryptoSession = null;
-    sessionStorage.removeItem(CRYPTO_SESSION_KEY);
+    try { sessionStorage.removeItem(CRYPTO_SESSION_KEY); } catch (_) {}
     return;
   }
-  sessionStorage.removeItem(CRYPTO_SESSION_KEY);
   volatileCryptoSession = {
     userId: userValue.id,
     username: userValue.username || '',
@@ -74,11 +82,16 @@ export function writeCryptoSession(userValue, mnemonicValue, enabledMinutes, hqc
     hqc256,
     expiresAt: Date.now() + enabledMinutes * 60 * 1000
   };
+  try {
+    sessionStorage.setItem(CRYPTO_SESSION_KEY, JSON.stringify(volatileCryptoSession));
+  } catch (_) {
+    try { sessionStorage.removeItem(CRYPTO_SESSION_KEY); } catch (_) {}
+  }
 }
 
 export function clearCryptoSession() {
   volatileCryptoSession = null;
-  sessionStorage.removeItem(CRYPTO_SESSION_KEY);
+  try { sessionStorage.removeItem(CRYPTO_SESSION_KEY); } catch (_) {}
 }
 
 export async function loadSovereignKeys(password) {

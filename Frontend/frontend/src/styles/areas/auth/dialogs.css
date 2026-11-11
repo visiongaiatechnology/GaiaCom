@@ -5,11 +5,14 @@
    so their public props stay untouched and their visuals live here.
    ========================================================================== */
 
-/* ---------- Human-proof dialog (Z4) ---------- */
-.vgt-hp {
-  width: min(520px, 100%);
-  max-height: min(92dvh, 860px);
+/* ---------- Human-proof dialog (Z4) ----------
+   Two classes on purpose: `media/dialogs.css` sets `.vgt-dialog { width: 100% }`
+   and loads later, which previously stretched this dialog across the viewport. */
+.vgt-dialog.vgt-hp {
+  width: min(560px, 100%);
+  max-height: min(90dvh, 840px);
   overflow-y: auto;
+  gap: var(--vgt-space-3);
 }
 
 .vgt-hp__head {
@@ -21,6 +24,34 @@
 
 .vgt-hp__head .vgt-h3 {
   margin: 2px 0 0;
+}
+
+.vgt-hp__head .vgt-caption {
+  margin: 2px 0 0;
+}
+
+.vgt-hp__intro {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--vgt-space-2);
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-hp__intro .vgt-icon {
+  margin-top: 2px;
+  color: var(--vgt-pigment);
+  flex: none;
+}
+
+.vgt-hp__intro p {
+  margin: 0;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
 }
 
 .vgt-hp__seal {
@@ -37,12 +68,20 @@
 
 .vgt-hp__phrase {
   display: flex;
-  flex-direction: column;
-  gap: var(--vgt-space-1);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
   padding: var(--vgt-space-3);
   border-radius: var(--vgt-radius-control);
   border: var(--vgt-hairline) solid var(--vgt-border);
   background: var(--vgt-bg-1);
+}
+
+.vgt-hp__phrase-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-1);
+  min-width: 0;
 }
 
 .vgt-hp__phrase strong {
@@ -52,10 +91,46 @@
   overflow-wrap: anywhere;
 }
 
+.vgt-hp__phrase-copy {
+  flex: none;
+}
+
 .vgt-hp .vgt-field {
   display: flex;
   flex-direction: column;
   gap: var(--vgt-space-2);
+}
+
+.vgt-hp__match {
+  margin: 0;
+  font-size: var(--vgt-text-xs);
+  color: var(--vgt-text-muted);
+}
+
+.vgt-hp__match.is-match {
+  color: var(--vgt-success);
+}
+
+.vgt-hp__progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-hp__progress-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-hp__progress-head .vgt-label {
+  color: var(--vgt-text-muted);
+}
+
+.vgt-hp__progress-head strong {
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-lg);
 }
 
 .vgt-hp__meter {

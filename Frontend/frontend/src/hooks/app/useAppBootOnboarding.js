@@ -3,9 +3,10 @@ import { useCallback, useEffect } from 'react';
 /* First-run onboarding + boot-sequence effects, plus the hasActiveContent derivation
    (moved verbatim; same storage keys, timers and dependency arrays). */
 export default function useAppBootOnboarding({ auth, ui, markers, data }) {
-  const { user, derivedKeys, isLocked, showWizard, activeIdentity } = auth;
+  const { user, derivedKeys, isLocked, showWizard } = auth;
   const { showFirstRunOnboarding, setShowFirstRunOnboarding, setShowBootSequence, bootSequenceSeenRef, onboardingSeenKeyRef } = markers;
-  const { currentMenu, setCurrentMenu, setMobileMenuOpen, publicChannelCreatorOpen, activeProfileSection } = ui;
+  // `activeIdentity` lives in the UI shell (identity wiring), not in the auth hook.
+  const { currentMenu, setCurrentMenu, setMobileMenuOpen, publicChannelCreatorOpen, activeProfileSection, activeIdentity } = ui;
   const { mailSettings, saveSettings, selectedMail, isComposing, setSelectedMail, setIsComposing } = data.emails;
   const { activeChatContact, activeRoom } = data.chat;
   const { activePublicChannel } = data.publicChannels;

@@ -132,6 +132,12 @@ export default function useGaiaAuth({ triggerAlert, fetchIdentities, clearAllDat
     async function checkAuth() {
       const statusRes = await api.getStatus();
       if (statusRes.status === 'authenticated') {
+        // Rotate the session cookie once before the workspace boots. Without this
+        // the first poll pair after a reload/idle phase hits 401 twice before the
+        // client's single refresh retry runs (console noise, no functional gain).
+        try {
+          await api.rotateSession();
+        } catch (_) {}
         const cryptoSession = readCryptoSession(statusRes.user_id, cryptoSessionMinutes);
         if (cryptoSession) {
           const keys = crypto.deriveKeysFromMnemonic(cryptoSession.mnemonic);

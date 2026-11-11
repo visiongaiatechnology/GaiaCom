@@ -6,9 +6,10 @@ import { mergeContactRecords } from '../../utils/contacts';
 /* Mount-time synchronisation effects: inactivity lock, drop inbox, identity/contact/profile
    hydration, polling loop and SMTP body class (moved verbatim, same deps/cleanup). */
 export default function useAppSyncEffects({ auth, ui, prefs, account, data, identity, t }) {
-  const { user, derivedKeys, isLocked, handleLock, activeIdentity, setShowWizard } = auth;
-  const { inactivityLockMinutes } = prefs;
-  const { currentMenu, triggerAlert, setContacts } = ui;
+  const { user, derivedKeys, isLocked, handleLock, setShowWizard, mnemonic, writeCryptoSession } = auth;
+  const { inactivityLockMinutes, cryptoSessionMinutes } = prefs;
+  // `activeIdentity` lives in the UI shell (identity wiring), not in the auth hook.
+  const { currentMenu, triggerAlert, setContacts, activeIdentity } = ui;
   const { fetchIdentities } = identity;
   const {
     setProfileDisplayName, setProfileRealName, setProfileWebsite, setProfileBio, setProfileAvatar
@@ -81,16 +82,43 @@ export default function useAppSyncEffects({ auth, ui, prefs, account, data, iden
   }, [user]);
 
 
-  // Fetch inbox, sent folders, and rooms on timer loop
+  // Fetch inbox, sent folders, and rooms on timer loop.
+  // Before the first poll (and whenever the tab becomes visible again) the
+  // session cookie is refreshed once: after an idle/background phase the first
+  // parallel requests would otherwise both hit 401 before the single refresh
+  // runs, which is pure console noise. Polls are paused while that refresh is
+  // in flight.
   useEffect(() => {
     let interval = null;
-    if (activeIdentity && derivedKeys && !isLocked) {
+    let disposed = false;
+    let refreshing = false;
+    const refreshSession = async () => {
+      if (refreshing) return;
+      refreshing = true;
+      try {
+        await api.rotateSession();
+      } catch (_) {
+        // Session/offline errors surface through the normal API error handling.
+      } finally {
+        refreshing = false;
+      }
+    };
+    const poll = () => {
+      if (refreshing) return;
       pollEmails();
       fetchRooms();
-      interval = setInterval(() => {
-        pollEmails();
-        fetchRooms();
-      }, 4000);
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshSession();
+      }
+    };
+    if (activeIdentity && derivedKeys && !isLocked) {
+      refreshSession().then(() => {
+        if (!disposed) poll();
+      });
+      interval = setInterval(poll, 4000);
+      document.addEventListener('visibilitychange', onVisibilityChange);
     } else {
       setInboxEmails([]);
       setSentEmails([]);
@@ -101,10 +129,20 @@ export default function useAppSyncEffects({ auth, ui, prefs, account, data, iden
       setActiveChannel(null);
     }
     return () => {
+      disposed = true;
       if (interval) clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIdentity, derivedKeys, isLocked]);
+
+  // Keep the tab-scoped crypto session in sync with the "Unlock after reload"
+  // setting: changing the window while unlocked must take effect immediately,
+  // not only after the next manual unlock.
+  useEffect(() => {
+    if (!user?.id || !mnemonic || !derivedKeys || isLocked) return;
+    writeCryptoSession(user, mnemonic, cryptoSessionMinutes, derivedKeys.hqc256 || null);
+  }, [cryptoSessionMinutes, user, mnemonic, derivedKeys, isLocked, writeCryptoSession]);
 
   // Toggle warning-red SMTP class on body
   useEffect(() => {

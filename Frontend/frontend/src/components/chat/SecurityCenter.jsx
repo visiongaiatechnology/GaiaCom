@@ -5,6 +5,7 @@ import SecurityStatusTab from './security/tabs/SecurityStatusTab';
 import SecurityEventsTab from './security/tabs/SecurityEventsTab';
 import SecurityPassportTab from './security/tabs/SecurityPassportTab';
 import NodeOperatorTab from './security/tabs/NodeOperatorTab';
+import IdentityAdminTab from './security/tabs/IdentityAdminTab';
 import NodeSystemTab from './security/tabs/NodeSystemTab';
 import useSecurityCenter from './security/hooks/useSecurityCenter';
 import useHumanProof from './security/hooks/useHumanProof';
@@ -98,6 +99,14 @@ export default function SecurityCenter({ activeIdentity, derivedKeys, t, trigger
                 nodeOperatorError={security.nodeOperatorError}
                 isOperator={security.isOperator}
                 t={t}
+              />
+            ) : null}
+
+            {security.activeTab === 'identity_admin' && security.isOperator ? (
+              <IdentityAdminTab
+                isOperator={security.isOperator}
+                t={t}
+                triggerAlert={triggerAlert}
               />
             ) : null}
 

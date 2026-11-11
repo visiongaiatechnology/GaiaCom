@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Icon from '../../ui/Icon';
+import { isMediaKnownMissing, markMediaMissing, isMissingMediaError } from '../../../utils/mediaFailureCache';
 import * as api from '../../../api';
 import * as crypto from '../../../crypto';
 import {
@@ -26,6 +27,11 @@ export function DecryptedImage({ fileId, keyHex, ivHex, alt }) {
     let createdUrl = '';
     const load = async () => {
       try {
+        if (isMediaKnownMissing(fileId)) {
+          // Already reported as expired/deleted in this session: skip the request.
+          if (active) { setExpired(true); setLoading(false); }
+          return;
+        }
         const blob = await api.downloadFileAttachment(fileId, { maxBytes: MAX_DIRECT_ATTACHMENT_BYTES });
         if (exceedsLimit(blob?.size, MAX_DIRECT_ATTACHMENT_BYTES)) {
           throw limitError('Der Anhang', MAX_DIRECT_ATTACHMENT_BYTES);
@@ -41,8 +47,8 @@ export function DecryptedImage({ fileId, keyHex, ivHex, alt }) {
           setLoading(false);
         }
       } catch (err) {
-        const message = String(err?.message || err || '');
-        const expectedMissingFile = message.includes('File expired or deleted');
+        const expectedMissingFile = isMissingMediaError(err);
+        if (expectedMissingFile) markMediaMissing(fileId);
         if (!expectedMissingFile) {
           console.error('Failed to decrypt image:', err);
         }

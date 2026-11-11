@@ -39,7 +39,7 @@ export default function AppContentPane({theme, ui, prefs, markers, auth, account
     filterRules, handleExportDisclosurePackage, handleFileUpload, handleReplyMail, handleReportMail,
     handleSendMail, inboxEmails, isComposing, isSavingDraft, isSmtpMode, labelsList, mailSettings,
     mailboxLabel, mailboxSearch, saveFilterRule, saveLabel, saveSettings, selectedMail,
-    selectedMailProof, setComposeBody, setComposeScheduledFor, setComposeSubject, setComposeTo,
+    selectedMailProof, setComposeBody, setComposeReplyTo, setComposeScheduledFor, setComposeSubject, setComposeTo,
     setInboxEmails, setIsComposing, setIsSmtpMode, setMailboxLabel, setMailboxSearch,
     setSelectedMail, setSentEmails, snoozeMail, updateMailboxState, uploadFile, uploadProgress,
   } = data.emails;
@@ -56,7 +56,23 @@ export default function AppContentPane({theme, ui, prefs, markers, auth, account
     setShowCreateGroupModal, setShowEmojiPicker, showEmojiPicker, slowModeCooldowns, toggleBlockContact,
     uploadChatFile,
   } = data.chat;
-  const { openContactProfile } = data.contactActions;
+  const contactActions = data.contactActions;
+  const { openContactProfile } = contactActions;
+
+  // Address-book → mail handoff: start a real compose and move the workspace to
+  // the mail context, so the contacts surface cannot stay mounted underneath the
+  // composer (the "two panes at once" bug).
+  const handleComposeContact = React.useCallback((contact) => {
+    const address = displayGaiaID(contact?.gaiaID || contact?.GaiaID || '');
+    if (!address) return;
+    setComposeTo(address);
+    setComposeSubject('');
+    setComposeBody('');
+    setComposeReplyTo(null);
+    setSelectedMail(null);
+    setIsComposing(true);
+    setCurrentMenu('inbox');
+  }, [displayGaiaID, setComposeTo, setComposeSubject, setComposeBody, setComposeReplyTo, setSelectedMail, setIsComposing, setCurrentMenu]);
   const { messageMeta, reactToMessage, toggleMessagePin, toggleMessageSaved } = data.messageMeta;
   const {
     activePublicChannel, createPublicChannel, createPublicChannelPost, createPublicChannelPostComment,
@@ -130,6 +146,8 @@ export default function AppContentPane({theme, ui, prefs, markers, auth, account
         setSentEmails={setSentEmails}
         handleClearDirectChat={handleClearDirectChat}
         openContactProfile={openContactProfile}
+        contactActions={contactActions}
+        onComposeContact={handleComposeContact}
         messageMeta={messageMeta}
         toggleMessagePin={toggleMessagePin}
         toggleMessageSaved={toggleMessageSaved}

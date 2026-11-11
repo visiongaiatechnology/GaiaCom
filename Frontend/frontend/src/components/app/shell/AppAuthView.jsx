@@ -47,8 +47,14 @@ export default function AppAuthView({auth, account, data, t}) {
         onPasswordChange={setPasswordInput}
         onMnemonicChange={setMnemonic}
         onToggleMode={() => {
-          setIsRegister(!isRegister);
+          const nextRegister = !isRegister;
+          setIsRegister(nextRegister);
           setAuthError('');
+          // Registration must never dead-end on an empty seed: auto-generate a
+          // valid BIP39 phrase as soon as the user opens "Create new account".
+          if (nextRegister && !mnemonic) {
+            handleGenerateMnemonic();
+          }
         }}
         onGenerateMnemonic={handleGenerateMnemonic}
         onCopyMnemonic={() => {

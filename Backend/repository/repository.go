@@ -24,6 +24,7 @@ type Store interface {
 	SecurityStore
 	PresenceStore
 	GsnStore
+	AttestationStore
 }
 
 type DistributedRateLimitStore interface {
@@ -339,4 +340,20 @@ type GsnStore interface {
 	ListGsnSuggestionCandidates(ctx context.Context, requesterGaiaID string, since string, limit int) ([]models.GsnSuggestion, error)
 	ListGsnFollowerIDs(ctx context.Context, gaiaID string, limit int) ([]string, error)
 	ListGsnFollowingIDs(ctx context.Context, gaiaID string, limit int) ([]string, error)
+}
+
+// AttestationStore persists node-signed identity attestations and the
+// operator identity-directory access transparency log.
+type AttestationStore interface {
+	CreateAttestation(ctx context.Context, attestation *models.IdentityAttestation) error
+	GetAttestationByID(ctx context.Context, id string) (*models.IdentityAttestation, error)
+	CountActiveAttestationKey(ctx context.Context, subjectGaiaID, attestationType, issuerGaiaID string) (int64, error)
+	RevokeAttestation(ctx context.Context, id, revokedAt, revokedReason string) (bool, error)
+	ListAttestationsBySubject(ctx context.Context, subjectGaiaID string, limit int) ([]models.IdentityAttestation, error)
+	ListAttestationsForOperator(ctx context.Context, activeOnly bool, limit, offset int) ([]models.IdentityAttestation, error)
+	CountActiveAttestations(ctx context.Context, now string) (int64, error)
+	OperatorStats(ctx context.Context, now, since24h string) (*models.OperatorStats, error)
+	ListOperatorDirectory(ctx context.Context, query string, limit, offset int) ([]models.OperatorDirectoryEntry, int64, error)
+	RecordIdentityDirectoryAccess(ctx context.Context, access *models.NodeIdentityAccessLog) error
+	ListIdentityAccessLog(ctx context.Context, limit int) ([]models.NodeIdentityAccessLog, error)
 }

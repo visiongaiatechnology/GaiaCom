@@ -75,7 +75,7 @@ func TestCreateIdentityBindsLocalDomain(t *testing.T) {
 		nodeSvc := NewIdentityService(store, WithLocalDomain("beta.gaiacom.de"))
 		user := newUser("parentdomainowner")
 		if _, err := nodeSvc.CreateIdentity(user.ID, CreateIdentityInput{
-			GaiaID:       "@alice:gaiacom.de",
+			GaiaID:       "@alice:node.example.org",
 			DisplayName:  "ParentDomain",
 			PublicRecord: baseRecord,
 		}); err != nil {

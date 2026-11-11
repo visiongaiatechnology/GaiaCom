@@ -30,7 +30,8 @@ export default function AppWorkspaceShell({theme, ui, prefs, markers, auth, acco
   const isGsn = ui.currentMenu === 'gsn';
   const contentWide = ui.mailListCollapsed || ui.currentMenu === 'dashboard' ||
     ui.currentMenu === 'network_health' || ui.currentMenu === 'abuse_center' ||
-    ui.currentMenu === 'security_center' || isGsn;
+    ui.currentMenu === 'security_center' || ui.currentMenu === 'gaiadrop' ||
+    ui.currentMenu === 'contacts' || isGsn;
 
   return (
     <>

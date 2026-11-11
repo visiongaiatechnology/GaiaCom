@@ -116,7 +116,7 @@ export function getHeaders(extraHeaders = {}) {
   };
 }
 
-async function rotateSession() {
+export async function rotateSession() {
   if (refreshPromise) return refreshPromise;
   refreshPromise = (async () => {
     const res = await fetch(`${BASE_URL}/api/v1/auth/refresh`, {

@@ -1,5 +1,6 @@
 import React from 'react';
 import Icon from '../../ui/Icon';
+import VerificationBadges from '../../common/VerificationBadges';
 import GaiaPassportCard from '../../common/GaiaPassportCard';
 import AvatarMark from '../profile/ui/AvatarMark';
 import { safeWebsiteUrl } from '../../../utils/safeHttpUrl';
@@ -95,6 +96,7 @@ export default function GsnProfileDrawer({
                 <div className="vgt-gsn-profile__identity">
                   <h3 className="vgt-gsn-profile__name">{displayName}</h3>
                   {handle && <span className="vgt-gsn-profile__handle">{handle}</span>}
+                  <VerificationBadges gaiaID={activeProfile.gaiaId} showIssuer />
                   {badges.length > 0 && (
                     <div className="vgt-gsn-profile__badges">
                       {badges.map(badge => (

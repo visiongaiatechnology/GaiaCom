@@ -100,13 +100,16 @@ button.vgt-step__item:focus-visible {
 }
 
 /* ---------- Feedback dialog (Z4) ---------- */
-.vgt-modal {
+/* Two classes on purpose: the media/dialog stylesheet also targets `.vgt-dialog`
+   with a full-width base rule; feedback dialogs must stay compact regardless of
+   stylesheet order. */
+.vgt-dialog.vgt-modal,
+.vgt-dialog.vgt-dialog--modal {
   width: min(460px, 100%);
-  gap: var(--vgt-space-3);
 }
 
-.vgt-dialog--modal {
-  width: min(460px, 100%);
+.vgt-modal {
+  gap: var(--vgt-space-3);
 }
 
 .vgt-dialog--wide-modal {

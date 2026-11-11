@@ -258,6 +258,7 @@ export default function HumanProofDialog({
             <div>
               <p className="vgt-label">Gaia Passport</p>
               <h2 className="vgt-h3" id="vgt-hp-title">Ich bin ein Mensch</h2>
+              <p className="vgt-caption">Challenge-basierte Mensch-Verifikation</p>
             </div>
           </div>
           <button
@@ -271,16 +272,33 @@ export default function HumanProofDialog({
           </button>
         </header>
 
-        <p className="vgt-body vgt-body--sm">
-          Diese Verifizierung bestätigt bewusst eine Challenge und lässt danach eine lokale
-          SHA-256-Ceremony laufen. Sie belegt Rechenaufwand und erschwert Massenbots, ersetzt aber
-          keine amtliche Identitätsprüfung. Als verifiziert gilt der Passport erst nach der
-          Serverprüfung — ein lokaler Nachweis allein wird nicht als verifiziert angezeigt.
-        </p>
+        <div className="vgt-hp__intro">
+          <Icon name="info" size={16} aria-hidden="true" />
+          <p>
+            Belegt Rechenaufwand gegen Massenbots — keine amtliche Identitätsprüfung. Als
+            verifiziert gilt der Passport erst nach der Serverprüfung; ein lokaler Nachweis allein
+            wird nicht als verifiziert angezeigt.
+          </p>
+        </div>
 
         <div className="vgt-hp__phrase">
-          <span className="vgt-label">Challenge-Phrase</span>
-          <strong className="vgt-mono">{challenge.phrase}</strong>
+          <div className="vgt-hp__phrase-block">
+            <span className="vgt-label">Challenge-Phrase</span>
+            <strong className="vgt-mono">{challenge.phrase}</strong>
+          </div>
+          <button
+            type="button"
+            className="btn-ghost vgt-hp__phrase-copy"
+            onClick={() => {
+              try {
+                navigator.clipboard?.writeText(challenge.phrase);
+              } catch (_) {}
+            }}
+            title="Phrase kopieren"
+          >
+            <Icon name="copy" size={14} />
+            Kopieren
+          </button>
         </div>
 
         <div className="vgt-field">
@@ -289,29 +307,46 @@ export default function HumanProofDialog({
             id="vgt-hp-phrase"
             type="text"
             className="input-field"
+            placeholder="Phrase hier eintippen…"
             value={phraseInput}
             onChange={event => setPhraseInput(event.target.value)}
             disabled={running}
             autoComplete="off"
             spellCheck="false"
+            aria-describedby="vgt-hp-match-hint"
           />
+          <p
+            className={`vgt-hp__match${phraseMatches ? ' is-match' : ''}`}
+            id="vgt-hp-match-hint"
+            role="status"
+          >
+            {phraseMatches
+              ? 'Phrase stimmt überein — Verifizierung kann starten.'
+              : phraseInput
+                ? 'Noch nicht identisch. Groß-/Kleinschreibung und Wortabstände zählen.'
+                : 'Wortabstände mit einzelnen Leerzeichen; Groß-/Kleinschreibung wird ignoriert.'}
+          </p>
         </div>
 
-        <div
-          className="vgt-hp__meter"
-          role="progressbar"
-          aria-label="Fortschritt der Human-Proof-Ceremony"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={percent}
-        >
-          <div className="vgt-hp__meter-fill" style={{ width: `${percent}%` }} />
-        </div>
-
-        <div className="vgt-hp__stats">
-          <span className="vgt-numeric">{percent} %</span>
-          <span className="vgt-numeric">{iterations.toLocaleString()} SHA-Runden</span>
-          <code className="vgt-mono">{digest ? `${digest.slice(0, 18)}...${digest.slice(-10)}` : 'wartet'}</code>
+        <div className="vgt-hp__progress">
+          <div className="vgt-hp__progress-head">
+            <span className="vgt-label">Ceremony</span>
+            <strong className="vgt-numeric">{percent} %</strong>
+          </div>
+          <div
+            className="vgt-hp__meter"
+            role="progressbar"
+            aria-label="Fortschritt der Human-Proof-Ceremony"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={percent}
+          >
+            <div className="vgt-hp__meter-fill" style={{ width: `${percent}%` }} />
+          </div>
+          <div className="vgt-hp__stats">
+            <span className="vgt-numeric">{iterations.toLocaleString()} SHA-Runden</span>
+            <code className="vgt-mono">{digest ? `${digest.slice(0, 18)}...${digest.slice(-10)}` : 'wartet'}</code>
+          </div>
         </div>
 
         {result ? (
@@ -330,12 +365,15 @@ export default function HumanProofDialog({
         ) : null}
 
         <footer className="vgt-dialog__foot">
+          <span className="vgt-caption" style={{ marginRight: 'auto' }}>
+            Dauer ca. 5 Minuten · lokal + Serverprüfung
+          </span>
           <button type="button" className="btn-secondary" onClick={closeDialog} disabled={running}>
             Abbrechen
           </button>
           <button type="button" className="btn-primary" onClick={startProof} disabled={!phraseMatches || running}>
             <Icon name="shieldCheck" size={16} />
-            {running ? 'Prüfung läuft' : '5-Minuten-Verifizierung starten'}
+            {running ? 'Prüfung läuft …' : 'Verifizierung starten'}
           </button>
         </footer>
       </div>

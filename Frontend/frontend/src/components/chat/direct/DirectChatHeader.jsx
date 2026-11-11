@@ -1,5 +1,6 @@
 import React from 'react';
 import Icon from '../../ui/Icon';
+import VerificationBadges from '../../common/VerificationBadges';
 import useDismissibleMenu from '../shared/useDismissibleMenu';
 import { buildRoleBadges, senderInitials } from '../shared/roleBadges';
 import SecurityStateChip from '../shared/SecurityStateChip';
@@ -59,6 +60,7 @@ export default function DirectChatHeader({
         >
           <span className="vgt-chat-head__name-row">
             <span className="vgt-chat-head__name">{displayName}</span>
+            <VerificationBadges gaiaID={contact.gaiaID} compact />
             {roles.map(role => (
               <span key={role.key} className={`vgt-role vgt-role--${role.variant}`}>{role.label}</span>
             ))}

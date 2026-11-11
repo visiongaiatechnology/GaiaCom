@@ -13,8 +13,8 @@ import (
 )
 
 const (
-	gsnNotificationListLimit = 50
-	gsnNotificationPreviewMax = 120
+	gsnNotificationListLimit   = 50
+	gsnNotificationPreviewMax  = 120
 	gsnTrendWindowHoursDefault = 168
 	gsnTrendWindowHoursMin     = 1
 	gsnTrendWindowHoursMax     = 720

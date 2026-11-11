@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"gaiacom/backend/attestations"
 	"gaiacom/backend/auth"
 	"gaiacom/backend/buildinfo"
 	"gaiacom/backend/devices"
@@ -176,6 +177,12 @@ func SetupRoutesWithRuntimeConfig(rootContext context.Context, store repository.
 	gsnService := gsn.NewService(store, fedService, secSystem)
 	gsnHandler := gsn.NewHandler(gsnService)
 
+	attestationService, err := attestations.NewService(store, govService, serverName, serverPrivKey)
+	if err != nil {
+		return nil, fmt.Errorf("initialize attestation registry: %w", err)
+	}
+	attestationHandler := attestations.NewHandler(attestationService)
+
 	router.POST("/api/v1/auth/register", authHandler.Register)
 	router.GET("/livez", monitor.Liveness)
 	router.GET("/readyz", monitor.Readiness)
@@ -336,6 +343,15 @@ func SetupRoutesWithRuntimeConfig(rootContext context.Context, store repository.
 	protected.GET("/api/v1/gsn/trends", gsnHandler.GetTrends)
 	protected.GET("/api/v1/gsn/suggestions", gsnHandler.GetSuggestions)
 	protected.GET("/api/v1/gsn/network", gsnHandler.GetNetwork)
+
+	// Attestation registry + node-operator transparency
+	protected.GET("/api/v1/identities/:gaia_id/attestations", attestationHandler.GetSubjectAttestations)
+	protected.POST("/api/v1/node/attestations", attestationHandler.CreateAttestation)
+	protected.DELETE("/api/v1/node/attestations/:id", attestationHandler.RevokeAttestation)
+	protected.GET("/api/v1/node/attestations", attestationHandler.ListIssuedAttestations)
+	protected.GET("/api/v1/node/operator/stats", attestationHandler.GetOperatorStats)
+	protected.POST("/api/v1/node/identities/directory", attestationHandler.ListIdentityDirectory)
+	protected.GET("/api/v1/node/operator/access-log", attestationHandler.GetAccessLog)
 
 	protected.POST("/api/v1/rooms/create", roomHandler.CreateRoom)
 	protected.POST("/api/v1/rooms/update", roomHandler.UpdateRoom)

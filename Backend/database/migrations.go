@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-const currentSchemaVersion = 4
+const currentSchemaVersion = 5
 
 var sqlIdentifierPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
@@ -195,6 +195,11 @@ func registeredMigrations() []schemaMigration {
 			version:    4,
 			name:       "gsn_notifications",
 			statements: gsnNotificationMigrationStatements,
+		},
+		{
+			version:    5,
+			name:       "identity_attestations",
+			statements: identityAttestationMigrationStatements,
 		},
 	}
 }

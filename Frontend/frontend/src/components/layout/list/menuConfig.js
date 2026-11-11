@@ -48,15 +48,15 @@ export function isEmailMenu(menu) {
 
 /** Folder segments shown above the mail list. Icons come from the VGT icon set. */
 export const FOLDER_TABS = Object.freeze([
-  { key: 'inbox', label: 'Eingang', icon: 'inbox' },
-  { key: 'smtp_inbox', label: 'SMTP', icon: 'mail' },
-  { key: 'sent', label: 'Ausgang', icon: 'send' },
-  { key: 'starred', label: 'Markiert', icon: 'star' },
-  { key: 'important', label: 'Wichtig', icon: 'bookmark' },
-  { key: 'snoozed', label: 'Später', icon: 'clock' },
-  { key: 'archive', label: 'Archiv', icon: 'archive' },
-  { key: 'spam', label: 'Spam', icon: 'alertOctagon' },
-  { key: 'trash', label: 'Papierkorb', icon: 'trash' }
+  { key: 'inbox', label: 'Eingang', labelKey: 'posteingang', icon: 'inbox' },
+  { key: 'smtp_inbox', label: 'SMTP', labelKey: null, icon: 'mail' },
+  { key: 'sent', label: 'Ausgang', labelKey: 'gesendet', icon: 'send' },
+  { key: 'starred', label: 'Markiert', labelKey: 'markiert', icon: 'star' },
+  { key: 'important', label: 'Wichtig', labelKey: 'wichtig', icon: 'bookmark' },
+  { key: 'snoozed', label: 'Später', labelKey: 'snoozed', icon: 'clock' },
+  { key: 'archive', label: 'Archiv', labelKey: 'archiv', icon: 'archive' },
+  { key: 'spam', label: 'Spam', labelKey: 'spam', icon: 'alertOctagon' },
+  { key: 'trash', label: 'Papierkorb', labelKey: 'papierkorb', icon: 'trash' }
 ]);
 
 function pick(t, key, fallback) {
