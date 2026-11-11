@@ -31,6 +31,12 @@ const METRIC_FIELDS = [
   { key: 'directory_reads_24h', label: 'Verzeichnis-Zugriffe (24 h)' }
 ];
 
+function metricValue(field, stats, statsError) {
+  if (statsError) return '—';
+  const value = stats?.[field.key];
+  return typeof value === 'number' ? value : '—';
+}
+
 /**
  * Node-operator console: business metrics (no personal data), issuing and
  * revoking signed attestations, and the break-glass identity directory with a
@@ -151,6 +157,91 @@ export default function IdentityAdminTab({ isOperator, t, triggerAlert }) {
     }
   };
 
+  const renderIssuedAction = (item) => {
+    if (item.status !== 'valid') {
+      return <span className="vgt-caption">{item.revoked_at ? 'widerrufen' : item.status}</span>;
+    }
+    if (revokeId === item.id) {
+      return (
+        <div className="vgt-admin-revoke">
+          <input
+            className="input-field"
+            type="text"
+            placeholder="Widerrufsgrund"
+            value={revokeReason}
+            onChange={event => setRevokeReason(event.target.value)}
+            aria-label="Widerrufsgrund"
+          />
+          <button
+            type="button"
+            className="btn-danger"
+            disabled={busy || !revokeReason.trim()}
+            onClick={() => revoke(item.id)}
+          >
+            Widerrufen
+          </button>
+          <button type="button" className="btn-ghost" onClick={() => { setRevokeId(''); setRevokeReason(''); }}>
+            Abbrechen
+          </button>
+        </div>
+      );
+    }
+    return (
+      <button type="button" className="btn-ghost" onClick={() => setRevokeId(item.id)}>
+        Widerrufen
+      </button>
+    );
+  };
+
+  let issuedBody = null;
+  if (issuedError) {
+    issuedBody = <p className="vgt-notice vgt-notice--danger" role="alert">{issuedError}</p>;
+  } else if (issued.length === 0) {
+    issuedBody = <p className="vgt-empty-note">Noch keine Attestierungen von diesem Node ausgestellt.</p>;
+  } else {
+    issuedBody = (
+      <ul className="vgt-row-list vgt-admin-issued">
+        {issued.map(item => (
+          <li className="vgt-row" key={item.id}>
+            <div className="vgt-row__main">
+              <strong>{item.subject_gaia_id}</strong>
+              <span className="vgt-row__meta">
+                {ATTESTATION_TYPES[item.type]?.label || item.type} · {item.status}
+                {item.expires_at ? ` · bis ${String(item.expires_at).slice(0, 10)}` : ''}
+              </span>
+              <span className="vgt-row__meta">Evidenz: {item.evidence_ref}</span>
+            </div>
+            {renderIssuedAction(item)}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  let directoryBody = null;
+  if (directory) {
+    const entries = Array.isArray(directory.entries) ? directory.entries : [];
+    if (entries.length === 0) {
+      directoryBody = <p className="vgt-empty-note">Keine Einträge für diese Suche.</p>;
+    } else {
+      directoryBody = (
+        <ul className="vgt-row-list vgt-admin-directory">
+          {entries.map(entry => (
+            <li className="vgt-row" key={entry.gaia_id}>
+              <div className="vgt-row__main">
+                <strong>{entry.display_name || '—'}</strong>
+                <span className="vgt-row__meta vgt-mono">{entry.gaia_id}</span>
+              </div>
+              <span className="vgt-caption">
+                {entry.created_at ? String(entry.created_at).slice(0, 10) : '—'} · {entry.status || 'aktiv'}
+              </span>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+  }
+
   return (
     <div className="vgt-sec-stack">
       <div className="vgt-admin-note" role="note">
@@ -167,11 +258,7 @@ export default function IdentityAdminTab({ isOperator, t, triggerAlert }) {
           <div className="vgt-sec-metric" key={field.key}>
             <dt>{field.label}</dt>
             <dd className="vgt-numeric">
-              {statsError
-                ? '—'
-                : typeof stats?.[field.key] === 'number'
-                  ? stats[field.key]
-                  : '—'}
+              {metricValue(field, stats, statsError)}
             </dd>
           </div>
         ))}
@@ -239,57 +326,7 @@ export default function IdentityAdminTab({ isOperator, t, triggerAlert }) {
 
         <section className="vgt-sec-block" aria-labelledby="vgt-attest-issued-title">
           <h2 className="vgt-h4" id="vgt-attest-issued-title">Ausgestellte Attestierungen</h2>
-          {issuedError ? (
-            <p className="vgt-notice vgt-notice--danger" role="alert">{issuedError}</p>
-          ) : issued.length === 0 ? (
-            <p className="vgt-empty-note">Noch keine Attestierungen von diesem Node ausgestellt.</p>
-          ) : (
-            <ul className="vgt-row-list vgt-admin-issued">
-              {issued.map(item => (
-                <li className="vgt-row" key={item.id}>
-                  <div className="vgt-row__main">
-                    <strong>{item.subject_gaia_id}</strong>
-                    <span className="vgt-row__meta">
-                      {ATTESTATION_TYPES[item.type]?.label || item.type} · {item.status}
-                      {item.expires_at ? ` · bis ${String(item.expires_at).slice(0, 10)}` : ''}
-                    </span>
-                    <span className="vgt-row__meta">Evidenz: {item.evidence_ref}</span>
-                  </div>
-                  {item.status === 'valid' ? (
-                    revokeId === item.id ? (
-                      <div className="vgt-admin-revoke">
-                        <input
-                          className="input-field"
-                          type="text"
-                          placeholder="Widerrufsgrund"
-                          value={revokeReason}
-                          onChange={event => setRevokeReason(event.target.value)}
-                          aria-label="Widerrufsgrund"
-                        />
-                        <button
-                          type="button"
-                          className="btn-danger"
-                          disabled={busy || !revokeReason.trim()}
-                          onClick={() => revoke(item.id)}
-                        >
-                          Widerrufen
-                        </button>
-                        <button type="button" className="btn-ghost" onClick={() => { setRevokeId(''); setRevokeReason(''); }}>
-                          Abbrechen
-                        </button>
-                      </div>
-                    ) : (
-                      <button type="button" className="btn-ghost" onClick={() => setRevokeId(item.id)}>
-                        Widerrufen
-                      </button>
-                    )
-                  ) : (
-                    <span className="vgt-caption">{item.revoked_at ? 'widerrufen' : item.status}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
+          {issuedBody}
         </section>
       </div>
 
@@ -338,25 +375,7 @@ export default function IdentityAdminTab({ isOperator, t, triggerAlert }) {
           </button>
         </form>
         {directoryError ? <p className="vgt-notice vgt-notice--danger" role="alert">{directoryError}</p> : null}
-        {directory ? (
-          Array.isArray(directory.entries) && directory.entries.length > 0 ? (
-            <ul className="vgt-row-list vgt-admin-directory">
-              {directory.entries.map(entry => (
-                <li className="vgt-row" key={entry.gaia_id}>
-                  <div className="vgt-row__main">
-                    <strong>{entry.display_name || '—'}</strong>
-                    <span className="vgt-row__meta vgt-mono">{entry.gaia_id}</span>
-                  </div>
-                  <span className="vgt-caption">
-                    {entry.created_at ? String(entry.created_at).slice(0, 10) : '—'} · {entry.status || 'aktiv'}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="vgt-empty-note">Keine Einträge für diese Suche.</p>
-          )
-        ) : null}
+        {directoryBody}
       </section>
 
       <TransparencyAccessList t={t} />

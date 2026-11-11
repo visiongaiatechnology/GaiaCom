@@ -38,6 +38,34 @@ export default function TransparencyAccessList({ t }) {
 
   if (unsupported) return null;
 
+  let body = null;
+  if (loading) {
+    body = <output className="vgt-empty-note">Transparenz-Log wird geladen …</output>;
+  } else if (error) {
+    body = <p className="vgt-notice vgt-notice--danger" role="alert">{error}</p>;
+  } else if (!events || events.length === 0) {
+    body = <p className="vgt-empty-note">{t('sc_no_access_events') || 'Noch keine Operator-Zugriffe protokolliert.'}</p>;
+  } else {
+    body = (
+      <ul className="vgt-row-list">
+        {events.map(event => (
+          <li className="vgt-row" key={event.id || `${event.created_at}-${event.operator_gaia_id}`}>
+            <div className="vgt-row__main">
+              <strong>{event.operator_gaia_id || 'Unbekannter Operator'}</strong>
+              <span className="vgt-row__meta">
+                Grund: {event.reason || 'ohne Begründung'}
+                {typeof event.result_count === 'number' ? ` · ${event.result_count} Einträge` : ''}
+              </span>
+            </div>
+            <span className="vgt-caption vgt-numeric">
+              {formatTime(event.created_at, t) || event.created_at}
+            </span>
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
     <section className="vgt-sec-block" aria-labelledby="vgt-access-log-title">
       <h2 className="vgt-h4" id="vgt-access-log-title">
@@ -47,30 +75,7 @@ export default function TransparencyAccessList({ t }) {
         Jeder Zugriff auf das paginierte Identitätsverzeichnis (Break-Glass) wird mit Begründung
         protokolliert und hier öffentlich für alle Nutzer dieses Nodes angezeigt.
       </p>
-      {loading ? (
-        <p className="vgt-empty-note" role="status">Transparenz-Log wird geladen …</p>
-      ) : error ? (
-        <p className="vgt-notice vgt-notice--danger" role="alert">{error}</p>
-      ) : !events || events.length === 0 ? (
-        <p className="vgt-empty-note">{t('sc_no_access_events') || 'Noch keine Operator-Zugriffe protokolliert.'}</p>
-      ) : (
-        <ul className="vgt-row-list">
-          {events.map(event => (
-            <li className="vgt-row" key={event.id || `${event.created_at}-${event.operator_gaia_id}`}>
-              <div className="vgt-row__main">
-                <strong>{event.operator_gaia_id || 'Unbekannter Operator'}</strong>
-                <span className="vgt-row__meta">
-                  Grund: {event.reason || 'ohne Begründung'}
-                  {typeof event.result_count === 'number' ? ` · ${event.result_count} Einträge` : ''}
-                </span>
-              </div>
-              <span className="vgt-caption vgt-numeric">
-                {formatTime(event.created_at, t) || event.created_at}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
+      {body}
     </section>
   );
 }

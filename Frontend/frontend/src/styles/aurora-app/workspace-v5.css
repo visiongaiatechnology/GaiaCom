@@ -221,7 +221,7 @@
   height: 48px;
   border-radius: 50%;
   border: 1px solid rgba(0, 229, 255, 0.3);
-  background: rgba(0, 229, 255, 0.08);
+  background: #06141b;
   color: #7ef3ff;
 }
 
@@ -259,7 +259,7 @@ html.is-tauri .app-container {
   padding: 1px 7px;
   border: 1px solid rgba(0, 229, 255, 0.28);
   border-radius: 999px;
-  background: rgba(0, 229, 255, 0.08);
+  background: #07141c;
   color: #bff8ff;
   font-size: 0.64rem;
   font-weight: 650;
@@ -289,21 +289,21 @@ html.is-tauri .app-container {
 
 .vgt-attest-badge--muted {
   border-color: rgba(84, 116, 146, 0.4);
-  background: rgba(84, 116, 146, 0.12);
+  background: #121b24;
   color: #93a9ba;
 }
 .vgt-attest-badge--muted svg { color: #93a9ba; }
 
 .vgt-attest-badge--warning {
   border-color: rgba(255, 200, 87, 0.4);
-  background: rgba(255, 200, 87, 0.1);
+  background: #221d10;
   color: #ffd28a;
 }
 .vgt-attest-badge--warning svg { color: #ffc857; }
 
 .vgt-attest-badge--danger {
   border-color: rgba(255, 102, 125, 0.45);
-  background: rgba(255, 102, 125, 0.1);
+  background: #241016;
   color: #ffb3bf;
 }
 .vgt-attest-badge--danger svg { color: #ff667d; }
@@ -323,7 +323,7 @@ html.is-tauri .app-container {
   padding: 10px 14px;
   border: 1px solid rgba(0, 229, 255, 0.22);
   border-radius: 10px;
-  background: rgba(0, 229, 255, 0.05);
+  background: #08131b;
   color: #c3d6e2;
   font-size: 0.76rem;
   line-height: 1.55;

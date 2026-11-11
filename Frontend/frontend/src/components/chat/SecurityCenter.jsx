@@ -10,6 +10,102 @@ import NodeSystemTab from './security/tabs/NodeSystemTab';
 import useSecurityCenter from './security/hooks/useSecurityCenter';
 import useHumanProof from './security/hooks/useHumanProof';
 
+function SecurityLoadError({ error, onReload, t }) {
+  if (!error) return null;
+  return (
+    <div className="vgt-notice vgt-notice--danger" role="alert" aria-labelledby="vgt-sec-load-error-title">
+      <div>
+        <strong id="vgt-sec-load-error-title">Sicherheitsdaten nicht geladen</strong>
+        <p className="vgt-body vgt-body--sm">{error}</p>
+        <p className="vgt-caption">
+          Es werden bewusst keine Ersatzwerte angezeigt. Prüfe die Verbindung und lade erneut.
+        </p>
+        <div className="vgt-profile-form__actions">
+          <button type="button" className="btn-secondary" onClick={onReload}>
+            {t('sc_btn_load_again') || 'Erneut laden'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SecurityTabContent({ security, activeIdentity, derivedKeys, proof, t, triggerAlert }) {
+  const tab = security.activeTab;
+  const isOperator = security.isOperator;
+  return (
+    <div className="vgt-sec-stack">
+      <SecurityLoadError error={security.summaryError} onReload={security.loadData} t={t} />
+
+      {tab === 'status' ? (
+        <SecurityStatusTab
+          summary={security.summary}
+          events={security.events}
+          eventsLoaded={security.eventsLoaded}
+          handleAcknowledge={security.handleAcknowledge}
+          t={t}
+        />
+      ) : null}
+
+      {tab === 'events' ? (
+        <SecurityEventsTab
+          events={security.events}
+          filteredEvents={security.filteredEvents}
+          filterSeverity={security.filterSeverity}
+          setFilterSeverity={security.setFilterSeverity}
+          filterCategory={security.filterCategory}
+          setFilterCategory={security.setFilterCategory}
+          handleAcknowledge={security.handleAcknowledge}
+          handleExport={security.handleExport}
+          loadData={security.loadData}
+          loading={security.loading}
+          loadError={security.eventsError || security.summaryError}
+          t={t}
+        />
+      ) : null}
+
+      {tab === 'passport' ? (
+        <SecurityPassportTab
+          activeIdentity={activeIdentity}
+          derivedKeys={derivedKeys}
+          humanProof={proof.humanProof}
+          trustPassport={proof.trustPassport}
+          passportError={proof.passportError}
+          onOpenHumanProof={() => proof.setShowHumanProofDialog(true)}
+          onRefresh={proof.refresh}
+          t={t}
+        />
+      ) : null}
+
+      {tab === 'node_operator' ? (
+        <NodeOperatorTab
+          nodeSummary={security.nodeSummary}
+          nodeEvents={security.nodeEvents}
+          nodeOperatorError={security.nodeOperatorError}
+          isOperator={isOperator}
+          t={t}
+        />
+      ) : null}
+
+      {tab === 'identity_admin' && isOperator ? (
+        <IdentityAdminTab isOperator={isOperator} t={t} triggerAlert={triggerAlert} />
+      ) : null}
+
+      {tab === 'node_system' && isOperator ? (
+        <NodeSystemTab
+          nodeRegistry={security.nodeRegistry}
+          nodeRegistryError={security.nodeRegistryError}
+          nodeSecrets={security.nodeSecrets}
+          handleGenerateNodeSecrets={security.handleGenerateNodeSecrets}
+          handlePingMainNode={security.handlePingMainNode}
+          handleRegistryStatus={security.handleRegistryStatus}
+          t={t}
+        />
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * Security Center (VGT GLASS 2100).
  *
@@ -35,93 +131,14 @@ export default function SecurityCenter({ activeIdentity, derivedKeys, t, trigger
         {security.loading ? (
           <p className="vgt-empty-note" role="status">Lade Sicherheitsdaten …</p>
         ) : (
-          <div className="vgt-sec-stack">
-            {security.summaryError ? (
-              <div className="vgt-notice vgt-notice--danger" role="alert" aria-labelledby="vgt-sec-load-error-title">
-                <div>
-                  <strong id="vgt-sec-load-error-title">Sicherheitsdaten nicht geladen</strong>
-                  <p className="vgt-body vgt-body--sm">{security.summaryError}</p>
-                  <p className="vgt-caption">
-                    Es werden bewusst keine Ersatzwerte angezeigt. Prüfe die Verbindung und lade erneut.
-                  </p>
-                  <div className="vgt-profile-form__actions">
-                    <button type="button" className="btn-secondary" onClick={security.loadData}>
-                      {t('sc_btn_load_again') || 'Erneut laden'}</button>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
-            {security.activeTab === 'status' ? (
-              <SecurityStatusTab
-                summary={security.summary}
-                events={security.events}
-                eventsLoaded={security.eventsLoaded}
-                handleAcknowledge={security.handleAcknowledge}
-                t={t}
-              />
-            ) : null}
-
-            {security.activeTab === 'events' ? (
-              <SecurityEventsTab
-                events={security.events}
-                filteredEvents={security.filteredEvents}
-                filterSeverity={security.filterSeverity}
-                setFilterSeverity={security.setFilterSeverity}
-                filterCategory={security.filterCategory}
-                setFilterCategory={security.setFilterCategory}
-                handleAcknowledge={security.handleAcknowledge}
-                handleExport={security.handleExport}
-                loadData={security.loadData}
-                loading={security.loading}
-                loadError={security.eventsError || security.summaryError}
-                t={t}
-              />
-            ) : null}
-
-            {security.activeTab === 'passport' ? (
-              <SecurityPassportTab
-                activeIdentity={activeIdentity}
-                derivedKeys={derivedKeys}
-                humanProof={proof.humanProof}
-                trustPassport={proof.trustPassport}
-                passportError={proof.passportError}
-                onOpenHumanProof={() => proof.setShowHumanProofDialog(true)}
-                onRefresh={proof.refresh}
-                t={t}
-              />
-            ) : null}
-
-            {security.activeTab === 'node_operator' ? (
-              <NodeOperatorTab
-                nodeSummary={security.nodeSummary}
-                nodeEvents={security.nodeEvents}
-                nodeOperatorError={security.nodeOperatorError}
-                isOperator={security.isOperator}
-                t={t}
-              />
-            ) : null}
-
-            {security.activeTab === 'identity_admin' && security.isOperator ? (
-              <IdentityAdminTab
-                isOperator={security.isOperator}
-                t={t}
-                triggerAlert={triggerAlert}
-              />
-            ) : null}
-
-            {security.activeTab === 'node_system' && security.isOperator ? (
-              <NodeSystemTab
-                nodeRegistry={security.nodeRegistry}
-                nodeRegistryError={security.nodeRegistryError}
-                nodeSecrets={security.nodeSecrets}
-                handleGenerateNodeSecrets={security.handleGenerateNodeSecrets}
-                handlePingMainNode={security.handlePingMainNode}
-                handleRegistryStatus={security.handleRegistryStatus}
-                t={t}
-              />
-            ) : null}
-          </div>
+          <SecurityTabContent
+            security={security}
+            activeIdentity={activeIdentity}
+            derivedKeys={derivedKeys}
+            proof={proof}
+            t={t}
+            triggerAlert={triggerAlert}
+          />
         )}
       </div>
 

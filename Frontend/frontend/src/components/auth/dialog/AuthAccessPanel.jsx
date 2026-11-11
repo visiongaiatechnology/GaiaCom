@@ -32,6 +32,46 @@ export default function AuthAccessPanel({
   const submitDisabled =
     (isRegister && (!legalAccepted || !mnemonicValid)) ||
     (!isRegister && Boolean(trimmedMnemonic) && !mnemonicValid);
+  const generateTitle = trimmedMnemonic
+    ? 'Ersetzt die aktuelle Phrase durch einen neuen Zufalls-Seed'
+    : 'Erzeugt einen neuen 12-Wörter-BIP39-Seed';
+  const generateLabel = trimmedMnemonic
+    ? (t('auth_generate_new_seed') || 'Neuen Seed generieren')
+    : (t('auth_generate_seed') || 'Seed generieren');
+  const copyLabel = copiedMnemonic
+    ? (t('auth_copied') || 'Kopiert')
+    : (t('auth_copy_seed') || 'Seed kopieren');
+  const submitLabel = isRegister
+    ? (t('auth_btn_register') || 'Konto erstellen')
+    : (t('auth_btn_login') || 'Anmelden');
+  const toggleLabel = isRegister
+    ? (t('auth_toggle_login') || 'Ich habe bereits ein Konto')
+    : (t('auth_toggle_register') || 'Neues Konto erstellen');
+
+  let seedHint = null;
+  if (mnemonicInvalid) {
+    seedHint = (
+      <p className="field-error" id="vgt-auth-mnemonic-error" role="alert">
+        {t('auth_seed_invalid') ||
+          'Ungültige Mnemonic-Phrase: benötigt werden 12 Wörter aus der BIP39-Wortliste mit gültiger Prüfsumme.'}
+        {isRegister ? ' Nutze „Seed generieren“ für einen gültigen Seed.' : ''}
+      </p>
+    );
+  } else if (isRegister && !trimmedMnemonic) {
+    seedHint = (
+      <p className="field-hint">
+        {t('auth_seed_autogenerate_hint') ||
+          'Der Seed wird beim Wechsel in den Registrierungsmodus automatisch erzeugt — oder hier über „Seed generieren“.'}
+      </p>
+    );
+  } else if (isRegister && mnemonicValid) {
+    seedHint = (
+      <p className="field-hint">
+        {t('auth_seed_backup_hint') ||
+          'Dieser Seed wurde für deine Registrierung erzeugt. Kopiere ihn jetzt — ohne ihn lässt sich das Konto auf einem anderen Gerät nicht wiederherstellen.'}
+      </p>
+    );
+  }
 
   return (
     <form className="vgt-auth-form" onSubmit={onSubmit} noValidate={false}>
@@ -98,41 +138,19 @@ export default function AuthAccessPanel({
               type="button"
               className="btn-action"
               onClick={onGenerateMnemonic}
-              title={
-                trimmedMnemonic
-                  ? 'Ersetzt die aktuelle Phrase durch einen neuen Zufalls-Seed'
-                  : 'Erzeugt einen neuen 12-Wörter-BIP39-Seed'
-              }
+              title={generateTitle}
             >
-              {trimmedMnemonic
-                ? (t('auth_generate_new_seed') || 'Neuen Seed generieren')
-                : (t('auth_generate_seed') || 'Seed generieren')}
+              {generateLabel}
             </button>
           )}
           {mnemonic && (
             <button type="button" className="btn-action" onClick={onCopyMnemonic}>
               <Icon name="copy" size={14} />
-              {copiedMnemonic ? (t('auth_copied') || 'Kopiert') : (t('auth_copy_seed') || 'Seed kopieren')}
+              {copyLabel}
             </button>
           )}
         </div>
-        {mnemonicInvalid ? (
-          <p className="field-error" id="vgt-auth-mnemonic-error" role="alert">
-            {t('auth_seed_invalid') ||
-              'Ungültige Mnemonic-Phrase: benötigt werden 12 Wörter aus der BIP39-Wortliste mit gültiger Prüfsumme.'}
-            {isRegister ? ' Nutze „Seed generieren“ für einen gültigen Seed.' : ''}
-          </p>
-        ) : (isRegister && !trimmedMnemonic ? (
-          <p className="field-hint">
-            {t('auth_seed_autogenerate_hint') ||
-              'Der Seed wird beim Wechsel in den Registrierungsmodus automatisch erzeugt — oder hier über „Seed generieren“.'}
-          </p>
-        ) : (isRegister && mnemonicValid ? (
-          <p className="field-hint">
-            {t('auth_seed_backup_hint') ||
-              'Dieser Seed wurde für deine Registrierung erzeugt. Kopiere ihn jetzt — ohne ihn lässt sich das Konto auf einem anderen Gerät nicht wiederherstellen.'}
-          </p>
-        ) : null))}
+        {seedHint}
         <p className="field-hint" role={copiedMnemonic ? 'status' : undefined}>
           {copiedMnemonic
             ? SECRET_CLIPBOARD_WARNING
@@ -160,15 +178,13 @@ export default function AuthAccessPanel({
       )}
 
       <button type="submit" className="btn-primary vgt-auth-form__submit" disabled={submitDisabled}>
-        {isRegister ? (t('auth_btn_register') || 'Konto erstellen') : (t('auth_btn_login') || 'Anmelden')}
+        {submitLabel}
         <Icon name="arrowRight" size={16} />
       </button>
 
       <div className="vgt-auth-form__alt">
         <button type="button" className="vgt-link" onClick={onToggleMode}>
-          {isRegister
-            ? (t('auth_toggle_login') || 'Ich habe bereits ein Konto')
-            : (t('auth_toggle_register') || 'Neues Konto erstellen')}
+          {toggleLabel}
         </button>
         <button type="button" className="vgt-link" onClick={onSwitchRecovery}>
           {t('auth_recovery_mode') || 'Recovery-Modus'}

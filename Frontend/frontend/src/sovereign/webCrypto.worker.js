@@ -134,6 +134,10 @@ async function execute(operation, payload) {
 }
 
 self.addEventListener('message', async (event) => {
+  // Only accept messages from this worker's own origin. A cross-origin window
+  // cannot reach a dedicated worker directly, but the explicit check keeps the
+  // message boundary verifiable and fails closed if that ever changes.
+  if (event.origin && event.origin !== self.location.origin) return;
   const id = Number.isSafeInteger(event.data?.id) ? event.data.id : 0;
   if (id <= 0 || typeof event.data?.operation !== 'string') return;
   try {

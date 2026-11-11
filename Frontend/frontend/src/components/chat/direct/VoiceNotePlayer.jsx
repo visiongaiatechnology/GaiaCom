@@ -25,7 +25,7 @@ function dataUrlToBlobUrl(dataUrl) {
   }
   const binary = atob(payload);
   const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.codePointAt(i);
   return URL.createObjectURL(new Blob([bytes], { type: mime }));
 }
 
@@ -58,7 +58,7 @@ export default function VoiceNotePlayer({ inlineData }) {
       setFailed(true);
     }
     return () => {
-      if (createdUrl && createdUrl.startsWith('blob:')) URL.revokeObjectURL(createdUrl);
+      if (createdUrl?.startsWith('blob:')) URL.revokeObjectURL(createdUrl);
     };
   }, [inlineData]);
 
@@ -104,16 +104,22 @@ export default function VoiceNotePlayer({ inlineData }) {
 
   if (failed) {
     return (
-      <div className="vgt-voice vgt-voice--failed" role="status">
+      <output className="vgt-voice vgt-voice--failed">
         <Icon name="alertTriangle" size={15} />
         <span>Sprachnachricht nicht verfügbar.</span>
-      </div>
+      </output>
     );
   }
 
   return (
     <div className="vgt-voice">
-      {src ? <audio ref={audioRef} src={src} preload="metadata" /> : null}
+      {src ? (
+        <audio ref={audioRef} src={src} preload="metadata">
+          {/* Encrypted voice notes carry no caption track; the empty track keeps
+              the media element accessible to assistive technologies. */}
+          <track kind="captions" srcLang="de" label="Sprachnachricht" />
+        </audio>
+      ) : null}
       <button
         type="button"
         className="vgt-voice__play"

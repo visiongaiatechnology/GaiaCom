@@ -236,22 +236,26 @@
   height: 100%;
   min-height: 0;
   background: transparent;
+  position: relative;
 }
 
 .vgt-mail-reader__scroll {
-  padding: 22px clamp(18px, 3vw, 34px);
+  padding: 22px clamp(20px, 3vw, 40px) 30px;
   overflow: auto;
 }
 
 .vgt-mail-reader__thread {
-  max-width: 76ch;
-  margin: 0 auto;
-  padding: 22px 24px;
-  border: 1px solid rgba(84, 116, 146, 0.22);
-  border-radius: 14px;
-  background: linear-gradient(160deg, rgba(13, 24, 38, 0.72), rgba(8, 17, 30, 0.68));
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: #d7e8f0;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
+  box-shadow: none;
 }
 
 .vgt-mail-reader__thread h1,
@@ -460,14 +464,22 @@
 .vgt-mail-msg--single .vgt-mail-msg__panel { padding: 0; gap: 14px; }
 
 /* Reading order inside a message. */
-.vgt-mail-msg__panel { gap: 12px; }
-.vgt-mail-msg__body { margin: 0 0 2px; max-width: 72ch; }
+.vgt-mail-msg__panel { max-width: none; gap: 18px; padding: 0; }
+.vgt-mail-msg__body {
+  width: 100%;
+  max-width: min(100%, 92ch);
+  margin: 0 0 2px;
+  font-size: 0.97rem;
+  line-height: 1.76;
+}
 .vgt-mail-msg__body p:first-child { margin-top: 0; }
 .vgt-mail-msg__body p:last-child { margin-bottom: 0; }
 
 .vgt-mail-msg__actions {
   order: 2;
-  padding-top: 12px;
+  width: 100%;
+  padding: 14px 0 0;
+  gap: 8px;
   border-top: 1px solid rgba(84, 116, 146, 0.18);
 }
 .vgt-mail-msg__action--danger { color: #ff9aa8; }
@@ -476,8 +488,9 @@
 /* Collapsible security evidence block. */
 .vgt-mail-msg__security {
   order: 4;
+  width: 100%;
   border: 1px solid rgba(84, 116, 146, 0.22);
-  border-radius: 10px;
+  border-radius: 12px;
   background: rgba(8, 17, 30, 0.55);
   overflow: hidden;
 }
@@ -537,26 +550,7 @@
    the reading pane; only the running text keeps a readable measure.
    ========================================================================== */
 
-.vgt-mail-reader { position: relative; }
-
-.vgt-mail-reader__thread {
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
 .vgt-mail-reader__thread::after { content: none; }
-
-.vgt-mail-reader__scroll {
-  padding: 22px clamp(20px, 3vw, 40px) 30px;
-}
 
 .vgt-mail-msg {
   /* No card frame: the message sits directly on the reader surface.
@@ -575,33 +569,10 @@
   border-top: var(--vgt-hairline) solid var(--vgt-divider);
 }
 
-.vgt-mail-msg__panel {
-  max-width: none;
-  gap: 18px;
-  padding: 0;
-}
-
-.vgt-mail-msg--single .vgt-mail-msg__panel { padding: 0; }
-
-.vgt-mail-msg__body {
-  width: 100%;
-  max-width: min(100%, 92ch);
-  font-size: 0.97rem;
-  line-height: 1.76;
-}
-
-.vgt-mail-msg__actions,
-.vgt-mail-msg__security,
+/* Attachments span the reading pane like actions and evidence. */
 .vgt-mail-attachments {
   width: 100%;
 }
-
-.vgt-mail-msg__actions {
-  padding: 14px 0 0;
-  gap: 8px;
-}
-
-.vgt-mail-msg__security { border-radius: 12px; }
 
 /* Wider screens: keep the message column aligned to the header padding and let
    the action/evidence rows breathe across the pane. */

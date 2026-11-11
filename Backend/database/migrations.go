@@ -319,6 +319,8 @@ func tableColumns(ctx context.Context, tx *sql.Tx, table string) (map[string]str
 	if !sqlIdentifierPattern.MatchString(table) {
 		return nil, errors.New("invalid table identifier")
 	}
+	// NOSONAR - table is validated against sqlIdentifierPattern above; SQLite
+	// does not accept a parameter placeholder in PRAGMA table_info.
 	rows, err := tx.QueryContext(ctx, `PRAGMA table_info("`+table+`")`)
 	if err != nil {
 		return nil, fmt.Errorf("inspect table %s: %w", table, err)

@@ -18,6 +18,25 @@ import useDialogA11y from '../../common/useDialogA11y';
  * and the zoom overlay is a real dialog-like layer with Escape handling.
  * SEC-FE FE-03: byte cap before decrypt + magic-byte validation after decrypt.
  */
+async function resolveGsnImage(attachmentJson) {
+  const att = safeJsonParse(attachmentJson, null);
+  if (!att) throw new Error('Invalid attachment envelope.');
+  if (isMediaKnownMissing(att.fileId)) {
+    // Already resolved as expired/deleted in this session: no second request.
+    return { expired: true };
+  }
+  const blob = await api.downloadFileAttachment(att.fileId, { maxBytes: MAX_GSN_IMAGE_BYTES });
+  if (exceedsLimit(blob?.size, MAX_GSN_IMAGE_BYTES)) {
+    throw limitError('Das Bild', MAX_GSN_IMAGE_BYTES);
+  }
+  const decrypted = await crypto.decryptFileSymmetric(blob, att.keyHex, att.ivHex);
+  if (exceedsLimit(decrypted?.size, MAX_GSN_IMAGE_BYTES)) {
+    throw limitError('Das Bild', MAX_GSN_IMAGE_BYTES);
+  }
+  await assertImageBlob(decrypted, 'Das Bild');
+  return { url: URL.createObjectURL(decrypted) };
+}
+
 export default function DecryptedGsnImage({ attachmentJson }) {
   const [imgUrl, setImgUrl] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,32 +52,22 @@ export default function DecryptedGsnImage({ attachmentJson }) {
     let createdUrl = '';
     const load = async () => {
       try {
-        const att = safeJsonParse(attachmentJson, null);
-        if (!att) throw new Error('Invalid attachment envelope.');
-        if (isMediaKnownMissing(att.fileId)) {
-          // Already resolved as expired/deleted in this session: no second request.
-          if (active) { setIsExpired(true); setLoading(false); }
+        const result = await resolveGsnImage(attachmentJson);
+        if (!active) {
+          if (result.url) URL.revokeObjectURL(result.url);
           return;
         }
-        const blob = await api.downloadFileAttachment(att.fileId, { maxBytes: MAX_GSN_IMAGE_BYTES });
-        if (exceedsLimit(blob?.size, MAX_GSN_IMAGE_BYTES)) {
-          throw limitError('Das Bild', MAX_GSN_IMAGE_BYTES);
-        }
-        const decrypted = await crypto.decryptFileSymmetric(blob, att.keyHex, att.ivHex);
-        if (exceedsLimit(decrypted?.size, MAX_GSN_IMAGE_BYTES)) {
-          throw limitError('Das Bild', MAX_GSN_IMAGE_BYTES);
-        }
-        await assertImageBlob(decrypted, 'Das Bild');
-        if (active) {
-          createdUrl = URL.createObjectURL(decrypted);
-          setImgUrl(createdUrl);
-          setLoading(false);
+        if (result.expired) {
+          setIsExpired(true);
+        } else {
+          createdUrl = result.url;
+          setImgUrl(result.url);
         }
       } catch (err) {
-        const message = String(err?.message || err || '');
         const expectedMissingFile = isMissingMediaError(err);
-        if (expectedMissingFile) markMediaMissing(safeJsonParse(attachmentJson, null)?.fileId);
-        if (!expectedMissingFile) {
+        if (expectedMissingFile) {
+          markMediaMissing(safeJsonParse(attachmentJson, null)?.fileId);
+        } else {
           console.error('Failed to decrypt GSN image:', err);
         }
         if (active) {
@@ -67,8 +76,9 @@ export default function DecryptedGsnImage({ attachmentJson }) {
           } else {
             setError(true);
           }
-          setLoading(false);
         }
+      } finally {
+        if (active) setLoading(false);
       }
     };
 

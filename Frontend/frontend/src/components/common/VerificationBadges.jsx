@@ -71,7 +71,7 @@ export default function VerificationBadges({
   if (visible.length === 0) return null;
 
   return (
-    <span className={`vgt-attest-badges${className ? ` ${className}` : ''}`}>
+    <span className={['vgt-attest-badges', className].filter(Boolean).join(' ')}>
       {visible.map(record => (
         <AttestationBadge
           key={record.id || `${record.type}-${record.issued_at || ''}`}

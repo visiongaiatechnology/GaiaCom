@@ -242,6 +242,13 @@ export default function HumanProofDialog({
   const percent = Math.round(progress * 100);
   const result = verification.status !== 'idle' ? RESULT_PRESENTATION[verification.status] : null;
 
+  let matchHint = 'Wortabstände mit einzelnen Leerzeichen; Groß-/Kleinschreibung wird ignoriert.';
+  if (phraseMatches) {
+    matchHint = 'Phrase stimmt überein — Verifizierung kann starten.';
+  } else if (phraseInput) {
+    matchHint = 'Noch nicht identisch. Groß-/Kleinschreibung und Wortabstände zählen.';
+  }
+
   return (
     <div className="vgt-overlay" role="presentation">
       <div
@@ -289,10 +296,13 @@ export default function HumanProofDialog({
           <button
             type="button"
             className="btn-ghost vgt-hp__phrase-copy"
-            onClick={() => {
+            onClick={async () => {
               try {
-                navigator.clipboard?.writeText(challenge.phrase);
-              } catch (_) {}
+                await navigator.clipboard?.writeText(challenge.phrase);
+              } catch (error) {
+                // Clipboard permission can be denied; the phrase stays visible.
+                void error;
+              }
             }}
             title="Phrase kopieren"
           >
@@ -315,17 +325,12 @@ export default function HumanProofDialog({
             spellCheck="false"
             aria-describedby="vgt-hp-match-hint"
           />
-          <p
+          <output
             className={`vgt-hp__match${phraseMatches ? ' is-match' : ''}`}
             id="vgt-hp-match-hint"
-            role="status"
           >
-            {phraseMatches
-              ? 'Phrase stimmt überein — Verifizierung kann starten.'
-              : phraseInput
-                ? 'Noch nicht identisch. Groß-/Kleinschreibung und Wortabstände zählen.'
-                : 'Wortabstände mit einzelnen Leerzeichen; Groß-/Kleinschreibung wird ignoriert.'}
-          </p>
+            {matchHint}
+          </output>
         </div>
 
         <div className="vgt-hp__progress">

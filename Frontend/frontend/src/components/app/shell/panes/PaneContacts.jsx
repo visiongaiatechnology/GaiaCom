@@ -1,6 +1,5 @@
 import React from 'react';
 import Icon from '../../../ui/Icon';
-import { displayGaiaID } from '../../../../utils/gaiaAddress';
 
 /**
  * Address book workspace pane (VGT GLASS 2100).

@@ -67,9 +67,19 @@ export function verifyAttestationSignature(attestation) {
     const publicKey = hexToBytes(String(publicKeyHex));
     const message = new TextEncoder().encode(String(canonical));
     return { valid: ed25519.verify(signature, message, publicKey), reason: 'checked' };
-  } catch (_) {
+  } catch (error) {
+    // Malformed hex or an unsupported key length means the client cannot prove
+    // the signature; treat the claim as unverified instead of throwing.
+    void error;
     return { valid: false, reason: 'invalid-encoding' };
   }
+}
+
+/** Presentation tone for a claim: revoked > expired > invalid signature > valid. */
+export function attestationTone(status, signatureValid) {
+  if (status === 'revoked') return 'danger';
+  if (status === 'expired') return 'muted';
+  return signatureValid ? 'valid' : 'warning';
 }
 
 /**
@@ -91,7 +101,7 @@ export function presentAttestation(attestation) {
     signatureReason: signature.reason,
     isExpired: status === 'expired',
     isRevoked: status === 'revoked',
-    tone: status === 'revoked' ? 'danger' : status === 'expired' ? 'muted' : signature.valid ? 'valid' : 'warning'
+    tone: attestationTone(status, signature.valid)
   };
 }
 

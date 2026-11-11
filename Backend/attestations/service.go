@@ -185,7 +185,7 @@ func (s *Service) CreateAttestation(ctx context.Context, actorGaiaID string, inp
 	if _, ok := allowedAuthorities[authority]; !ok {
 		return nil, fmt.Errorf("%w: unsupported authority", ErrInvalidInput)
 	}
-	if want := typeAuthority[attestationType]; authority != want {
+	if authority != typeAuthority[attestationType] {
 		return nil, fmt.Errorf("%w: authority %q is not valid for type %q", ErrInvalidInput, authority, attestationType)
 	}
 	if len(evidenceRef) < 4 {

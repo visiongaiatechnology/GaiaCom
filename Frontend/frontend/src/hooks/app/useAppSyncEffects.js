@@ -110,13 +110,18 @@ export default function useAppSyncEffects({ auth, ui, prefs, account, data, iden
     };
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        refreshSession();
+        refreshSession().catch(() => {});
       }
     };
     if (activeIdentity && derivedKeys && !isLocked) {
-      refreshSession().then(() => {
-        if (!disposed) poll();
-      });
+      refreshSession()
+        .then(() => {
+          if (!disposed) poll();
+        })
+        .catch(() => {
+          // A failed rotation keeps the current session; polling/login state is
+          // handled by the auth layer, so no unhandled rejection is allowed here.
+        });
       interval = setInterval(poll, 4000);
       document.addEventListener('visibilitychange', onVisibilityChange);
     } else {

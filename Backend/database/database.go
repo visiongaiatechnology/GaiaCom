@@ -108,22 +108,26 @@ func sqliteMemoryDatabase(dbPath string) bool {
 }
 
 func verifySQLiteConnection(ctx context.Context, db *sql.DB) error {
-	checks := []struct {
-		pragma string
-		want   int
-	}{
-		{"foreign_keys", 1},
-		{"busy_timeout", 10000},
-		{"synchronous", 2},
+	var foreignKeys int
+	if err := db.QueryRowContext(ctx, "PRAGMA foreign_keys").Scan(&foreignKeys); err != nil {
+		return fmt.Errorf("verify SQLite foreign_keys pragma: %w", err)
 	}
-	for _, check := range checks {
-		var value int
-		if err := db.QueryRowContext(ctx, "PRAGMA "+check.pragma).Scan(&value); err != nil {
-			return fmt.Errorf("verify SQLite %s pragma: %w", check.pragma, err)
-		}
-		if value != check.want {
-			return fmt.Errorf("verify SQLite %s pragma: got %d, want %d", check.pragma, value, check.want)
-		}
+	if foreignKeys != 1 {
+		return fmt.Errorf("verify SQLite foreign_keys pragma: got %d, want 1", foreignKeys)
+	}
+	var busyTimeout int
+	if err := db.QueryRowContext(ctx, "PRAGMA busy_timeout").Scan(&busyTimeout); err != nil {
+		return fmt.Errorf("verify SQLite busy_timeout pragma: %w", err)
+	}
+	if busyTimeout != 10000 {
+		return fmt.Errorf("verify SQLite busy_timeout pragma: got %d, want 10000", busyTimeout)
+	}
+	var synchronous int
+	if err := db.QueryRowContext(ctx, "PRAGMA synchronous").Scan(&synchronous); err != nil {
+		return fmt.Errorf("verify SQLite synchronous pragma: %w", err)
+	}
+	if synchronous != 2 {
+		return fmt.Errorf("verify SQLite synchronous pragma: got %d, want 2", synchronous)
 	}
 	return nil
 }

@@ -14,9 +14,35 @@ import (
 // (one ACTIVE attestation per subject/type/issuer). Callers map it to HTTP 409.
 var ErrAttestationDuplicate = errors.New("active attestation already exists for subject/type/issuer")
 
-const attestationColumns = `id, subject_identity_id, subject_gaia_id, type, issuer_gaia_id,
-	authority, evidence_ref, issued_at, expires_at, revoked_at, revoked_reason,
-	canonical, signature_hex, signing_public_key_hex, algorithm, created_at`
+// Attestation queries are kept as complete SQL literals (no runtime query
+// concatenation) so static analysis can verify that every value is bound and
+// table/column identifiers are fixed.
+const (
+	queryAttestationByID = `SELECT id, subject_identity_id, subject_gaia_id, type, issuer_gaia_id,
+		authority, evidence_ref, issued_at, expires_at, revoked_at, revoked_reason,
+		canonical, signature_hex, signing_public_key_hex, algorithm, created_at
+		FROM identity_attestations WHERE id = ? LIMIT 1`
+
+	queryAttestationsBySubject = `SELECT id, subject_identity_id, subject_gaia_id, type, issuer_gaia_id,
+		authority, evidence_ref, issued_at, expires_at, revoked_at, revoked_reason,
+		canonical, signature_hex, signing_public_key_hex, algorithm, created_at
+		FROM identity_attestations
+		WHERE LOWER(subject_gaia_id) = LOWER(?)
+		ORDER BY issued_at DESC, id DESC LIMIT ?`
+
+	queryAttestationsForOperatorAll = `SELECT id, subject_identity_id, subject_gaia_id, type, issuer_gaia_id,
+		authority, evidence_ref, issued_at, expires_at, revoked_at, revoked_reason,
+		canonical, signature_hex, signing_public_key_hex, algorithm, created_at
+		FROM identity_attestations
+		ORDER BY issued_at DESC, id DESC LIMIT ? OFFSET ?`
+
+	queryAttestationsForOperatorActive = `SELECT id, subject_identity_id, subject_gaia_id, type, issuer_gaia_id,
+		authority, evidence_ref, issued_at, expires_at, revoked_at, revoked_reason,
+		canonical, signature_hex, signing_public_key_hex, algorithm, created_at
+		FROM identity_attestations
+		WHERE revoked_at = '' AND (expires_at = '' OR expires_at > ?)
+		ORDER BY issued_at DESC, id DESC LIMIT ? OFFSET ?`
+)
 
 func (s *SQLStore) CreateAttestation(ctx context.Context, attestation *models.IdentityAttestation) error {
 	if attestation == nil || attestation.ID == "" || attestation.SubjectGaiaID == "" || attestation.IssuerGaiaID == "" {
@@ -75,8 +101,7 @@ func scanAttestation(row interface{ Scan(...interface{}) error }) (*models.Ident
 }
 
 func (s *SQLStore) GetAttestationByID(ctx context.Context, id string) (*models.IdentityAttestation, error) {
-	row := s.db.QueryRowContext(ctx,
-		`SELECT `+attestationColumns+` FROM identity_attestations WHERE id = ? LIMIT 1`, id)
+	row := s.db.QueryRowContext(ctx, queryAttestationByID, id)
 	attestation, err := scanAttestation(row)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, sql.ErrNoRows
@@ -112,10 +137,7 @@ func (s *SQLStore) ListAttestationsBySubject(ctx context.Context, subjectGaiaID 
 	if limit <= 0 || limit > 100 {
 		limit = 100
 	}
-	rows, err := s.db.QueryContext(ctx,
-		`SELECT `+attestationColumns+` FROM identity_attestations
-		 WHERE LOWER(subject_gaia_id) = LOWER(?)
-		 ORDER BY issued_at DESC, id DESC LIMIT ?`, subjectGaiaID, limit)
+	rows, err := s.db.QueryContext(ctx, queryAttestationsBySubject, subjectGaiaID, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -138,17 +160,12 @@ func (s *SQLStore) ListAttestationsForOperator(ctx context.Context, activeOnly b
 	if offset < 0 {
 		offset = 0
 	}
-	query := `SELECT ` + attestationColumns + ` FROM identity_attestations`
-	if activeOnly {
-		query += ` WHERE revoked_at = '' AND (expires_at = '' OR expires_at > ?)`
-	}
-	query += ` ORDER BY issued_at DESC, id DESC LIMIT ? OFFSET ?`
 	var rows *sql.Rows
 	var err error
 	if activeOnly {
-		rows, err = s.db.QueryContext(ctx, query, formatTime(utcNow()), limit, offset)
+		rows, err = s.db.QueryContext(ctx, queryAttestationsForOperatorActive, formatTime(utcNow()), limit, offset)
 	} else {
-		rows, err = s.db.QueryContext(ctx, query, limit, offset)
+		rows, err = s.db.QueryContext(ctx, queryAttestationsForOperatorAll, limit, offset)
 	}
 	if err != nil {
 		return nil, err
@@ -215,15 +232,18 @@ func (s *SQLStore) ListOperatorDirectory(ctx context.Context, query string, limi
 		offset = 0
 	}
 	pattern := "%" + strings.ToLower(strings.TrimSpace(query)) + "%"
-	filter := `WHERE (? = '' OR LOWER(gaia_id) LIKE ? OR LOWER(display_name) LIKE ?)`
 	var total int64
 	if err := s.db.QueryRowContext(ctx,
-		`SELECT COUNT(1) FROM identities `+filter, query, pattern, pattern).Scan(&total); err != nil {
+		`SELECT COUNT(1) FROM identities
+		 WHERE (? = '' OR LOWER(gaia_id) LIKE ? OR LOWER(display_name) LIKE ?)`,
+		query, pattern, pattern).Scan(&total); err != nil {
 		return nil, 0, err
 	}
 	rows, err := s.db.QueryContext(ctx,
-		`SELECT gaia_id, display_name, created_at, is_active FROM identities `+filter+`
-		 ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?`, query, pattern, pattern, limit, offset)
+		`SELECT gaia_id, display_name, created_at, is_active FROM identities
+		 WHERE (? = '' OR LOWER(gaia_id) LIKE ? OR LOWER(display_name) LIKE ?)
+		 ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?`,
+		query, pattern, pattern, limit, offset)
 	if err != nil {
 		return nil, 0, err
 	}
