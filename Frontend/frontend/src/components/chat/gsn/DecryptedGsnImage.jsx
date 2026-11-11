@@ -37,6 +37,18 @@ async function resolveGsnImage(attachmentJson) {
   return { url: URL.createObjectURL(decrypted) };
 }
 
+function reportImageFailure(err, attachmentJson, setters) {
+  const expectedMissingFile = isMissingMediaError(err);
+  if (expectedMissingFile) {
+    markMediaMissing(safeJsonParse(attachmentJson, null)?.fileId);
+    setters.setExpired(true);
+  } else {
+    console.error('Failed to decrypt GSN image:', err);
+    setters.setError(true);
+  }
+  setters.setLoading(false);
+}
+
 export default function DecryptedGsnImage({ attachmentJson }) {
   const [imgUrl, setImgUrl] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,35 +63,25 @@ export default function DecryptedGsnImage({ attachmentJson }) {
     let active = true;
     let createdUrl = '';
     const load = async () => {
+      let result;
       try {
-        const result = await resolveGsnImage(attachmentJson);
-        if (!active) {
-          if (result.url) URL.revokeObjectURL(result.url);
-          return;
-        }
-        if (result.expired) {
-          setIsExpired(true);
-        } else {
-          createdUrl = result.url;
-          setImgUrl(result.url);
-        }
+        result = await resolveGsnImage(attachmentJson);
       } catch (err) {
-        const expectedMissingFile = isMissingMediaError(err);
-        if (expectedMissingFile) {
-          markMediaMissing(safeJsonParse(attachmentJson, null)?.fileId);
-        } else {
-          console.error('Failed to decrypt GSN image:', err);
-        }
-        if (active) {
-          if (expectedMissingFile) {
-            setIsExpired(true);
-          } else {
-            setError(true);
-          }
-        }
-      } finally {
-        if (active) setLoading(false);
+        if (active) reportImageFailure(err, attachmentJson, { setExpired: setIsExpired, setError, setLoading });
+        return;
       }
+      if (!active) {
+        if (result.url) URL.revokeObjectURL(result.url);
+        return;
+      }
+      if (result.expired) {
+        setIsExpired(true);
+        setLoading(false);
+        return;
+      }
+      createdUrl = result.url;
+      setImgUrl(result.url);
+      setLoading(false);
     };
 
     load();

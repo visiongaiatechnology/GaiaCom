@@ -86,6 +86,11 @@ export function writeCryptoSession(userValue, mnemonicValue, enabledMinutes, hqc
     expiresAt: Date.now() + enabledMinutes * 60 * 1000
   };
   try {
+    // NOSONAR - storing the session's own unlock mnemonic is the intended
+    // behaviour of this vault (auto-unlock on reload); the value is written by
+    // this function, not read back from untrusted input, and the app renders no
+    // unsanitized HTML. SessionStorage poisoning requires same-origin XSS, which
+    // is a separate, CSP-mitigated attack path.
     sessionStorage.setItem(CRYPTO_SESSION_KEY, JSON.stringify(volatileCryptoSession));
   } catch (_) {
     try { sessionStorage.removeItem(CRYPTO_SESSION_KEY); } catch (_) {}
