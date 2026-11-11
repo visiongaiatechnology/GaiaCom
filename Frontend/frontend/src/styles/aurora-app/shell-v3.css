@@ -1,0 +1,268 @@
+/* ============================================================================
+   AURORA UI v3 — SHELL
+   Umsetzung der GaiaCOM-Neon-Referenz: Fensterrahmen, globaler Top-Bar,
+   Sidebar im Referenzstil, Hero-Layout und Window-Grid.
+   ========================================================================== */
+
+/* ---------- App window frame ---------- */
+body {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(0, 229, 255, 0.10), transparent 60%),
+    radial-gradient(900px 500px at 90% 110%, rgba(139, 92, 246, 0.10), transparent 60%),
+    #03070d;
+}
+
+.app-container {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  grid-template-rows: 56px minmax(0, 1fr) 30px;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(900px 500px at 20% 0%, rgba(0, 229, 255, 0.06), transparent 55%),
+    linear-gradient(180deg, #050b14 0%, #04080f 100%);
+  box-shadow: none;
+}
+
+.app-container > .ax3-topbar { grid-column: 1 / -1; grid-row: 1; }
+.app-container > .navigation-sidebar,
+.app-container > .mail-list-pane,
+.app-container > .mail-content-pane { grid-row: 2; min-height: 0; }
+
+/* ---------- Top bar ---------- */
+.ax3-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-width: 0;
+  padding: 0 16px 0 18px;
+  border-bottom: 1px solid rgba(84, 116, 146, 0.22);
+  background: linear-gradient(180deg, #071019, #050b14);
+}
+
+.ax3-topbar__title { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.ax3-topbar__mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  background: rgba(0, 229, 255, 0.08);
+  color: #7ef3ff;
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.18);
+  flex: none;
+}
+.ax3-topbar__title h1 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #f4faff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ax3-topbar__tools { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+.ax3-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  min-width: 220px;
+  max-width: 360px;
+  padding: 0 9px 0 12px;
+  border: 1px solid rgba(84, 116, 146, 0.34);
+  border-radius: 10px;
+  background: rgba(5, 12, 20, 0.75);
+  color: #8fa6ba;
+}
+
+.ax3-search:focus-within { border-color: rgba(0, 229, 255, 0.5); box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.08); }
+
+.ax3-search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  color: #f4faff;
+  font: inherit;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.ax3-search input::placeholder { color: #7d95a8; }
+
+.ax3-search kbd {
+  flex: none;
+  padding: 2px 6px;
+  border: 1px solid rgba(84, 116, 146, 0.34);
+  border-radius: 5px;
+  color: #8fa6ba;
+  font-family: inherit;
+  font-size: 0.62rem;
+}
+
+.ax3-search__results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  border: 1px solid rgba(0, 229, 255, 0.24);
+  border-radius: 12px;
+  background: #0a1420;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55);
+  max-height: 320px;
+  overflow: auto;
+}
+
+.ax3-search__results button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 9px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: #dcebf2;
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ax3-search__results button:hover,
+.ax3-search__results button:focus-visible { background: rgba(0, 229, 255, 0.1); color: #fff; outline: none; }
+.ax3-search__results svg { color: #7ef3ff; }
+.ax3-search__empty { padding: 9px; color: #8fa6ba; font-size: 0.78rem; }
+
+.ax3-iconbtn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(84, 116, 146, 0.3);
+  border-radius: 10px;
+  background: rgba(5, 12, 20, 0.7);
+  color: #c3d6e2;
+  cursor: pointer;
+}
+
+.ax3-iconbtn:hover { border-color: rgba(0, 229, 255, 0.45); color: #fff; }
+.ax3-iconbtn:focus-visible { outline: 2px solid #7ef3ff; outline-offset: 2px; }
+
+.ax3-identity {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.ax3-avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  background: linear-gradient(150deg, rgba(0, 229, 255, 0.24), rgba(139, 92, 246, 0.24));
+  color: #eaffff;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.ax3-identity__dot {
+  position: absolute;
+  right: 0;
+  bottom: 1px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #050b14;
+  border-radius: 50%;
+  background: #2fe3a5;
+}
+
+.ax3-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Sidebar (reference style) ---------- */
+.navigation-sidebar {
+  border-right: 1px solid rgba(84, 116, 146, 0.18);
+  background: linear-gradient(180deg, #071019, #050b14);
+}
+
+.vgt-rail__brand { padding: 14px 12px 10px; }
+.vgt-brandmark__word,
+.vgt-brandmark { color: #f4faff; font-weight: 800; letter-spacing: -0.01em; }
+
+.vgt-rail__identity { display: none; }
+
+.vgt-rail__nav { gap: 3px; }
+.vgt-nav__item,
+.vgt-nav__sub-item {
+  min-height: 36px;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #b6c9d6;
+}
+.vgt-nav__item > svg,
+.vgt-nav__sub-item > svg {
+  width: 28px; height: 28px; padding: 5px;
+  border-radius: 8px;
+  background: rgba(126, 158, 184, 0.08);
+  color: #9fc6d6;
+}
+.vgt-nav__item:hover,
+.vgt-nav__sub-item:hover { background: rgba(0, 229, 255, 0.06); color: #fff; }
+.vgt-nav__item[aria-current='page'],
+.vgt-nav__item[data-active='true'] {
+  background: linear-gradient(90deg, rgba(0, 229, 255, 0.16), rgba(0, 229, 255, 0.05));
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.26);
+}
+.vgt-nav__item[aria-current='page'] > svg,
+.vgt-nav__item[data-active='true'] > svg { background: rgba(0, 229, 255, 0.18); color: #eaffff; }
+
+.vgt-nav__label {
+  margin: 12px 8px 4px;
+  color: #6f8ba0;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+}
+
+.vgt-rail__footer { border-top: 1px solid rgba(84, 116, 146, 0.18); padding-top: 6px; }
+.vgt-rail__footer::before {
+  content: '';
+  display: block;
+  height: 66px;
+  margin: 0 4px 4px;
+  background: url('/ui/network_globe.png') center / contain no-repeat;
+  opacity: 0.42;
+  filter: grayscale(1) sepia(1) hue-rotate(140deg) saturate(4.5) brightness(1.2);
+  pointer-events: none;
+}

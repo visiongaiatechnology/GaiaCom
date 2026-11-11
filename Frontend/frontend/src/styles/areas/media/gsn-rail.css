@@ -1,0 +1,440 @@
+/* VGT GLASS 2100 — PANES MEDIA: GSN 3-COLUMN RAILS <= 500 lines */
+
+/* ==========================================================================
+   COLUMN 1: GSN NAVIGATION RAIL (Matching Astraea / GaiaCOM Reference)
+   ========================================================================== */
+.vgt-gsn-nav-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  padding: 16px 12px;
+  background: rgba(9, 17, 30, 0.75);
+  border: 1px solid rgba(53, 230, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  overflow-y: auto;
+}
+
+.vgt-gsn-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 12px;
+  border-bottom: 1px solid rgba(84, 116, 146, 0.18);
+}
+
+.vgt-gsn-nav-brand__globe {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.45));
+}
+
+.vgt-gsn-nav-brand__titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.vgt-gsn-nav-brand__main {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.vgt-gsn-nav-brand__sub {
+  font-size: 0.68rem;
+  color: #79a8cf;
+  font-weight: 500;
+}
+
+.vgt-gsn-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 auto;
+}
+
+.vgt-gsn-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #a4bed5;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+}
+
+.vgt-gsn-nav-btn:hover {
+  background: rgba(53, 230, 255, 0.08);
+  color: #ffffff;
+}
+
+.vgt-gsn-nav-btn.is-active {
+  background: linear-gradient(90deg, rgba(234, 179, 8, 0.22) 0%, rgba(202, 138, 4, 0.08) 100%);
+  border-color: rgba(234, 179, 8, 0.45);
+  color: #fef08a;
+  box-shadow: 0 0 18px rgba(234, 179, 8, 0.18);
+}
+
+.vgt-gsn-nav-btn__icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.vgt-gsn-nav-btn__label {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vgt-gsn-nav-btn__badge {
+  padding: 1px 7px;
+  border-radius: 10px;
+  background: rgba(234, 179, 8, 0.25);
+  color: #fef08a;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border: 1px solid rgba(234, 179, 8, 0.35);
+}
+
+/* Freedom Tier Card */
+.vgt-gsn-freedom-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(30, 20, 60, 0.6) 0%, rgba(10, 25, 45, 0.8) 100%);
+  border: 1px solid rgba(192, 132, 252, 0.3);
+  box-shadow: 0 8px 24px rgba(129, 140, 248, 0.15);
+  overflow: hidden;
+  flex: none;
+}
+
+.vgt-crystal-icon {
+  filter: drop-shadow(0 0 10px rgba(192, 132, 252, 0.6));
+}
+
+.vgt-gsn-freedom-card__copy {
+  display: flex;
+  flex-direction: column;
+}
+
+.vgt-gsn-freedom-card__title {
+  font-size: 0.82rem;
+  font-weight: 750;
+  color: #ffffff;
+}
+
+.vgt-gsn-freedom-card__sub {
+  font-size: 0.68rem;
+  color: #c4b5fd;
+}
+
+/* ==========================================================================
+   COLUMN 3: GSN CONTEXT RAIL (Profile, Trends, Recommendations)
+   ========================================================================== */
+.vgt-gsn-rail-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.vgt-gsn-card {
+  background: rgba(9, 17, 30, 0.75);
+  border: 1px solid rgba(53, 230, 255, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.vgt-gsn-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+}
+
+.vgt-gsn-card__head-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 750;
+  color: #ffffff;
+}
+
+/* Profile Card */
+.vgt-gsn-profile-card__banner {
+  height: 64px;
+  overflow: hidden;
+  position: relative;
+}
+
+.vgt-gsn-profile-card__banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.85);
+}
+
+.vgt-gsn-profile-card__body {
+  padding: 0 16px 14px;
+  position: relative;
+}
+
+.vgt-gsn-profile-card__avatar-wrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  margin-top: -26px;
+  margin-bottom: 8px;
+}
+
+.vgt-gsn-profile-card__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid #00f2ff;
+  box-shadow: 0 0 14px rgba(0, 242, 255, 0.4);
+}
+
+.vgt-gsn-profile-card__badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  background: #00f2ff;
+  color: #06101c;
+  border-radius: 50%;
+  border: 1.5px solid #06101c;
+}
+
+.vgt-gsn-profile-card__meta {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+.vgt-gsn-profile-card__name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vgt-gsn-profile-card__name {
+  font-size: 0.98rem;
+  font-weight: 750;
+  color: #ffffff;
+}
+
+.vgt-icon-verified {
+  color: #00f2ff;
+}
+
+.vgt-gsn-profile-card__handle {
+  font-size: 0.76rem;
+  color: #79a8cf;
+}
+
+.vgt-gsn-profile-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px 0 0;
+  border-top: 1px solid rgba(84, 116, 146, 0.16);
+  text-align: center;
+}
+
+.vgt-gsn-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.vgt-gsn-stat__num {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.vgt-gsn-stat__lbl {
+  font-size: 0.68rem;
+  color: #79a8cf;
+}
+
+/* Trends Card */
+.vgt-gsn-trends-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vgt-gsn-trend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.vgt-gsn-trend-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.vgt-gsn-trend-tag {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #e2f1ff;
+}
+
+.vgt-gsn-trend-count {
+  font-size: 0.7rem;
+  color: #79a8cf;
+}
+
+.vgt-gsn-trend-spark {
+  flex: none;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.45));
+}
+
+/* Contacts Card */
+.vgt-gsn-suggest-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vgt-gsn-suggest-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vgt-gsn-suggest-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(53, 230, 255, 0.25);
+}
+
+.vgt-gsn-suggest-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.vgt-gsn-suggest-name-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vgt-gsn-suggest-name-row strong {
+  font-size: 0.82rem;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-verified-dot {
+  display: grid;
+  place-items: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #00f2ff;
+  color: #06101c;
+}
+
+.vgt-gsn-suggest-role {
+  font-size: 0.68rem;
+  color: #79a8cf;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-btn-follow {
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  background: rgba(234, 179, 8, 0.1);
+  color: #fef08a;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.vgt-btn-follow:hover {
+  background: rgba(234, 179, 8, 0.22);
+  box-shadow: 0 0 12px rgba(234, 179, 8, 0.25);
+}
+
+.vgt-btn-follow.is-following {
+  border-color: rgba(53, 230, 255, 0.3);
+  background: rgba(53, 230, 255, 0.12);
+  color: #00f2ff;
+}
+
+/* ==========================================================================
+   LEGACY DRAWER COMPATIBILITY
+   ========================================================================== */
+.vgt-gsn-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  width: min(440px, 96vw);
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 15, 26, 0.95);
+  border-left: 1px solid rgba(53, 230, 255, 0.2);
+  backdrop-filter: blur(20px);
+}
+
+.vgt-gsn-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(84, 116, 146, 0.2);
+}
+
+.vgt-gsn-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+}

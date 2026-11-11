@@ -1,0 +1,347 @@
+/* ============================================================================
+   VGT GLASS 2100 — MESSAGING: SHARED PRIMITIVES
+   Roles, popovers, dialogs, reply quotes, reactions, attachments and empty
+   states used by both the direct and the group conversation surface.
+   Rules: docs/redesign/IMPLEMENTATION_SPEC.md
+   ========================================================================== */
+
+/* ---------- Governance role badges (real role data, never colour alone) ----- */
+.vgt-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.vgt-role--operator {
+  color: var(--vgt-accent-titan);
+  border-color: color-mix(in srgb, var(--vgt-accent-titan) 38%, transparent);
+  background: color-mix(in srgb, var(--vgt-accent-titan) 12%, transparent);
+}
+
+.vgt-role--senior {
+  color: var(--vgt-accent-bronze);
+  border-color: color-mix(in srgb, var(--vgt-accent-bronze) 38%, transparent);
+  background: color-mix(in srgb, var(--vgt-accent-bronze) 12%, transparent);
+}
+
+.vgt-role--trusted {
+  color: var(--vgt-pigment);
+  border-color: var(--vgt-pigment-line);
+  background: var(--vgt-pigment-soft);
+}
+
+/* ---------- Popover anchor + menu ---------- */
+.vgt-chat-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.vgt-chat-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: var(--vgt-z-floating);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 246px;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 6px;
+}
+
+.vgt-chat-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: var(--vgt-radius-xs);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-sm);
+  font-weight: 550;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+.vgt-chat-menu__item:hover,
+.vgt-chat-menu__item:focus-visible {
+  background: var(--vgt-bg-4);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-chat-menu__item svg {
+  flex: none;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-chat-menu__item:hover svg,
+.vgt-chat-menu__item:focus-visible svg {
+  color: var(--vgt-pigment);
+}
+
+.vgt-chat-menu__item--danger,
+.vgt-chat-menu__item--danger svg {
+  color: var(--vgt-danger);
+}
+
+.vgt-chat-menu__item--danger:hover,
+.vgt-chat-menu__item--danger:focus-visible {
+  background: var(--vgt-danger-soft);
+  color: var(--vgt-danger);
+}
+
+.vgt-chat-menu__item--quiet {
+  color: var(--vgt-text-muted);
+}
+
+.vgt-chat-menu__item--stacked {
+  align-items: flex-start;
+}
+
+.vgt-chat-menu__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vgt-chat-menu__stack small {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  font-weight: 400;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.vgt-chat-menu__group {
+  padding: 6px 4px 2px;
+}
+
+.vgt-chat-menu__group-label {
+  display: block;
+  padding: 0 6px 6px;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vgt-chat-menu__reactions {
+  display: flex;
+  gap: 2px;
+}
+
+.vgt-chat-menu__reaction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: var(--vgt-hairline) solid transparent;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, border-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-chat-menu__reaction:hover,
+.vgt-chat-menu__reaction:focus-visible {
+  background: var(--vgt-bg-4);
+  border-color: var(--vgt-border);
+}
+
+/* Touch: popover chips and emoji grid grow to a thumb-safe target. */
+@media (pointer: coarse) {
+  .vgt-chat-menu__reaction,
+  .vgt-chat-emojis__option {
+    width: 40px;
+    height: 40px;
+  }
+}
+/* ---------- Reply quote inside a bubble ---------- */
+.vgt-reply-quote {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px;
+  border-left: 2px solid var(--vgt-pigment-line);
+  border-radius: var(--vgt-radius-xs);
+  background: color-mix(in srgb, var(--vgt-bg-3) 70%, transparent);
+  font-size: var(--vgt-text-xs);
+  min-width: 0;
+}
+
+.vgt-reply-quote__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--vgt-pigment);
+  font-weight: 650;
+}
+
+.vgt-reply-quote__body {
+  overflow: hidden;
+  color: var(--vgt-text-secondary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Reaction strip ---------- */
+.vgt-chat-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.vgt-chat-reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 7px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-3);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+}
+
+/* ---------- Day separator / unread marker ---------- */
+.vgt-chat-day {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  margin: var(--vgt-space-4) 0 var(--vgt-space-2);
+  padding: 0 var(--vgt-space-1);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex: none;
+}
+
+.vgt-chat-day::before,
+.vgt-chat-day::after {
+  content: '';
+  flex: 1;
+  height: var(--vgt-hairline);
+  background: var(--vgt-divider);
+}
+
+.vgt-chat-unread {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  margin: var(--vgt-space-3) 0;
+  color: var(--vgt-pigment);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  flex: none;
+}
+
+.vgt-chat-unread::before,
+.vgt-chat-unread::after {
+  content: '';
+  flex: 1;
+  height: var(--vgt-hairline);
+  background: var(--vgt-pigment-line);
+}
+
+/* ---------- Pinned messages strip ---------- */
+.vgt-chat-pinned {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  flex: none;
+  padding: 7px var(--vgt-space-4);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  background: var(--vgt-bg-1);
+  min-width: 0;
+}
+
+.vgt-chat-pinned__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vgt-chat-pinned__list {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+  min-width: 0;
+}
+
+.vgt-chat-pinned__list button {
+  max-width: 220px;
+  overflow: hidden;
+  padding: 3px 9px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.vgt-chat-pinned__list button:hover,
+.vgt-chat-pinned__list button:focus-visible {
+  border-color: var(--vgt-border-strong);
+  background: var(--vgt-bg-4);
+  color: var(--vgt-text-primary);
+}
+
+/* ---------- Jump-to-latest ---------- */
+.vgt-chat-jump {
+  position: absolute;
+  top: calc(-1 * var(--vgt-space-8));
+  left: 50%;
+  z-index: var(--vgt-z-floating);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-glass-3);
+  box-shadow: var(--vgt-elevation-2);
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transform: translateX(-50%);
+  backdrop-filter: blur(var(--vgt-blur-2));
+  -webkit-backdrop-filter: blur(var(--vgt-blur-2));
+}

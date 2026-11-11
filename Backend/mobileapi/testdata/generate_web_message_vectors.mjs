@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 // Reproduces fixtures through the actual GaiaCom Web crypto implementation.
 import { webcrypto } from 'node:crypto';
 

@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"gaiacom/backend/core/uuid"
+	"gaiacom/backend/core/validate"
 	"gaiacom/backend/models"
 	"gaiacom/backend/repository"
 )
@@ -324,12 +325,11 @@ func hasActiveReviewerCredential(creds []models.RoleCredential, now time.Time) b
 
 // Check if identity has node operator or reviewer credentials
 func (s *Service) HasRole(ctx context.Context, gaiaID string, role string) (bool, error) {
-	// 1. Check bootstrap config
-	for _, bootstrapID := range append([]string{BootstrapGaiaID}, BootstrapGaiaIDs...) {
-		if bootstrapID != "" && bootstrapIdentityMatches(gaiaID, bootstrapID) {
-			if role == "node_operator" || role == "senior_reviewer" || role == "trusted_reviewer" {
-				return true, nil
-			}
+	// 1. Check bootstrap config with exact full-GaiaID matching (local part AND
+	// domain). Domain-less entries are never loaded and never match.
+	if validate.GaiaIDInList(gaiaID, bootstrapIdentityRefs()) {
+		if role == "node_operator" || role == "senior_reviewer" || role == "trusted_reviewer" {
+			return true, nil
 		}
 	}
 
@@ -1151,27 +1151,6 @@ func normalizeGaiaID(id string) string {
 	return id
 }
 
-func normalizeAndStripDomain(id string) string {
-	id = strings.ToLower(strings.TrimSpace(id))
-	id = strings.TrimPrefix(id, "@")
-	if idx := strings.Index(id, ":"); idx != -1 {
-		id = id[:idx]
-	}
-	if idx := strings.Index(id, "@"); idx != -1 {
-		id = id[:idx]
-	}
-	return id
-}
-
-func bootstrapIdentityMatches(identityGaiaID string, bootstrapGaiaID string) bool {
-	identity := strings.ToLower(strings.TrimSpace(identityGaiaID))
-	bootstrap := strings.ToLower(strings.TrimSpace(bootstrapGaiaID))
-	if identity == bootstrap {
-		return true
-	}
-	return normalizeAndStripDomain(identity) == normalizeAndStripDomain(bootstrap)
-}
-
 func (s *Service) StartAutoGovernanceWorker(ctx context.Context) {
 	log.Println("[Governance] Auto-Governance background worker started.")
 	s.runAutoGovernance(ctx)
@@ -1218,7 +1197,7 @@ func (s *Service) runAutoGovernance(ctx context.Context) {
 
 	for _, id := range identities {
 		// Skip bootstrap user or system identity
-		if id.GaiaID == "system" || (BootstrapGaiaID != "" && normalizeAndStripDomain(id.GaiaID) == normalizeAndStripDomain(BootstrapGaiaID)) {
+		if id.GaiaID == "system" || validate.GaiaIDInList(id.GaiaID, bootstrapIdentityRefs()) {
 			continue
 		}
 

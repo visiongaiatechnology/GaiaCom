@@ -2,17 +2,13 @@ package smtpbridge
 
 import (
 	"context"
+	"crypto/sha256"
 	"crypto/subtle"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net"
 	"net/mail"
-	"net/smtp"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -28,11 +24,31 @@ const (
 	maxSMTPBodyBytes    = 256 * 1024
 	maxSMTPAttachments  = 10
 	maxSMTPAttachBytes  = 30 * 1024 * 1024
+
+	// maxSMTPTotalAttachBytes bounds the sum of all attachment metadata sizes in
+	// one ingest request; the per-attachment ceiling alone allowed a 10x fan-out.
+	maxSMTPTotalAttachBytes = maxSMTPAttachBytes
+	// maxSMTPFromBytes bounds the raw external From header (RFC 5322 recommends
+	// 998 octets per line; the bridge address is far shorter). Applied before
+	// mail.ParseAddress so oversized input cannot reach the parser.
+	maxSMTPFromBytes = 320
+	// maxSMTPIngestBodyBytes is the handler-level request cap for the public
+	// ingest route: it must fit the max body (256 KiB) plus JSON overhead.
+	maxSMTPIngestBodyBytes = 512 * 1024
+	// smtpIngestTokenPlaceholder is the shipped .env.example value. A bridge that
+	// still runs with the template token is treated as unconfigured (fail closed).
+	smtpIngestTokenPlaceholder = "TEST_ONLY_REPLACE_WITH_RANDOM_32_BYTE_TOKEN"
 )
 
 var (
 	errSMTPNotConfigured = errors.New("smtp bridge not configured")
 	errSMTPRejected      = errors.New("smtp bridge request rejected")
+	// errSMTPUnauthorized distinguishes a bad/missing bridge token (HTTP 401)
+	// from other rejections (HTTP 400) while still matching errSMTPRejected for
+	// the existing fail-closed tests.
+	errSMTPUnauthorized = errors.New("smtp bridge token rejected")
+	// errSMTPRateLimited is returned by the ingest budget and mapped to HTTP 429.
+	errSMTPRateLimited = errors.New("smtp bridge ingest rate limited")
 )
 
 type Attachment struct {
@@ -51,6 +67,10 @@ type Service struct {
 	password   string
 	from       string
 	ingestKey  string
+	// ingestKeys holds the current ingest token plus any rotation tokens from a
+	// comma-separated GAIACOM_SMTP_INGEST_TOKEN value (old+new during a rotation
+	// window). Empty means the bridge is not configured and ingest fails closed.
+	ingestKeys []string
 	tlsMode    string
 	timeout    time.Duration
 	security   *security.SecuritySystem
@@ -73,14 +93,33 @@ func NewService(messages repository.MessageStore, identities repository.Identity
 		username:   strings.TrimSpace(os.Getenv("GAIACOM_SMTP_USERNAME")),
 		password:   os.Getenv("GAIACOM_SMTP_PASSWORD"),
 		from:       strings.TrimSpace(os.Getenv("GAIACOM_SMTP_FROM")),
-		ingestKey:  os.Getenv("GAIACOM_SMTP_INGEST_TOKEN"),
+		ingestKeys: parseSMTPIngestTokens(os.Getenv("GAIACOM_SMTP_INGEST_TOKEN")),
 		tlsMode:    tlsMode,
 		timeout:    30 * time.Second,
+	}
+	if len(service.ingestKeys) > 0 {
+		service.ingestKey = service.ingestKeys[0]
 	}
 	if len(securitySystems) > 0 {
 		service.security = securitySystems[0]
 	}
 	return service
+}
+
+// verifyIngestToken compares SHA-256 digests of the supplied and configured
+// tokens in constant time. Hashing first gives every comparison the same length,
+// so a wrong-length token cannot be distinguished by timing.
+func (s *Service) verifyIngestToken(token string) bool {
+	if s == nil || len(s.ingestKeys) == 0 || token == "" {
+		return false
+	}
+	candidate := sha256.Sum256([]byte(token))
+	matched := 0
+	for _, configured := range s.ingestKeys {
+		expected := sha256.Sum256([]byte(configured))
+		matched |= subtle.ConstantTimeCompare(candidate[:], expected[:])
+	}
+	return matched == 1
 }
 
 func (s *Service) SendLegacyMail(ctx context.Context, userID uuid.UUID, senderIdentityID uuid.UUID, to string, subject string, body string, attachments []Attachment) error {
@@ -141,12 +180,29 @@ func (s *Service) SendLegacyMail(ctx context.Context, userID uuid.UUID, senderId
 }
 
 func (s *Service) IngestLegacyMail(ctx context.Context, token string, targetGaiaID string, externalFrom string, subject string, body string, attachments []Attachment) error {
-	if s.ingestKey == "" || subtle.ConstantTimeCompare([]byte(token), []byte(s.ingestKey)) != 1 {
+	// Fail closed when the bridge is not configured (empty or placeholder-only
+	// token list) and on any token mismatch. verifyIngestToken hashes both sides
+	// and compares with subtle.ConstantTimeCompare across the rotation list.
+	if s.ingestKey == "" || len(s.ingestKeys) == 0 || !s.verifyIngestToken(token) {
+		return fmt.Errorf("%w: %w", errSMTPRejected, errSMTPUnauthorized)
+	}
+
+	// externalFrom is attacker-controlled and untrusted: bound its raw size and
+	// reject header-injection bytes before it reaches the mail parser.
+	if strings.TrimSpace(externalFrom) == "" || len([]byte(externalFrom)) > maxSMTPFromBytes || strings.ContainsAny(externalFrom, "\r\n\x00") {
 		return errSMTPRejected
 	}
-	if _, err := mail.ParseAddress(externalFrom); err != nil {
+	parsedFrom, err := mail.ParseAddress(externalFrom)
+	if err != nil {
 		return errSMTPRejected
 	}
+	// Store only the bare address, lowercased, without any display name: a
+	// crafted display name must not be able to masquerade as a trusted label.
+	externalSender := normalizeExternalSender(parsedFrom)
+	if externalSender == "" {
+		return errSMTPRejected
+	}
+
 	if err := validateLegacyEnvelope("bridge-inbound@gaiacom.local", subject, body, attachments); err != nil {
 		return err
 	}
@@ -154,9 +210,25 @@ func (s *Service) IngestLegacyMail(ctx context.Context, token string, targetGaia
 	if err != nil {
 		return err
 	}
+	if recipient == nil {
+		return errSMTPRejected
+	}
+
+	// The From address is never used for authentication or authorization. If it
+	// resolves to a local GaiaID (e.g. "user@node.example"), reject the ingest so a
+	// bridge message cannot present itself as a local identity.
+	if s.isLocalIdentityReference(externalSender) {
+		if sec := s.security; sec != nil {
+			userID := recipient.UserID
+			identityID := recipient.ID
+			sec.RecordSecurityEvent(ctx, &userID, &identityID, "policy_violation", "high", "smtpbridge",
+				"SMTP-Legacy-Ingest mit lokaler Absender-Identität abgelehnt (Impersonationsversuch).", "reject", nil)
+		}
+		return errSMTPRejected
+	}
 
 	if sec := s.security; sec != nil {
-		if err := sec.CheckSMTPRequest(ctx, externalFrom, targetGaiaID, subject, nil); err != nil {
+		if err := sec.CheckSMTPRequest(ctx, externalSender, targetGaiaID, subject, nil); err != nil {
 			return err
 		}
 		sec.RecordSecurityEvent(ctx, &recipient.UserID, &recipient.ID, "policy_violation", "low", "smtp_guard",
@@ -169,11 +241,17 @@ func (s *Service) IngestLegacyMail(ctx context.Context, token string, targetGaia
 		"subject":     subject,
 		"body":        body,
 		"attachments": attachments,
+		// Untrusted external metadata: stored for display only, never identity.
+		"externalFrom":      externalSender,
+		"externalUntrusted": true,
+		"senderIdentity":    "",
 		"security": map[string]interface{}{
-			"transport":         "legacy-smtp",
-			"endToEndEncrypted": false,
-			"untrusted":         true,
-			"notice":            "External SMTP mail. Treat links and attachments as untrusted.",
+			"transport":               "legacy-smtp",
+			"endToEndEncrypted":       false,
+			"untrusted":               true,
+			"externalSenderUntrusted": true,
+			"senderVerified":          false,
+			"notice":                  "External SMTP mail. Treat links and attachments as untrusted; the From address is not verified.",
 		},
 	})
 	if err != nil {
@@ -183,165 +261,13 @@ func (s *Service) IngestLegacyMail(ctx context.Context, token string, targetGaia
 	envelope := &models.MessageEnvelope{
 		ID:        uuid.New(),
 		Type:      "smtp.legacy",
-		Sender:    externalFrom,
-		Recipient: targetGaiaID,
+		Sender:    externalSender,
+		Recipient: recipient.GaiaID,
 		Payload:   models.JSONB(payloadBytes),
+		// Server-derived untrusted marker (never from externalFrom) so every
+		// consumer sees the message as untrusted regardless of payload parsing.
+		Untrusted: true,
 		CreatedAt: time.Now().UTC(),
 	}
 	return s.Messages.SaveMessageEnvelopeWithInbox(ctx, envelope, []uuid.UUID{recipient.ID})
-}
-
-func (s *Service) sendPlainTextSMTP(ctx context.Context, to string, subject string, body string, attachments []Attachment) error {
-	fromAddress, toAddress, err := s.validateSMTPTransport(to)
-	if err != nil {
-		return err
-	}
-
-	var builder strings.Builder
-	builder.WriteString("From: ")
-	builder.WriteString(fromAddress.String())
-	builder.WriteString("\r\nTo: ")
-	builder.WriteString(toAddress.String())
-	builder.WriteString("\r\nSubject: ")
-	builder.WriteString(sanitizeHeader(subject))
-	builder.WriteString("\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nX-GaiaCOM-Legacy-SMTP: untrusted\r\n\r\n")
-	builder.WriteString(body)
-	if len(attachments) > 0 {
-		builder.WriteString("\r\n\r\n[GaiaCOM Hinweis: Anhänge wurden im Legacy-SMTP-Pfad nicht als ausführbare Inhalte eingebettet. Bitte sichere Quellen separat prüfen.]\r\n")
-	}
-
-	address := net.JoinHostPort(s.host, strconv.Itoa(s.port))
-	tlsConfig := &tls.Config{
-		MinVersion: tls.VersionTLS12,
-		ServerName: s.host,
-	}
-	dialer := &net.Dialer{Timeout: s.timeout, KeepAlive: 30 * time.Second}
-	var connection net.Conn
-	if s.tlsMode == "implicit" {
-		connection, err = (&tls.Dialer{NetDialer: dialer, Config: tlsConfig}).DialContext(ctx, "tcp", address)
-	} else {
-		connection, err = dialer.DialContext(ctx, "tcp", address)
-	}
-	if err != nil {
-		return fmt.Errorf("SMTP connection failed: %w", err)
-	}
-	defer connection.Close()
-	deadline := time.Now().Add(s.timeout)
-	if contextDeadline, ok := ctx.Deadline(); ok && contextDeadline.Before(deadline) {
-		deadline = contextDeadline
-	}
-	if err := connection.SetDeadline(deadline); err != nil {
-		return fmt.Errorf("SMTP deadline setup failed: %w", err)
-	}
-
-	client, err := smtp.NewClient(connection, s.host)
-	if err != nil {
-		return fmt.Errorf("SMTP handshake failed: %w", err)
-	}
-	defer client.Close()
-	if s.tlsMode == "starttls" {
-		if supported, _ := client.Extension("STARTTLS"); !supported {
-			return errors.New("SMTP relay does not advertise mandatory STARTTLS")
-		}
-		if err := client.StartTLS(tlsConfig); err != nil {
-			return fmt.Errorf("SMTP STARTTLS failed: %w", err)
-		}
-	}
-	if err := client.Auth(smtp.PlainAuth("", s.username, s.password, s.host)); err != nil {
-		return fmt.Errorf("SMTP authentication failed: %w", err)
-	}
-	if err := client.Mail(fromAddress.Address); err != nil {
-		return fmt.Errorf("SMTP sender rejected: %w", err)
-	}
-	if err := client.Rcpt(toAddress.Address); err != nil {
-		return fmt.Errorf("SMTP recipient rejected: %w", err)
-	}
-	writer, err := client.Data()
-	if err != nil {
-		return fmt.Errorf("SMTP DATA rejected: %w", err)
-	}
-	if _, err := io.WriteString(writer, builder.String()); err != nil {
-		_ = writer.Close()
-		return fmt.Errorf("SMTP body transfer failed: %w", err)
-	}
-	if err := writer.Close(); err != nil {
-		return fmt.Errorf("SMTP body commit failed: %w", err)
-	}
-	if err := client.Quit(); err != nil {
-		return fmt.Errorf("SMTP QUIT failed: %w", err)
-	}
-	return nil
-}
-
-func (s *Service) validateSMTPTransport(to string) (*mail.Address, *mail.Address, error) {
-	if s.host == "" || s.from == "" || s.port < 1 || s.port > 65535 {
-		return nil, nil, errSMTPNotConfigured
-	}
-	if strings.ContainsAny(s.host, "\r\n\t /\\@") || strings.Contains(s.host, ":") {
-		return nil, nil, errSMTPRejected
-	}
-	if s.tlsMode != "starttls" && s.tlsMode != "implicit" {
-		return nil, nil, errSMTPRejected
-	}
-	if s.username == "" || s.password == "" {
-		return nil, nil, errSMTPNotConfigured
-	}
-	fromAddress, err := mail.ParseAddress(s.from)
-	if err != nil {
-		return nil, nil, errSMTPRejected
-	}
-	toAddress, err := mail.ParseAddress(to)
-	if err != nil {
-		return nil, nil, errSMTPRejected
-	}
-	return fromAddress, toAddress, nil
-}
-
-func validateLegacyEnvelope(to string, subject string, body string, attachments []Attachment) error {
-	if _, err := mail.ParseAddress(to); err != nil {
-		return errSMTPRejected
-	}
-	if strings.TrimSpace(subject) == "" || len([]byte(subject)) > maxSMTPSubjectBytes {
-		return errSMTPRejected
-	}
-	if strings.TrimSpace(body) == "" || len([]byte(body)) > maxSMTPBodyBytes {
-		return errSMTPRejected
-	}
-	if len(attachments) > maxSMTPAttachments {
-		return errSMTPRejected
-	}
-	for _, attachment := range attachments {
-		if err := validateAttachment(attachment); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func validateAttachment(attachment Attachment) error {
-	name := strings.TrimSpace(attachment.Name)
-	if name == "" || len(name) > 180 || strings.ContainsAny(name, `/\`) {
-		return errSMTPRejected
-	}
-	if attachment.Size < 0 || attachment.Size > maxSMTPAttachBytes {
-		return errSMTPRejected
-	}
-	ext := strings.ToLower(filepath.Ext(name))
-	mimeType := strings.ToLower(strings.TrimSpace(attachment.MimeType))
-	blockedExt := map[string]bool{
-		".js": true, ".mjs": true, ".cjs": true, ".html": true, ".htm": true, ".svg": true,
-		".xhtml": true, ".xml": true, ".php": true, ".phtml": true, ".exe": true, ".bat": true,
-		".cmd": true, ".ps1": true, ".vbs": true, ".jar": true, ".scr": true, ".msi": true,
-	}
-	if blockedExt[ext] {
-		return errSMTPRejected
-	}
-	if strings.Contains(mimeType, "javascript") || strings.Contains(mimeType, "html") || strings.Contains(mimeType, "svg") || strings.Contains(mimeType, "xml") {
-		return errSMTPRejected
-	}
-	return nil
-}
-
-func sanitizeHeader(input string) string {
-	return strings.NewReplacer("\r", " ", "\n", " ").Replace(input)
 }

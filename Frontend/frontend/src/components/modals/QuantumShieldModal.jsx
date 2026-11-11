@@ -1,45 +1,53 @@
 import React from 'react';
+import Icon from '../ui/Icon';
+import DialogShell from './DialogShell';
 
-export const QuantumShieldModal = ({
-  show,
-  onClose,
-  t
-}) => {
+const LAYERS = [
+  { tone: 'pigment', icon: 'key', title: 'quantum_shield_l1_title', desc: 'quantum_shield_l1_desc' },
+  { tone: 'titan', icon: 'lock', title: 'quantum_shield_l2_title', desc: 'quantum_shield_l2_desc' },
+  { tone: 'success', icon: 'shieldCheck', title: 'quantum_shield_l3_title', desc: 'quantum_shield_l3_desc' },
+  { tone: 'bronze', icon: 'seal', title: 'quantum_shield_l4_title', desc: 'quantum_shield_l4_desc' }
+];
+
+/**
+ * Static explanation of the layered shield model. This dialog describes the
+ * architecture; it does not report a live security state (that lives in the
+ * Security Center and is server-backed).
+ */
+export const QuantumShieldModal = ({ show, onClose, t }) => {
   if (!show) return null;
 
-  const layers = [
-    ['cyan', 'quantum_shield_l1_title', 'quantum_shield_l1_desc'],
-    ['violet', 'quantum_shield_l2_title', 'quantum_shield_l2_desc'],
-    ['success', 'quantum_shield_l3_title', 'quantum_shield_l3_desc'],
-    ['warning', 'quantum_shield_l4_title', 'quantum_shield_l4_desc']
-  ];
-
   return (
-    <div className="popup-overlay">
-      <div className="popup-card glass-panel modal-card-wide">
-        <div className="modal-title quantum-shield-title">
-          🛡️ {t('quantum_shield_status').trim()}
-        </div>
-        <div className="quantum-shield-body">
-          <p className="quantum-shield-intro">
-            {t('quantum_shield_desc')}
-          </p>
-          <div className="quantum-shield-layer-list">
-            {layers.map(([tone, titleKey, descKey]) => (
-              <div key={titleKey} className={`quantum-shield-layer quantum-shield-layer-${tone}`}>
-                <strong>{t(titleKey)}</strong>
-                <p>{t(descKey)}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="modal-actions modal-actions-spaced">
-          <button className="btn-primary modal-confirm-btn" onClick={onClose}>
+    <DialogShell
+      id="quantum-shield"
+      eyebrow="GaiaShield"
+      title={(t('quantum_shield_status') || 'Quantum Shield Status').trim()}
+      description={t('quantum_shield_desc')}
+      onClose={onClose}
+      closeLabel={t('close') || 'Schließen'}
+      size="sm"
+      footer={
+        <div className="vgt-dialog__actions">
+          <button type="button" className="btn-primary" onClick={onClose}>
             {t('close') || 'Schließen'}
           </button>
         </div>
-      </div>
-    </div>
+      }
+    >
+      <ol className="vgt-shield-layers">
+        {LAYERS.map(layer => (
+          <li key={layer.title} className={`vgt-shield-layer vgt-shield-layer--${layer.tone}`}>
+            <span className="vgt-shield-layer__icon" aria-hidden="true">
+              <Icon name={layer.icon} size={17} />
+            </span>
+            <div>
+              <strong>{t(layer.title)}</strong>
+              <p className="vgt-body vgt-body--sm">{t(layer.desc)}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </DialogShell>
   );
 };
 

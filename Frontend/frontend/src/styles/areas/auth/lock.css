@@ -1,0 +1,232 @@
+/* ============================================================================
+   VGT GLASS 2100 — AUTH FLOWS: local key vault unlock
+   One primary task: unlock the local vault. Editorial trust column on wide
+   screens, single centered card on narrow screens. No scanning animation, no
+   decorative orbit; glass only on the card (a real functional surface).
+   ========================================================================== */
+
+.vgt-lockpage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 440px);
+  align-items: center;
+  gap: clamp(32px, 7vw, 96px);
+  min-height: 100dvh;
+  width: 100%;
+  padding: clamp(24px, 6vw, 88px);
+  padding-bottom: max(clamp(24px, 6vw, 88px), env(safe-area-inset-bottom));
+}
+
+.vgt-lockpage__story {
+  max-width: 46ch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-lockpage__story .vgt-h1 {
+  margin: var(--vgt-space-1) 0 0;
+}
+
+.vgt-lockpage__story .vgt-body {
+  margin: 0;
+}
+
+.vgt-lockpage__facts {
+  margin: var(--vgt-space-5) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-lockpage__facts > div {
+  display: grid;
+  grid-template-columns: minmax(140px, max-content) minmax(0, 1fr);
+  gap: var(--vgt-space-3);
+  align-items: baseline;
+  padding: var(--vgt-space-3) 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-lockpage__facts dt {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  margin: 0;
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--vgt-pigment);
+}
+
+.vgt-lockpage__facts dd {
+  margin: 0;
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+  color: var(--vgt-text-secondary);
+}
+
+/* ---------- Unlock card (Z2 glass, functional boundary) ---------- */
+.vgt-lockcard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  width: 100%;
+  padding: clamp(18px, 3vw, 26px);
+  border-radius: var(--vgt-radius-modal);
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke);
+  background: var(--vgt-glass-2);
+  box-shadow: var(--vgt-elevation-3), var(--vgt-inner-highlight);
+  backdrop-filter: blur(var(--vgt-blur-2)) saturate(1.1);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-2)) saturate(1.1);
+}
+
+.vgt-lockcard.is-error {
+  border-color: rgba(228, 112, 111, 0.42);
+}
+
+.vgt-lockcard__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  padding-bottom: var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-lockcard__head .vgt-caption {
+  margin: 0;
+}
+
+.vgt-lockcard__status {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-2);
+  padding: var(--vgt-space-2) var(--vgt-space-3);
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-1);
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-lockcard__status-text {
+  font-size: var(--vgt-text-xs);
+  line-height: 1.45;
+}
+
+.vgt-lockcard__status-text--danger { color: var(--vgt-danger); }
+.vgt-lockcard__status-text--info { color: var(--vgt-info); }
+.vgt-lockcard__status-text--idle { color: var(--vgt-text-muted); }
+
+.vgt-lockcard__modes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-lockcard__mode {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vgt-space-2);
+  min-height: 36px;
+  padding: 0 var(--vgt-space-2);
+  border: 0;
+  border-radius: calc(var(--vgt-radius-control) - 3px);
+  background: transparent;
+  color: var(--vgt-text-muted);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-xs);
+  font-weight: 620;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+.vgt-lockcard__mode:hover { color: var(--vgt-text-primary); }
+
+.vgt-lockcard__mode.is-active {
+  background: var(--vgt-bg-4);
+  color: var(--vgt-text-primary);
+  box-shadow: var(--vgt-inner-highlight);
+}
+
+.vgt-lockcard__mode:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-lockcard__webauthn {
+  width: 100%;
+  margin: 0;
+}
+
+.vgt-lockcard__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-lockfield {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-lockfield__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.vgt-lockfield__input {
+  padding-inline-end: 46px;
+}
+
+.vgt-lockfield__toggle {
+  position: absolute;
+  inset-inline-end: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.vgt-lockcard__submit {
+  width: 100%;
+  min-height: 44px;
+}
+
+.vgt-lockcard__logout {
+  width: 100%;
+  justify-content: center;
+  min-height: 40px;
+}
+
+/* ---------- Responsive composition ---------- */
+@media (max-width: 960px) {
+  .vgt-lockpage {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: var(--vgt-space-6);
+    padding: clamp(20px, 5vw, 40px);
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+
+  .vgt-lockpage__story {
+    max-width: 100%;
+  }
+
+  .vgt-lockcard {
+    max-width: 520px;
+  }
+}
+
+@media (max-width: 560px) {
+  .vgt-lockpage__facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}

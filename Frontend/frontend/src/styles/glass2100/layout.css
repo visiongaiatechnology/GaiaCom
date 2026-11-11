@@ -1,0 +1,373 @@
+/* ============================================================================
+   VGT GLASS 2100 — LAYOUT & MOBILE CONTRACT
+   Migrated in M10 Phase A from the legacy cascade
+   (layout.css / reader.css / responsive.css / listpane.css / chat.css).
+
+   This sheet owns the app-root geometry, the centre-pane scroll contract and
+   the mobile-only control contract, written with tokens and without forced
+   declarations. The legacy sheets are still loaded during Phase A and are
+   removed in Phase B; their values are mirrored here so the contract survives.
+
+   Not owned here: the shell rail, the bottom dock and the "Mehr" sheet
+   (workspace-shell.css), and area typography/materials.
+   ========================================================================== */
+
+/* ---------- 1. App root geometry (legacy layout.css:2-9) ---------- */
+.app-container {
+  display: grid;
+  grid-template-columns: 252px 380px minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  background: var(--vgt-bg-0);
+}
+
+/* ---------- 2. Centre pane: flex + scroll contract (legacy reader.css:2-10) ---------- */
+.mail-content-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ---------- 3. Empty centre pane (legacy reader.css:274-292) ---------- */
+.empty-reader-pane {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--vgt-text-muted);
+  text-align: center;
+}
+
+.empty-reader-pane h2 {
+  margin: 0 0 var(--vgt-space-3);
+  color: var(--vgt-pigment);
+  font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-2xl);
+  font-weight: 650;
+  letter-spacing: var(--vgt-tracking-tight);
+}
+
+/* ---------- 4. Scroll surface contract (visuals live in materials.css) ---------- */
+.gaia-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--vgt-border-strong) transparent;
+}
+
+/* ---------- 5. Mobile-only controls: desktop default is hidden ---------- */
+.mobile-pane-actions,
+.detail-mobile-actions,
+.mobile-floating-menu {
+  display: none;
+}
+
+.mobile-menu-toggle,
+.mobile-menu-close,
+.mobile-back-btn {
+  display: none;
+}
+
+/* Desktop compositions of the controls that stay visible on wide screens. */
+.mobile-compose-btn {
+  width: auto;
+  min-height: 40px;
+  padding: 0 var(--vgt-space-4);
+  font-size: var(--vgt-text-sm);
+}
+
+.desktop-compose-btn {
+  width: auto;
+  min-height: 28px;
+  padding: 0 var(--vgt-space-3);
+  border-radius: var(--vgt-radius-xs);
+  font-size: var(--vgt-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  gap: var(--vgt-space-1);
+}
+
+.collapse-toggle-btn {
+  flex: none;
+}
+
+/* ---------- 6. Mobile composition (legacy responsive.css:11-370) ---------- */
+@media (max-width: 992px) {
+  .app-container {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    min-height: 100dvh;
+    height: 100dvh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Master/detail switch: one full-height surface at a time. */
+  .mail-content-pane {
+    display: none;
+  }
+
+  .app-container.mobile-content-active .mail-list-pane {
+    display: none;
+  }
+
+  .app-container.mobile-content-active .mail-content-pane {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Action rows */
+  .mobile-pane-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--vgt-space-2);
+    margin-bottom: var(--vgt-space-2);
+  }
+
+  .mobile-pane-actions .mobile-menu-toggle {
+    flex: 0 0 auto;
+    min-width: 42px;
+    height: 34px;
+    margin: 0;
+    padding: 0 10px;
+    border-radius: var(--vgt-radius-xs);
+    font-size: var(--vgt-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .mobile-pane-actions .mobile-compose-btn {
+    flex: 0 1 auto;
+    margin: 0;
+    min-width: 0;
+    min-height: 34px;
+    padding: 0 var(--vgt-space-3);
+    border-radius: var(--vgt-radius-xs);
+    font-size: var(--vgt-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .desktop-compose-btn {
+    display: none;
+  }
+
+  .collapse-toggle-btn {
+    display: none;
+  }
+
+  /* Detail header row (back + menu) */
+  .detail-mobile-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--vgt-space-2);
+    flex-shrink: 0;
+    padding: calc(10px + env(safe-area-inset-top)) var(--vgt-space-3) 10px;
+    background: var(--vgt-glass-3);
+    border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+    backdrop-filter: blur(var(--vgt-blur-2));
+    -webkit-backdrop-filter: blur(var(--vgt-blur-2));
+    z-index: var(--vgt-z-sticky);
+  }
+
+  .detail-mobile-actions .mobile-menu-toggle,
+  .detail-mobile-actions .mobile-back-btn {
+    margin: 0;
+    min-height: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: var(--vgt-radius-xs);
+    font-size: var(--vgt-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  /* Floating list action (also used together with .mobile-menu-toggle) */
+  .mobile-floating-menu {
+    align-self: flex-start;
+    flex-shrink: 0;
+    margin: calc(10px + env(safe-area-inset-top)) var(--vgt-space-3) 0;
+    min-height: 34px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: var(--vgt-radius-xs);
+    font-size: var(--vgt-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  /* Toggles and back control become touch-sized controls */
+  .mobile-menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vgt-bg-2);
+    border: var(--vgt-hairline) solid var(--vgt-border);
+    color: var(--vgt-text-primary);
+    font-size: var(--vgt-text-md);
+    padding: 6px 12px;
+    border-radius: var(--vgt-radius-control);
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .mobile-menu-toggle:hover {
+    border-color: var(--vgt-pigment-line);
+    color: var(--vgt-text-primary);
+  }
+
+  .mobile-menu-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+    color: var(--vgt-text-secondary);
+    font-size: var(--vgt-text-lg);
+    cursor: pointer;
+    line-height: 1;
+    padding: var(--vgt-space-1);
+  }
+
+  .mobile-menu-close:hover {
+    color: var(--vgt-danger);
+  }
+
+  .mobile-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vgt-bg-2);
+    border: var(--vgt-hairline) solid var(--vgt-border);
+    color: var(--vgt-text-primary);
+    font-size: var(--vgt-text-sm);
+    font-weight: 700;
+    padding: 6px var(--vgt-space-3);
+    border-radius: var(--vgt-radius-control);
+    cursor: pointer;
+    margin-right: var(--vgt-space-3);
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .mobile-back-btn:hover {
+    border-color: var(--vgt-pigment-line);
+    color: var(--vgt-text-primary);
+  }
+}
+
+/* ---------- 7. Adaptive material for the detail action strip ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  .detail-mobile-actions {
+    background: var(--vgt-bg-2);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* ---------- 8. Chat/pane container contract (legacy chat.css:2-10) ----------
+   Drive, Drop, GSN and Channels still use the historical `.chat-container`
+   hook. The contract is owned here so those sheets can be deleted. */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: var(--vgt-space-5);
+  gap: var(--vgt-space-3);
+}
+
+/* ---------- 9. Shared pane head (used by drive, drop, GSN and more) ---------- */
+.vgt-pane-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--vgt-space-4);
+  padding-bottom: var(--vgt-space-4);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+}
+
+.vgt-pane-head > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  min-width: 0;
+}
+
+.vgt-pane-head .vgt-h1,
+.vgt-pane-head .vgt-h2,
+.vgt-pane-head .vgt-h3 {
+  margin: 0;
+}
+
+.vgt-pane-head__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vgt-space-2);
+}
+
+/* ---------- 10. Shared empty / state primitives ---------- */
+.vgt-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vgt-space-2);
+  text-align: center;
+  padding: var(--vgt-space-7) var(--vgt-space-4);
+  color: var(--vgt-text-muted);
+  border: var(--vgt-hairline) dashed var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+}
+
+.vgt-empty strong {
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-lg);
+  font-weight: 620;
+}
+
+.vgt-empty .vgt-body { max-width: 46ch; }
+
+.vgt-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vgt-space-2);
+  padding: var(--vgt-space-6);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+}
+
+/* ---------- 11. Suspense fallback (used by the app shell) ---------- */
+.vgt-pane-fallback {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: var(--vgt-space-2);
+  min-height: min(60dvh, 520px);
+  padding: var(--vgt-space-6);
+  text-align: center;
+}
+
+.vgt-pane-fallback > h2 {
+  margin: 0;
+  font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-xl);
+  font-weight: 620;
+  color: var(--vgt-text-primary);
+}

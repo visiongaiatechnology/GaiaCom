@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 #![forbid(unsafe_code)]
 
 pub mod envelope;

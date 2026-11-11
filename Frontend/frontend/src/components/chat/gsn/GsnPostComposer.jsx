@@ -1,11 +1,16 @@
 import React, { useState, useRef } from 'react';
 import * as api from '../../../api';
 import * as crypto from '../../../crypto';
+import Icon from '../../ui/Icon';
+import AvatarMark from '../profile/ui/AvatarMark';
 
-const emojis = ['🚀', '🐼', '🤖', '🔒', '💎', '🛡️', '🌍', '🔥'];
-
+/**
+ * GSN post composer. The image path keeps the encrypted upload flow unchanged;
+ * the author avatar is the real profile avatar, never a bundled placeholder.
+ */
 export default function GsnPostComposer({
   activeIdentity,
+  myProfile,
   createPost,
   repostOfPostId,
   setRepostOfPostId,
@@ -13,56 +18,49 @@ export default function GsnPostComposer({
   t
 }) {
   const [postBody, setPostBody] = useState('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [uploadedImageMeta, setUploadedImageMeta] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageUploadProgress, setImageUploadProgress] = useState(0);
-
   const fileInputRef = useRef(null);
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+  const handleImageUpload = async event => {
+    const file = event.target.files[0];
     if (!file) return;
 
     const previewUrl = URL.createObjectURL(file);
     setImagePreviewUrl(previewUrl);
-    
     setUploadingImage(true);
     setImageUploadProgress(5);
     try {
       const cleanFile = await crypto.stripImageMetadata(file);
       setImageUploadProgress(10);
-      
+
       const { encryptedBlob, keyHex, ivHex } = await crypto.encryptFileSymmetric(cleanFile);
       const encryptedSize = encryptedBlob.size;
       const encryptedBuf = await encryptedBlob.arrayBuffer();
-      
       const hashBuf = await window.crypto.subtle.digest('SHA-256', encryptedBuf);
       const fileHash = Array.prototype.map.call(new Uint8Array(hashBuf), x => ('00' + x.toString(16)).slice(-2)).join('');
       setImageUploadProgress(15);
-      
+
       const initRes = await api.initUpload(file.name, encryptedSize, file.type, fileHash);
       const fileId = initRes.fileId;
-      
-      const CHUNK_SIZE = 1024 * 1024;
-      const totalChunks = Math.ceil(encryptedSize / CHUNK_SIZE);
-      for (let i = 0; i < totalChunks; i++) {
-        const start = i * CHUNK_SIZE;
-        const end = Math.min(start + CHUNK_SIZE, encryptedSize);
+
+      const chunkSize = 1024 * 1024;
+      const totalChunks = Math.ceil(encryptedSize / chunkSize);
+      for (let index = 0; index < totalChunks; index += 1) {
+        const start = index * chunkSize;
+        const end = Math.min(start + chunkSize, encryptedSize);
         const chunkBlob = encryptedBlob.slice(start, end);
         const chunkBuf = await chunkBlob.arrayBuffer();
-        
         const chunkHashBuf = await window.crypto.subtle.digest('SHA-256', chunkBuf);
         const chunkHash = Array.prototype.map.call(new Uint8Array(chunkHashBuf), x => ('00' + x.toString(16)).slice(-2)).join('');
-        
-        await api.uploadChunk(fileId, i, chunkHash, chunkBlob);
-        setImageUploadProgress(Math.round(20 + ((i + 1) / totalChunks) * 80));
+        await api.uploadChunk(fileId, index, chunkHash, chunkBlob);
+        setImageUploadProgress(Math.round(20 + ((index + 1) / totalChunks) * 80));
       }
-      
+
       await api.completeUpload(fileId);
       setImageUploadProgress(100);
-      
       setUploadedImageMeta({
         fileId,
         fileName: file.name,
@@ -71,7 +69,6 @@ export default function GsnPostComposer({
         keyHex,
         ivHex
       });
-      
       triggerAlert(t('success') || 'Erfolg', t('gsn_image_uploaded') || 'Bild wurde verschlüsselt und hochgeladen.');
     } catch (err) {
       console.error(err);
@@ -83,8 +80,15 @@ export default function GsnPostComposer({
     }
   };
 
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
+  const clearImage = () => {
+    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
+    setImagePreviewUrl('');
+    setUploadedImageMeta(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleCreatePost = async event => {
+    event.preventDefault();
     if (!postBody.trim() && !uploadedImageMeta) return;
 
     let imageAttachmentStr = '';
@@ -101,133 +105,108 @@ export default function GsnPostComposer({
       await createPost(postBody, imageAttachmentStr, repostOfPostId);
       setPostBody('');
       setRepostOfPostId('');
-      setUploadedImageMeta(null);
-      if (imagePreviewUrl) {
-        URL.revokeObjectURL(imagePreviewUrl);
-        setImagePreviewUrl('');
-      }
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      clearImage();
       triggerAlert(t('success') || 'Erfolg', t('gsn_post_created') || 'Beitrag erfolgreich geteilt.');
     } catch (err) {
       triggerAlert(t('error') || 'Fehler', err.message, 'danger');
     }
   };
 
-  return (
-    <form className="gsn-composer" onSubmit={handleCreatePost} style={{ flexShrink: 0, margin: 0, padding: '12px 16px' }}>
-      <textarea
-        className="gsn-composer-textarea"
-        placeholder={t('gsn_composer_placeholder') || 'Was gibt es Neues in der Föderation?'}
-        value={postBody}
-        onChange={(e) => setPostBody(e.target.value)}
-        style={{ minHeight: '60px', marginBottom: '8px' }}
-      />
+  const displayName = myProfile?.displayName || activeIdentity?.DisplayName || '';
 
+  return (
+    <form className="vgt-gsn-composer-v2" onSubmit={handleCreatePost}>
       {repostOfPostId && (
-        <div style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '0.8rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <span>🔄 Reposting Beitrag: <code>{repostOfPostId.slice(0, 8)}...</code></span>
-          <button type="button" className="btn-secondary" style={{ padding: '2px 8px', fontSize: '0.75rem' }} onClick={() => { setRepostOfPostId(''); setPostBody(''); }}>
-            ✕
+        <div className="vgt-gsn-composer__context">
+          <span>
+            <Icon name="share" size={14} /> Repost von <code className="vgt-id">{String(repostOfPostId).slice(0, 8)}…</code>
+          </span>
+          <button
+            type="button"
+            className="btn-icon"
+            aria-label="Repost verwerfen"
+            onClick={() => {
+              setRepostOfPostId('');
+              setPostBody('');
+            }}
+          >
+            <Icon name="close" size={14} />
           </button>
         </div>
       )}
 
-      {uploadedImageMeta && imagePreviewUrl && (
-        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: '12px', marginBottom: '8px', background: 'rgba(0,0,0,0.25)', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border-color)' }}>
-          <img
-            src={imagePreviewUrl}
-            alt="Selected preview"
-            style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border-color)' }}
+      <div className="vgt-gsn-composer-v2__main-row">
+        <div className="vgt-gsn-composer-v2__avatar-wrap">
+          <AvatarMark
+            avatar={myProfile?.avatar || ''}
+            displayName={displayName}
+            variant="default"
+            className="vgt-gsn-composer-v2__avatar"
           />
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontWeight: 'bold' }}>🔒 Encrypted</span>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{uploadedImageMeta.fileName}</span>
+        </div>
+
+        <textarea
+          id="gsn-composer-input"
+          className="vgt-gsn-composer-v2__textarea"
+          placeholder={t('gsn_composer_placeholder') || 'Was möchtest du mit dem Netzwerk teilen?'}
+          value={postBody}
+          onChange={event => setPostBody(event.target.value)}
+          rows={2}
+        />
+      </div>
+
+      {uploadedImageMeta && imagePreviewUrl && (
+        <div className="vgt-gsn-composer__attachment">
+          <img src={imagePreviewUrl} alt="Vorschau des verschlüsselten Bildes" />
+          <div className="vgt-gsn-composer__attachment-meta">
+            <strong>
+              <Icon name="lock" size={12} /> Verschlüsselt
+            </strong>
+            <span className="vgt-caption">{uploadedImageMeta.fileName}</span>
           </div>
-          <button
-            type="button"
-            className="btn-action"
-            style={{ padding: '4px 8px', fontSize: '0.8rem', color: 'var(--danger)' }}
-            onClick={() => {
-              setUploadedImageMeta(null);
-              URL.revokeObjectURL(imagePreviewUrl);
-              setImagePreviewUrl('');
-              if (fileInputRef.current) fileInputRef.current.value = '';
-            }}
-          >
-            ✕
+          <button type="button" className="btn-icon vgt-danger-text" onClick={clearImage} aria-label="Bild entfernen">
+            <Icon name="close" size={14} />
           </button>
         </div>
       )}
 
       {uploadingImage && (
-        <div style={{ marginBottom: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-            <span>🔒 Verschlüsseln und Hochladen...</span>
-            <span>{imageUploadProgress}%</span>
+        <div className="vgt-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={imageUploadProgress}>
+          <div className="vgt-progress__label">
+            <span>Verschlüsseln und hochladen…</span>
+            <span className="vgt-numeric">{imageUploadProgress}%</span>
           </div>
-          <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
-            <div style={{ width: `${imageUploadProgress}%`, height: '100%', background: 'var(--accent-cyan)' }}></div>
+          <div className="vgt-progress__track">
+            <div className="vgt-progress__fill" style={{ width: `${imageUploadProgress}%` }} />
           </div>
         </div>
       )}
 
-      <div className="gsn-composer-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+      <div className="vgt-gsn-composer-v2__footer">
+        <div className="vgt-gsn-composer-v2__tabs">
+          <button type="button" className="vgt-gsn-tab-btn is-active">
+            <Icon name="edit" size={15} />
+            <span>Beitrag</span>
+          </button>
           <button
             type="button"
-            className="btn-action"
-            onClick={() => fileInputRef.current && fileInputRef.current.click()}
+            className="vgt-gsn-tab-btn"
+            onClick={() => fileInputRef.current?.click()}
             disabled={uploadingImage}
-            title={t('gsn_add_image') || 'Bild hinzufügen (Verschlüsselt)'}
-            style={{ fontSize: '1.1rem', padding: '6px' }}
           >
-            📷
+            <Icon name="image" size={15} />
+            <span>Bild</span>
           </button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            accept="image/*"
-            onChange={handleImageUpload}
-          />
-
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              className="btn-action"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              title={t('gsn_add_emoji') || 'Emoji einfügen'}
-              style={{ fontSize: '1.1rem', padding: '6px' }}
-            >
-              😀
-            </button>
-            {showEmojiPicker && (
-              <div className="glass-panel" style={{ position: 'absolute', bottom: '40px', left: 0, zIndex: 100, padding: '8px', display: 'flex', gap: '6px', borderRadius: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-glass)' }}>
-                {emojis.map(e => (
-                  <button
-                    key={e}
-                    type="button"
-                    style={{ background: 'transparent', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '4px' }}
-                    onClick={() => {
-                      setPostBody(prev => prev + e);
-                      setShowEmojiPicker(false);
-                    }}
-                  >
-                    {e}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <input ref={fileInputRef} type="file" hidden accept="image/*" onChange={handleImageUpload} />
         </div>
 
         <button
           type="submit"
-          className="btn-primary"
+          className="vgt-btn-posten"
           disabled={(!postBody.trim() && !uploadedImageMeta) || uploadingImage}
-          style={{ padding: '6px 16px', fontSize: '0.85rem' }}
         >
-          🚀 {t('gsn_post_btn') || 'Teilen'}
+          <Icon name="send" size={14} />
+          <span>Posten</span>
         </button>
       </div>
     </form>

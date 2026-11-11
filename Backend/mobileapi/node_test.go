@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package mobileapi
 
 import (

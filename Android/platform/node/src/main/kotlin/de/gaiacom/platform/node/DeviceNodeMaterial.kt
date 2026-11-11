@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package de.gaiacom.platform.node
 
 import de.gaiacom.nativecore.mobileapi.Mobileapi

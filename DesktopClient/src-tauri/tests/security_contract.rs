@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 use serde_json::Value;
 
 const CONFIGURATION: &str = include_str!("../tauri.conf.json");

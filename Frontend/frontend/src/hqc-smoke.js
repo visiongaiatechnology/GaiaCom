@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 // Headless Chromium advances virtual time aggressively. Keep the production
 // provider's fail-closed timeout beyond the smoke test's virtual-time window.
 const schedule = globalThis.setTimeout.bind(globalThis);

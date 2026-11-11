@@ -1,0 +1,187 @@
+/* ============================================================================
+   VGT GLASS 2100 — AUTH FLOWS: shared primitives
+   Step indicator, icon defaults and the feedback-dialog shell. These classes
+   are shared by the wizard, the onboarding sheet and the feedback layer only.
+   ========================================================================== */
+
+.vgt-icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: -0.125em;
+}
+
+/* ---------- Step indicator ---------- */
+.vgt-step {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.vgt-step__cell {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.vgt-step__item {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  width: 100%;
+  min-height: 34px;
+  padding: 4px 6px 4px 4px;
+  border: 0;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  color: var(--vgt-text-muted);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  text-align: left;
+  cursor: default;
+}
+
+button.vgt-step__item {
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+button.vgt-step__item:hover {
+  color: var(--vgt-text-primary);
+}
+
+button.vgt-step__item:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-step__marker {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 50%;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-muted);
+  font-family: var(--vgt-font-mono);
+  font-size: 10px;
+  line-height: 1;
+}
+
+.vgt-step__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-step__item.is-current {
+  color: var(--vgt-text-primary);
+}
+
+.vgt-step__item.is-current .vgt-step__marker {
+  border-color: var(--vgt-pigment-line);
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-pigment);
+}
+
+.vgt-step__item.is-done .vgt-step__marker {
+  border-color: var(--vgt-pigment-line);
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-pigment);
+}
+
+.vgt-step__item.is-done .vgt-step__label {
+  color: var(--vgt-text-secondary);
+}
+
+/* ---------- Feedback dialog (Z4) ---------- */
+.vgt-modal {
+  width: min(460px, 100%);
+  gap: var(--vgt-space-3);
+}
+
+.vgt-dialog--modal {
+  width: min(460px, 100%);
+}
+
+.vgt-dialog--wide-modal {
+  width: min(720px, 100%);
+}
+
+.vgt-modal__head {
+  align-items: flex-start;
+}
+
+.vgt-modal__heading {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  min-width: 0;
+}
+
+.vgt-modal__heading .vgt-h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.vgt-modal__tone {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-modal__tone--info { color: var(--vgt-info); border-color: rgba(127, 169, 214, 0.34); background: var(--vgt-info-soft); }
+.vgt-modal__tone--success { color: var(--vgt-success); border-color: rgba(91, 190, 146, 0.34); background: var(--vgt-success-soft); }
+.vgt-modal__tone--warning { color: var(--vgt-warning); border-color: rgba(216, 168, 78, 0.34); background: var(--vgt-warning-soft); }
+.vgt-modal__tone--danger { color: var(--vgt-danger); border-color: rgba(228, 112, 111, 0.34); background: var(--vgt-danger-soft); }
+
+.vgt-modal__body {
+  min-width: 0;
+}
+
+.vgt-modal__text {
+  margin: 0;
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-modal__text--prewrap {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.vgt-modal__actions {
+  flex-wrap: wrap;
+}
+
+@media (max-width: 560px) {
+  .vgt-step {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .vgt-step__label {
+    white-space: normal;
+  }
+
+  .vgt-modal__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vgt-modal__actions .btn-primary,
+  .vgt-modal__actions .btn-secondary,
+  .vgt-modal__actions .btn-danger {
+    width: 100%;
+  }
+}

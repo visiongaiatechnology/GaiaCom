@@ -1,0 +1,375 @@
+/* ============================================================================
+   AURORA UI v3 — DASHBOARD HOME (Matching Image 1)
+   Cinematic aurora mountains hero, quantum lock hologram dome, 4 metric cards,
+   2-column system status and activity, and 6-item Schnellzugriff row.
+   ========================================================================== */
+
+.ax3-dash {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 18px 18px;
+  color: #f4faff;
+  font-family: Manrope, Inter, "Segoe UI Variable Text", system-ui, sans-serif;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 229, 255, 0.3) transparent;
+}
+
+.ax3-dash > * { flex-shrink: 0; }
+
+/* ---------- Hero banner with Cinematic Mountains ---------- */
+.ax3-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 196px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
+  align-items: center;
+  gap: 12px;
+  padding: 22px 26px;
+  border: 1px solid rgba(0, 229, 255, 0.22);
+  border-radius: 16px;
+  background-color: #060d17;
+  background-image: url('/ui/06_backgrounds/png/aurora_mountains_cinematic.png'), url('/ui/aurora_mountains_cinematic.png');
+  background-position: center 48%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 0 40px rgba(0, 229, 255, 0.05);
+}
+
+.ax3-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(4, 9, 17, 0.94) 0%, rgba(4, 9, 17, 0.75) 44%, rgba(4, 9, 17, 0.2) 80%, rgba(4, 9, 17, 0.05)),
+    linear-gradient(0deg, rgba(4, 9, 17, 0.5), transparent 60%);
+  pointer-events: none;
+}
+
+.ax3-hero__copy { position: relative; z-index: 2; }
+
+.ax3-kicker {
+  margin: 0 0 6px;
+  color: #8fe8f2;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.ax3-hero__title {
+  margin: 0;
+  font-size: clamp(1.5rem, 1.1rem + 1.3vw, 2.2rem);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.ax3-hero__name-highlight {
+  background: linear-gradient(95deg, #7ef3ff, #23d9c8 55%, #b084ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+.ax3-hero__sub { margin: 6px 0 0; color: #b9cdda; font-size: 0.86rem; }
+
+/* Quantum lock holographic scene */
+.ax3-hero__scene {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+}
+
+.ax3-hero__lock-sphere {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.55);
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.22) 0%, rgba(13, 24, 38, 0.5) 70%);
+  box-shadow: 0 0 38px rgba(0, 229, 255, 0.4), inset 0 0 30px rgba(0, 229, 255, 0.22);
+  color: #7ef3ff;
+  backdrop-filter: blur(4px);
+}
+
+.ax3-hero__lock-glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.25), transparent 70%);
+  pointer-events: none;
+  animation: ax3-pulse 4s ease-in-out infinite alternate;
+}
+
+.ax3-hero__lock-ring {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1px dashed rgba(0, 229, 255, 0.4);
+  pointer-events: none;
+}
+
+.ax3-hero__lock-icon { position: relative; z-index: 3; color: #7ef3ff; }
+
+@keyframes ax3-pulse {
+  0% { transform: scale(0.96); opacity: 0.6; }
+  100% { transform: scale(1.06); opacity: 1; }
+}
+
+/* ---------- 4 Metric Cards ---------- */
+.ax3-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ax3-metric {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  border: 1px solid rgba(84, 116, 146, 0.26);
+  border-radius: 13px;
+  background: linear-gradient(150deg, rgba(13, 24, 38, 0.95), rgba(8, 17, 30, 0.9));
+  color: #eef8fb;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+}
+
+.ax3-metric:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 229, 255, 0.45);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+}
+.ax3-metric:focus-visible { outline: 2px solid #7ef3ff; outline-offset: 2px; }
+
+.ax3-metric--cyan { border-color: rgba(0, 229, 255, 0.26); background: linear-gradient(150deg, rgba(0, 229, 255, 0.12), rgba(8, 17, 30, 0.92) 55%); }
+.ax3-metric--teal { border-color: rgba(35, 217, 200, 0.24); background: linear-gradient(150deg, rgba(35, 217, 200, 0.11), rgba(8, 17, 30, 0.92) 55%); }
+.ax3-metric--violet { border-color: rgba(139, 92, 246, 0.28); background: linear-gradient(150deg, rgba(139, 92, 246, 0.14), rgba(8, 17, 30, 0.92) 55%); }
+.ax3-metric--magenta { border-color: rgba(219, 91, 255, 0.28); background: linear-gradient(150deg, rgba(219, 91, 255, 0.12), rgba(8, 17, 30, 0.92) 55%); }
+
+.ax3-metric__icon-box {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 12px;
+  background: rgba(4, 12, 22, 0.65);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.ax3-metric--cyan .ax3-metric__icon-box { color: #7ef3ff; box-shadow: inset 0 0 0 1px rgba(0, 229, 255, 0.35), 0 0 16px rgba(0, 229, 255, 0.18); }
+.ax3-metric--teal .ax3-metric__icon-box { color: #7dffe2; box-shadow: inset 0 0 0 1px rgba(35, 217, 200, 0.35), 0 0 16px rgba(35, 217, 200, 0.18); }
+.ax3-metric--violet .ax3-metric__icon-box { color: #cbb9ff; box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.4), 0 0 18px rgba(139, 92, 246, 0.2); }
+.ax3-metric--magenta .ax3-metric__icon-box { color: #f0b6ff; box-shadow: inset 0 0 0 1px rgba(219, 91, 255, 0.4), 0 0 18px rgba(219, 91, 255, 0.2); }
+
+.ax3-metric__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.ax3-metric__label { color: #d7e8f0; font-size: 0.78rem; font-weight: 650; }
+.ax3-metric__value-row { display: flex; align-items: baseline; gap: 6px; }
+.ax3-metric__count { color: #ffffff; font-size: 1.45rem; font-weight: 800; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.ax3-metric__suffix { color: #9fb6c8; font-size: 0.72rem; font-weight: 600; }
+.ax3-metric__chevron { color: #7d95a8; flex: none; }
+
+/* ---------- 2-Column Cards (Systemstatus & Aktivitaet) ---------- */
+.ax3-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.ax3-card {
+  min-width: 0;
+  border: 1px solid rgba(84, 116, 146, 0.26);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(13, 24, 38, 0.94), rgba(8, 17, 30, 0.92));
+  padding: 14px 16px;
+}
+
+.ax3-card__head { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+.ax3-card__head h3 { margin: 0; color: #ffffff; font-size: 0.92rem; font-weight: 700; }
+.ax3-card__icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  flex: none;
+}
+.ax3-card__icon--teal { background: rgba(35, 217, 200, 0.12); color: #7dffe2; }
+.ax3-card__icon--violet { background: rgba(139, 92, 246, 0.14); color: #cbb9ff; }
+
+/* Systemstatus list */
+.ax3-status-list { list-style: none; margin: 0; padding: 0; }
+.ax3-status-item {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 4px;
+  border-bottom: 1px solid rgba(84, 116, 146, 0.14);
+}
+.ax3-status-item:last-child { border-bottom: 0; }
+.ax3-status-check {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(35, 217, 200, 0.5);
+  background: rgba(35, 217, 200, 0.12);
+  color: #7dffe2;
+}
+.ax3-status-label { color: #b9cdda; font-size: 0.78rem; }
+.ax3-status-value { color: #7dffe2; font-size: 0.76rem; font-weight: 650; text-align: right; }
+
+/* Aktivitaet list */
+.ax3-activity-list { list-style: none; margin: 0; padding: 0; }
+.ax3-activity-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 4px;
+  border: 0;
+  border-bottom: 1px solid rgba(84, 116, 146, 0.14);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ax3-activity-list li:last-child .ax3-activity-row { border-bottom: 0; }
+.ax3-activity-row:hover { background: rgba(0, 229, 255, 0.05); }
+.ax3-activity-row:focus-visible { outline: 2px solid #7ef3ff; outline-offset: 2px; }
+
+.ax3-activity-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 9px;
+  border: 1px solid rgba(84, 116, 146, 0.24);
+  background: rgba(0, 229, 255, 0.06);
+  color: #7ef3ff;
+}
+.ax3-activity-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.ax3-activity-title { color: #ffffff; font-size: 0.8rem; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ax3-activity-sub { color: #9fb6c8; font-size: 0.72rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ax3-activity-time { color: #8fa6ba; font-size: 0.68rem; flex: none; }
+
+.ax3-activity-empty {
+  padding: 14px 4px;
+  color: #9fb6c8;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  list-style: none;
+}
+
+/* PWA-Installationshinweis: bisher ungestylt (Text lief ohne Abstand ineinander). */
+.ax3-install {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(53, 230, 255, 0.2);
+  border-radius: 14px;
+  background: rgba(9, 17, 30, 0.82);
+}
+
+.ax3-install > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ax3-install strong {
+  color: #eaf6ff;
+  font-size: 0.88rem;
+}
+
+.ax3-install span {
+  color: #8fb2cf;
+  font-size: 0.76rem;
+}
+
+/* ---------- Schnellzugriff (6 Items) ---------- */
+.ax3-quick {
+  min-width: 0;
+  border: 1px solid rgba(84, 116, 146, 0.26);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(13, 24, 38, 0.94), rgba(8, 17, 30, 0.92));
+  padding: 14px 16px;
+}
+.ax3-quick__head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.ax3-quick__head h3 { margin: 0; color: #ffffff; font-size: 0.92rem; font-weight: 700; }
+.ax3-quick__icon { color: #7ef3ff; display: grid; place-items: center; }
+
+.ax3-quick__grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ax3-quick__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 86px;
+  padding: 12px 6px;
+  border: 1px solid rgba(84, 116, 146, 0.26);
+  border-radius: 11px;
+  background: linear-gradient(160deg, rgba(13, 24, 38, 0.9), rgba(8, 17, 30, 0.9));
+  color: #d7e8f0;
+  font: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 140ms ease, transform 140ms ease, background-color 140ms ease;
+}
+.ax3-quick__item:hover { border-color: rgba(0, 229, 255, 0.45); transform: translateY(-2px); color: #fff; }
+.ax3-quick__item:focus-visible { outline: 2px solid #7ef3ff; outline-offset: 2px; }
+
+.ax3-quick__btn-icon { color: #7ef3ff; display: grid; place-items: center; }
+.ax3-quick__item:nth-child(2) .ax3-quick__btn-icon { color: #7dffe2; }
+.ax3-quick__item:nth-child(3) .ax3-quick__btn-icon { color: #b7e7ff; }
+.ax3-quick__item:nth-child(4) .ax3-quick__btn-icon { color: #cbb9ff; }
+.ax3-quick__item:nth-child(5) .ax3-quick__btn-icon { color: #d8c1ff; }
+.ax3-quick__item:nth-child(6) .ax3-quick__btn-icon { color: #7ef3ff; }
+
+/* Responsive */
+@media (max-width: 1180px) {
+  .ax3-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ax3-columns { grid-template-columns: minmax(0, 1fr); }
+  .ax3-quick__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+  .ax3-hero { grid-template-columns: minmax(0, 1fr); min-height: 0; padding: 16px; }
+  .ax3-hero__scene { display: none; }
+  .ax3-dash { padding: 10px; gap: 10px; }
+  .ax3-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .ax3-metric { padding: 10px; gap: 9px; }
+  .ax3-quick__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

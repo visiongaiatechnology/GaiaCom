@@ -1,0 +1,411 @@
+/* ============================================================================
+   VGT GLASS 2100 — AUTH FLOWS: shared dialog surfaces
+   Human-proof dialog, trust credential card (Gaia Passport) and avatar picker.
+   All three are used by other areas (security center, GSN, contact profile),
+   so their public props stay untouched and their visuals live here.
+   ========================================================================== */
+
+/* ---------- Human-proof dialog (Z4) ---------- */
+.vgt-hp {
+  width: min(520px, 100%);
+  max-height: min(92dvh, 860px);
+  overflow-y: auto;
+}
+
+.vgt-hp__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  min-width: 0;
+}
+
+.vgt-hp__head .vgt-h3 {
+  margin: 2px 0 0;
+}
+
+.vgt-hp__seal {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  border: var(--vgt-hairline) solid var(--vgt-pigment-line);
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-pigment);
+}
+
+.vgt-hp__phrase {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-1);
+  padding: var(--vgt-space-3);
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-hp__phrase strong {
+  font-size: var(--vgt-text-lg);
+  letter-spacing: 0.08em;
+  color: var(--vgt-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.vgt-hp .vgt-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-hp__meter {
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+}
+
+.vgt-hp__meter-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--vgt-pigment-strong);
+  transition: width var(--vgt-dur-component) var(--vgt-ease-out);
+}
+
+.vgt-hp__stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-3);
+  font-size: var(--vgt-text-xs);
+  color: var(--vgt-text-muted);
+}
+
+.vgt-hp__stats code {
+  margin-inline-start: auto;
+  color: var(--vgt-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+/* Inline verification result: the server verdict is never silent. */
+.vgt-hp__result {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-hp__result-icon {
+  display: inline-flex;
+  margin-top: 1px;
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-hp__result-text {
+  min-width: 0;
+}
+
+.vgt-hp__result-text strong {
+  display: block;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 650;
+}
+
+.vgt-hp__result-text p {
+  margin: 2px 0 0;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
+  overflow-wrap: anywhere;
+}
+
+.vgt-hp__result--verified {
+  border-color: rgba(201, 168, 119, 0.38);
+  background: rgba(201, 168, 119, 0.08);
+}
+
+.vgt-hp__result--verified .vgt-hp__result-icon {
+  color: var(--vgt-accent-bronze);
+}
+
+.vgt-hp__result--warning {
+  border-color: rgba(216, 168, 78, 0.38);
+  background: var(--vgt-warning-soft);
+}
+
+.vgt-hp__result--warning .vgt-hp__result-icon {
+  color: var(--vgt-warning);
+}
+
+.vgt-hp__result--danger {
+  border-color: rgba(228, 112, 111, 0.40);
+  background: var(--vgt-danger-soft);
+}
+
+.vgt-hp__result--danger .vgt-hp__result-icon {
+  color: var(--vgt-danger);
+}
+
+/* ---------- Trust credential card (Gaia Passport) ---------- */
+.vgt-apass {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  padding: clamp(14px, 2.4vw, 20px);
+  border-radius: var(--vgt-radius-panel);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-apass.is-verified {
+  border-color: rgba(201, 168, 119, 0.38);
+}
+
+/* Truthful non-verified states: distinct borders, never the bronze "claim" edge. */
+.vgt-apass.is-local-only,
+.vgt-apass.is-unconfirmed {
+  border-color: rgba(216, 168, 78, 0.38);
+}
+
+.vgt-apass.is-rejected {
+  border-color: rgba(228, 112, 111, 0.42);
+}
+
+.vgt-apass.is-unavailable {
+  border-style: dashed;
+}
+
+.vgt-apass__notice {
+  margin: 0;
+  padding: var(--vgt-space-2) var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
+  overflow-wrap: anywhere;
+}
+
+.vgt-apass__notice--warn {
+  border-color: rgba(216, 168, 78, 0.38);
+  background: var(--vgt-warning-soft);
+}
+
+.vgt-apass__notice--danger {
+  border-color: rgba(228, 112, 111, 0.40);
+  background: var(--vgt-danger-soft);
+}
+
+.vgt-apass__notice--neutral {
+  border-style: dashed;
+}
+
+.vgt-apass__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  padding-bottom: var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-apass__head > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-1);
+  min-width: 0;
+}
+
+.vgt-apass__head .vgt-h4 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.vgt-apass__identity {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: var(--vgt-space-4);
+  align-items: start;
+}
+
+.vgt-apass__photo {
+  width: 84px;
+  height: 84px;
+  overflow: hidden;
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-apass__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--vgt-space-2) var(--vgt-space-4);
+  margin: 0;
+}
+
+.vgt-apass__fields > div,
+.vgt-apass__meta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vgt-apass__fields dt,
+.vgt-apass__meta dt {
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-apass__fields dd,
+.vgt-apass__meta dd {
+  margin: 0;
+  font-size: var(--vgt-text-sm);
+  color: var(--vgt-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.vgt-apass__meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--vgt-space-3);
+  margin: 0;
+  padding-top: var(--vgt-space-3);
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-apass__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--vgt-space-2);
+  padding-top: var(--vgt-space-2);
+}
+
+.vgt-apass__foot .btn-primary {
+  width: auto;
+  margin: 0;
+}
+
+/* ---------- Avatar picker ---------- */
+.vgt-avatar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-avatar.is-disabled {
+  opacity: 0.6;
+}
+
+.vgt-avatar__upload {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-avatar__preview {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex: none;
+  overflow: hidden;
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-1);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-lg);
+}
+
+.vgt-avatar__preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vgt-avatar__upload-btn {
+  position: relative;
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+}
+
+.vgt-avatar__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-avatar__option {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-1);
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-lg);
+  cursor: pointer;
+  transition: border-color var(--vgt-dur-micro) ease, background-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-avatar__option:hover {
+  border-color: var(--vgt-border-strong);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-avatar__option.is-active {
+  border-color: var(--vgt-pigment-line);
+  background: var(--vgt-pigment-soft);
+  box-shadow: inset 0 0 0 1px var(--vgt-pigment-line);
+}
+
+.vgt-avatar__option:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-avatar__option:disabled {
+  cursor: not-allowed;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .vgt-apass__identity {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vgt-apass__photo {
+    width: 64px;
+    height: 64px;
+  }
+
+  .vgt-apass__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vgt-apass__meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vgt-apass__foot {
+    justify-content: stretch;
+  }
+
+  .vgt-apass__foot .btn-primary {
+    width: 100%;
+    min-height: 44px;
+  }
+}

@@ -1,17 +1,30 @@
-// STATUS: DIAMANT VGT SUPREME
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { LanguageProvider } from './utils/i18n';
 
+function StartupSeal() {
+  return (
+    <img
+      className="vgt-startup__seal"
+      src="/brand/gaiacom-mark.webp"
+      width="52"
+      height="52"
+      alt=""
+      aria-hidden="true"
+      draggable="false"
+    />
+  );
+}
+
 function FatalScreen() {
   return (
-    <main className="astraea-startup astraea-startup--fault" role="alert">
-      <div className="astraea-startup__mark"><img src="/astraeaos-logo.svg" alt="AstraeaOS" /></div>
-      <p className="astraea-startup__eyebrow">ASTRAEAOS // SECURE FAIL-CLOSED</p>
+    <main className="vgt-startup vgt-startup--fault" role="alert">
+      <div className="vgt-startup__mark" aria-hidden="true"><StartupSeal /></div>
+      <p className="vgt-startup__eyebrow">Sicherer Start angehalten</p>
       <h1>GaiaCom konnte nicht initialisiert werden</h1>
-      <p className="astraea-startup__copy">
+      <p className="vgt-startup__copy">
         Der geschützte Client wurde angehalten. Starten Sie GaiaCom erneut; es wurden keine Schlüssel freigegeben.
       </p>
     </main>

@@ -1,0 +1,252 @@
+/* ============================================================================
+   VGT GLASS 2100 — AUTH FLOWS: setup wizard
+   A guided, security-gated setup. The shell is a real workspace boundary; the
+   step body is an opaque canvas because it contains dense legal and form text.
+   No decorative gradients, no card grid: grouping comes from rhythm, hairline
+   dividers and one typographic hierarchy.
+   ========================================================================== */
+
+.vgt-wizard {
+  display: grid;
+  place-items: start center;
+  min-height: 100dvh;
+  width: 100%;
+  padding: clamp(20px, 4vw, 56px) clamp(12px, 3vw, 32px);
+  padding-bottom: max(clamp(20px, 4vw, 56px), env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+
+.vgt-wizard__shell {
+  width: min(860px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  padding: clamp(18px, 3vw, 30px);
+  border-radius: var(--vgt-radius-modal);
+}
+
+.vgt-wizard__head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--vgt-space-2);
+  padding-bottom: var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-wizard__head .vgt-h2 {
+  margin: var(--vgt-space-1) 0 0;
+}
+
+.vgt-wizard__head .vgt-caption {
+  margin: 0;
+  max-width: 62ch;
+}
+
+.vgt-wizard__body {
+  min-width: 0;
+}
+
+/* ---------- Step canvas ---------- */
+.vgt-wizard__step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  padding: clamp(16px, 2.5vw, 24px);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-wizard__step .vgt-h3 {
+  margin: 0;
+}
+
+.vgt-wizard__step .vgt-body {
+  margin: 0;
+  max-width: 66ch;
+}
+
+/* ---------- Terms ---------- */
+.vgt-wizard__terms {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-0);
+  color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.vgt-wizard__terms:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-wizard__checks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- Recovery seed ---------- */
+.vgt-wizard__mnemonic {
+  padding: var(--vgt-space-4);
+  border: var(--vgt-hairline) solid var(--vgt-pigment-line);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-text-primary);
+  font-family: var(--vgt-font-mono);
+  font-size: var(--vgt-text-sm);
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+/* ---------- Identity form ---------- */
+.vgt-wizard__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-wizard__field .field-hint {
+  margin: 0;
+}
+
+/* ---------- Security facts / launch overview ---------- */
+.vgt-wizard__facts {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-wizard__facts > div {
+  display: grid;
+  grid-template-columns: minmax(160px, max-content) minmax(0, 1fr);
+  gap: var(--vgt-space-3);
+  align-items: baseline;
+  padding: var(--vgt-space-3) 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-wizard__facts dt {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  margin: 0;
+  font-size: var(--vgt-text-sm);
+  font-weight: 620;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-wizard__facts dd {
+  margin: 0;
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+  color: var(--vgt-text-muted);
+}
+
+.vgt-wizard__fact-icon {
+  display: inline-flex;
+  color: var(--vgt-pigment);
+}
+
+.vgt-wizard__launch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vgt-wizard__launch li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-3) 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-wizard__launch li:last-child {
+  border-bottom: 0;
+}
+
+.vgt-wizard__launch-icon {
+  display: inline-flex;
+  color: var(--vgt-pigment);
+  margin-top: 2px;
+}
+
+.vgt-wizard__launch-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vgt-wizard__launch-copy strong {
+  font-size: var(--vgt-text-sm);
+  font-weight: 620;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-wizard__launch-copy small {
+  font-size: var(--vgt-text-xs);
+  line-height: 1.5;
+  color: var(--vgt-text-muted);
+}
+
+/* ---------- Actions ---------- */
+.vgt-wizard__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+  padding-top: var(--vgt-space-2);
+}
+
+.vgt-wizard__actions .btn-primary,
+.vgt-wizard__actions .btn-secondary {
+  width: auto;
+  margin: 0;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .vgt-wizard {
+    padding: 12px 12px max(16px, env(safe-area-inset-bottom));
+  }
+
+  .vgt-wizard__shell {
+    border-radius: var(--vgt-radius-panel);
+  }
+
+  .vgt-wizard__facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .vgt-wizard__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vgt-wizard__actions .btn-primary,
+  .vgt-wizard__actions .btn-secondary {
+    width: 100%;
+    min-height: 44px;
+  }
+}

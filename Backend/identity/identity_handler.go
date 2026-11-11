@@ -63,7 +63,7 @@ func (h *IdentityHandler) CreateIdentity(w http.ResponseWriter, r *http.Request)
 	identity, err := h.Service.CreateIdentity(userID, input)
 	if err != nil {
 		log.Printf("identity create rejected for user %s: %v", userID.String(), err)
-		httpx.WriteError(w, http.StatusBadRequest, "Identity creation rejected")
+		httpx.WriteError(w, http.StatusBadRequest, "Identity creation rejected: GaiaID domain is not served by this node")
 		return
 	}
 

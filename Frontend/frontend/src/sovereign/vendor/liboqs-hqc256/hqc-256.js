@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 /**
  * @fileoverview HQC-256 KEM algorithm implementation
  * @module algorithms/kem/hqc/hqc-256

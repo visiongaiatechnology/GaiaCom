@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package de.gaiacom.platform.security.android
 
 import android.content.Context

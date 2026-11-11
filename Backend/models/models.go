@@ -917,5 +917,6 @@ type GsnProfile struct {
 	TrustPassportSummary string `json:"trustPassportSummary"`
 	FollowersCount       int    `json:"followersCount"`
 	FollowingCount       int    `json:"followingCount"`
+	PostsCount           int    `json:"postsCount"`
 	UpdatedAt            string `json:"updatedAt"`
 }

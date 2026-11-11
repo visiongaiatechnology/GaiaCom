@@ -85,10 +85,9 @@ func (s *SecuritySystem) RecordSecurityEvent(
 		}
 	}
 
-	// 3. Compute Audit Link Hash
-	audit, err := s.CalculateAuditHash(ctx, event)
-	if err == nil {
-		// 4. Save to database store
-		_ = s.Store.SaveSecurityEvent(ctx, event, privateCtx, audit)
-	}
+	// 3. Hand the event to the bounded writer / synchronous fallback.
+	//    P-10 / FIND-023: persistence no longer runs inline on the rejection path
+	//    when the async writer is active; the audit hash chain is computed inside
+	//    the single writer goroutine so the chain stays consistent.
+	s.dispatchSecurityEvent(ctx, event, privateCtx)
 }

@@ -1,0 +1,254 @@
+/* ============================================================================
+   VGT GLASS 2100 — MESSAGING: COMPOSER POPOVERS, ATTACHMENTS, VIEWER
+   Emoji/mention/drive popovers, encrypted attachment previews and the
+   fullscreen image viewer. Part sheet of areas/messaging.css.
+   ========================================================================== */
+/* ---------- Emoji / drive / mention popovers in the composer ---------- */
+.vgt-chat-emojis {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 0;
+  z-index: var(--vgt-z-floating);
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2px;
+  width: 258px;
+  max-height: 214px;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.vgt-chat-emojis__option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.vgt-chat-emojis__option:hover,
+.vgt-chat-emojis__option:focus-visible {
+  background: var(--vgt-bg-4);
+}
+
+.vgt-chat-mentions {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: var(--vgt-z-floating);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 250px;
+  max-height: 216px;
+  padding: 6px;
+  overflow-y: auto;
+}
+
+.vgt-chat-mentions__option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: var(--vgt-radius-xs);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.vgt-chat-mentions__option:hover,
+.vgt-chat-mentions__option.is-active,
+.vgt-chat-mentions__option[aria-selected='true'] {
+  background: var(--vgt-bg-4);
+}
+
+.vgt-chat-mentions__handle {
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+}
+
+.vgt-chat-mentions__id {
+  overflow: hidden;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Attachments ---------- */
+.vgt-attach-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+  min-width: 0;
+}
+
+.vgt-attach-image {
+  display: inline-flex;
+  max-width: 260px;
+  overflow: hidden;
+  padding: 0;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-3);
+  cursor: zoom-in;
+}
+
+.vgt-attach-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+}
+
+.vgt-attach-placeholder {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: var(--vgt-hairline) dashed var(--vgt-border-strong);
+  border-radius: var(--vgt-radius-control);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-attach-placeholder--danger {
+  border-color: color-mix(in srgb, var(--vgt-danger) 45%, transparent);
+  color: var(--vgt-danger);
+}
+
+.vgt-attach-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 320px;
+  padding: 8px 10px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  text-align: left;
+  cursor: pointer;
+}
+
+.vgt-attach-file:hover:not(:disabled) {
+  border-color: var(--vgt-border-strong);
+  background: var(--vgt-bg-4);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-attach-file__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-attach-file__state {
+  flex: none;
+  color: var(--vgt-text-muted);
+  font-size: 0.65rem;
+}
+
+.vgt-voice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 300px;
+  padding: 6px 10px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-voice__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--vgt-pigment);
+  color: var(--vgt-text-on-pigment);
+  cursor: pointer;
+}
+
+.vgt-voice__track {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.vgt-voice__bar {
+  display: block;
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-4);
+}
+
+.vgt-voice__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--vgt-pigment);
+}
+
+.vgt-voice__time {
+  display: flex;
+  justify-content: space-between;
+  color: var(--vgt-text-muted);
+  font-size: 0.65rem;
+}
+
+/* ---------- Fullscreen image viewer ---------- */
+.vgt-chat-imgzoom {
+  position: fixed;
+  inset: 0;
+  z-index: var(--vgt-z-critical);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 6, 9, 0.94);
+  cursor: zoom-out;
+}
+
+.vgt-chat-imgzoom img {
+  max-width: 92vw;
+  max-height: 88vh;
+  border-radius: var(--vgt-radius-panel);
+  box-shadow: var(--vgt-elevation-4);
+}
+
+.vgt-chat-imgzoom__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke);
+  border-radius: 50%;
+  background: var(--vgt-glass-3);
+  color: var(--vgt-text-primary);
+  cursor: pointer;
+}

@@ -1,0 +1,195 @@
+/* NEON AURORA — local-vault unlock and setup wizard surfaces. */
+
+/* ---------- Local vault unlock ---------- */
+.vgt-lockpage {
+  position: relative;
+  isolation: isolate;
+  color-scheme: dark;
+  color: #eaf6f8;
+  padding: clamp(24px, 6vw, 88px);
+}
+
+.vgt-lockpage::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(90% 70% at 82% 4%, rgba(92, 242, 226, 0.14), transparent 62%),
+    radial-gradient(70% 60% at 6% 96%, rgba(167, 139, 250, 0.14), transparent 62%),
+    linear-gradient(180deg, rgba(4, 8, 14, 0.55), rgba(3, 7, 12, 0.9)),
+    url('/brand/aurora-mountains.jpg') center 34% / cover no-repeat;
+}
+
+.vgt-lockpage::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(60% 60% at 84% -6%, rgba(120, 246, 235, 0.12), transparent 70%);
+}
+
+.vgt-lockpage .vgt-eyebrow {
+  color: #5cf2e2;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.vgt-lockpage .vgt-h1 {
+  color: #f4fffd;
+  font-weight: 620;
+  letter-spacing: -0.03em;
+}
+
+.vgt-lockpage .vgt-body,
+.vgt-lockpage .vgt-caption {
+  color: #b9cdd8;
+}
+
+.vgt-lockpage__facts {
+  border-top-color: rgba(140, 230, 235, 0.14);
+}
+
+.vgt-lockpage__facts > div {
+  border-bottom-color: rgba(140, 230, 235, 0.12);
+}
+
+.vgt-lockpage__facts dt {
+  color: var(--aurora-muted);
+}
+
+.vgt-lockpage__facts dd {
+  color: #eafffb;
+}
+
+.vgt-lockcard.vgt-glass {
+  position: relative;
+  border: 1px solid rgba(130, 240, 235, 0.24);
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(92, 242, 226, 0.10), transparent 55%),
+    linear-gradient(168deg, rgba(11, 26, 38, 0.94), rgba(5, 12, 20, 0.97));
+  box-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(210, 255, 250, 0.14);
+  backdrop-filter: blur(28px) saturate(1.15);
+  -webkit-backdrop-filter: blur(28px) saturate(1.15);
+  color: #eaf6f8;
+}
+
+.vgt-lockcard__head .vgt-h2,
+.vgt-lockcard__head .vgt-h3 {
+  color: #f2fffc;
+}
+
+.vgt-lockcard__status-text {
+  color: #b9cdd8;
+}
+
+.vgt-lockcard__status-text--ok { color: #7dffcf; }
+.vgt-lockcard__status-text--warn { color: #ffd28a; }
+.vgt-lockcard__status-text--danger { color: #ffb4ab; }
+
+.vgt-lockcard .input-label,
+.vgt-lockfield .input-label {
+  color: #cfe7ea;
+  font-weight: 650;
+}
+
+.vgt-lockcard .input-field,
+.vgt-lockfield .input-field {
+  background: rgba(3, 11, 19, 0.72);
+  border: 1px solid rgba(130, 236, 231, 0.18);
+  color: #eafffb;
+}
+
+.vgt-lockcard .input-field:focus,
+.vgt-lockfield .input-field:focus {
+  outline: none;
+  border-color: rgba(92, 242, 226, 0.72);
+  box-shadow: 0 0 0 4px rgba(92, 242, 226, 0.14);
+}
+
+.vgt-lockcard__modes,
+.vgt-lockcard__mode {
+  border-color: rgba(140, 230, 235, 0.16);
+  color: var(--aurora-muted);
+}
+
+.vgt-lockcard__mode.is-active,
+.vgt-lockcard__mode[aria-pressed="true"] {
+  color: #7ffff0;
+  border-color: rgba(120, 246, 235, 0.34);
+  background: rgba(92, 242, 226, 0.08);
+}
+
+.vgt-lockcard__submit {
+  min-height: 48px;
+}
+
+.vgt-lockcard__logout .btn-ghost,
+.vgt-lockcard .btn-ghost {
+  color: var(--aurora-muted);
+}
+
+/* ---------- Setup wizard / onboarding ---------- */
+.vgt-wizard {
+  position: relative;
+  isolation: isolate;
+  color-scheme: dark;
+  color: #eaf6f8;
+}
+
+.vgt-wizard::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(90% 70% at 82% 4%, rgba(92, 242, 226, 0.12), transparent 62%),
+    radial-gradient(70% 60% at 6% 96%, rgba(167, 139, 250, 0.12), transparent 62%),
+    linear-gradient(180deg, rgba(4, 8, 14, 0.58), rgba(3, 7, 12, 0.92)),
+    url('/brand/aurora-mountains.jpg') center 34% / cover no-repeat;
+}
+
+.vgt-wizard__shell.vgt-glass {
+  border: 1px solid rgba(130, 240, 235, 0.22);
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(92, 242, 226, 0.08), transparent 55%),
+    linear-gradient(168deg, rgba(11, 26, 38, 0.94), rgba(5, 12, 20, 0.97));
+  box-shadow: 0 40px 110px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(210, 255, 250, 0.14);
+  backdrop-filter: blur(28px) saturate(1.15);
+  -webkit-backdrop-filter: blur(28px) saturate(1.15);
+}
+
+.vgt-wizard .vgt-eyebrow {
+  color: #5cf2e2;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.vgt-wizard .vgt-h2 { color: #f2fffc; }
+.vgt-wizard .vgt-body,
+.vgt-wizard .vgt-caption { color: #b9cdd8; }
+.vgt-wizard .input-field {
+  background: rgba(3, 11, 19, 0.72);
+  border: 1px solid rgba(130, 236, 231, 0.18);
+  color: #eafffb;
+}
+.vgt-wizard .input-field:focus {
+  outline: none;
+  border-color: rgba(92, 242, 226, 0.72);
+  box-shadow: 0 0 0 4px rgba(92, 242, 226, 0.14);
+}
+.vgt-wizard .vgt-step__item.is-current .vgt-step__marker,
+.vgt-wizard .vgt-step__item.is-done .vgt-step__marker {
+  border-color: rgba(120, 246, 235, 0.4);
+  background: rgba(92, 242, 226, 0.12);
+  color: #7ffff0;
+}

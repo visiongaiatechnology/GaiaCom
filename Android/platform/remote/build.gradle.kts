@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 plugins {
     id("com.android.library")
 }

@@ -6,42 +6,64 @@ import (
 	"testing"
 )
 
-func TestLoadBootstrapConfigPrefersConfiguredOperatorListOverPlaceholder(t *testing.T) {
-	oldCwd, err := os.Getwd()
-	if err != nil {
-		t.Fatalf("get cwd: %v", err)
-	}
-	defer func() {
-		_ = os.Chdir(oldCwd)
-		BootstrapGaiaID = ""
-		BootstrapGaiaIDs = nil
-	}()
-
-	root := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(root, "Backend"), 0700); err != nil {
-		t.Fatalf("mkdir Backend: %v", err)
-	}
-	if err := os.MkdirAll(filepath.Join(root, "Frontend", "frontend", "public"), 0700); err != nil {
-		t.Fatalf("mkdir public: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(root, "Backend", "governance.json"), []byte(`{"bootstrap_gaia_id":"EnterYourGaiaComAddressHere"}`), 0600); err != nil {
-		t.Fatalf("write placeholder governance: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(root, "Frontend", "frontend", "public", "governance.json"), []byte(`{"operators":[{"gaiaID":"operator@gaiacom.de"}]}`), 0600); err != nil {
-		t.Fatalf("write public governance: %v", err)
-	}
-	if err := os.Chdir(root); err != nil {
-		t.Fatalf("chdir: %v", err)
-	}
-
+func resetBootstrapGlobals() {
 	BootstrapGaiaID = ""
 	BootstrapGaiaIDs = nil
+}
+
+func writeGovernanceFile(t *testing.T, content string) string {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), "governance.json")
+	if err := os.WriteFile(path, []byte(content), 0600); err != nil {
+		t.Fatalf("write governance file: %v", err)
+	}
+	return path
+}
+
+func TestLoadBootstrapConfigRejectsDomainLessEntries(t *testing.T) {
+	defer resetBootstrapGlobals()
+	resetBootstrapGlobals()
+	t.Setenv("GAIACOM_GOVERNANCE_CONFIG", writeGovernanceFile(t,
+		`{"bootstrap_gaia_id":"operator","operators":[{"gaiaID":"backup@gaiacom.de"}]}`))
+
 	LoadBootstrapConfig()
 
-	if BootstrapGaiaID != "operator@gaiacom.de" {
+	if len(BootstrapGaiaIDs) != 1 || BootstrapGaiaIDs[0] != "@backup:gaiacom.de" {
+		t.Fatalf("domain-less bootstrap entry must be rejected, got %+v", BootstrapGaiaIDs)
+	}
+	if BootstrapGaiaID != "@backup:gaiacom.de" {
 		t.Fatalf("bootstrap gaia id mismatch: %q", BootstrapGaiaID)
 	}
-	if len(BootstrapGaiaIDs) != 1 || BootstrapGaiaIDs[0] != "operator@gaiacom.de" {
+}
+
+func TestLoadBootstrapConfigNormalizesFullyQualifiedIDs(t *testing.T) {
+	defer resetBootstrapGlobals()
+	resetBootstrapGlobals()
+	t.Setenv("GAIACOM_GOVERNANCE_CONFIG", writeGovernanceFile(t,
+		`{"bootstrap_gaia_id":"Operator@GAIACOM.de","bootstrap_gaia_ids":["second@gaiacom.de"],"operators":[{"gaiaID":"third@gaiacom.de"}]}`))
+
+	LoadBootstrapConfig()
+
+	want := []string{"@operator:gaiacom.de", "@second:gaiacom.de", "@third:gaiacom.de"}
+	if len(BootstrapGaiaIDs) != len(want) {
 		t.Fatalf("bootstrap gaia ids mismatch: %+v", BootstrapGaiaIDs)
+	}
+	for i := range want {
+		if BootstrapGaiaIDs[i] != want[i] {
+			t.Fatalf("bootstrap gaia ids mismatch: got %+v want %+v", BootstrapGaiaIDs, want)
+		}
+	}
+}
+
+func TestLoadBootstrapConfigDomainLessOnlyGrantsNothing(t *testing.T) {
+	defer resetBootstrapGlobals()
+	resetBootstrapGlobals()
+	t.Setenv("GAIACOM_GOVERNANCE_CONFIG", writeGovernanceFile(t,
+		`{"bootstrap_gaia_id":"operator","operators":[{"gaiaID":"sysadmin"}]}`))
+
+	LoadBootstrapConfig()
+
+	if BootstrapGaiaID != "" || len(BootstrapGaiaIDs) != 0 {
+		t.Fatalf("domain-less-only config must grant no role, got %q/%+v", BootstrapGaiaID, BootstrapGaiaIDs)
 	}
 }

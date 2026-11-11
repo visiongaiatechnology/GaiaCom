@@ -1,0 +1,333 @@
+/* Astraea SecureSpace — application shell layout ported to GaiaCom
+ * Deep navy frameless window, titlebar, custom window controls, sidebar & nav items.
+ * Strictly <= 500 lines per VGT Rule 7.1. */
+
+.app-frame {
+  position: relative;
+  display: grid;
+  grid-template-rows: var(--ss-titlebar-h) minmax(0, 1fr) var(--ss-statusbar-h);
+  height: 100vh;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(52% 42% at 78% -6%, rgba(53, 230, 255, 0.1), transparent 62%),
+    radial-gradient(44% 36% at 12% 108%, rgba(139, 92, 246, 0.12), transparent 60%),
+    var(--ss-bg-0);
+}
+
+.app-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: url('/brand/effects/mesh_overlay_cyan_1920x1080.png') center / cover no-repeat;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+/* --- Titlebar ---------------------------------------------------------- */
+
+.titlebar {
+  position: relative;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 10px 0 16px;
+  height: var(--ss-titlebar-h);
+  user-select: none;
+  background:
+    linear-gradient(180deg, rgba(9, 17, 29, 0.98), rgba(6, 12, 21, 0.92));
+  border-bottom: 1px solid rgba(120, 200, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(2, 6, 14, 0.35);
+}
+
+.titlebar::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(53, 230, 255, 0.45), rgba(139, 92, 246, 0.35), transparent);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.titlebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+.titlebar-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 14px rgba(53, 230, 255, 0.4));
+}
+
+.titlebar-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+.titlebar-title {
+  font-family: var(--ss-font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.titlebar-sub {
+  font-size: 10px;
+  color: var(--ss-text-3);
+  letter-spacing: 0.02em;
+}
+
+/* --- Window Controls --------------------------------------------------- */
+
+.window-controls {
+  display: flex;
+  align-items: stretch;
+  height: 36px;
+  margin-left: 6px;
+}
+
+.window-btn {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 100%;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ss-text-2);
+  cursor: pointer;
+  transition: background var(--ss-transition), color var(--ss-transition);
+}
+
+.window-btn:hover:not(:disabled) {
+  background: rgba(148, 183, 215, 0.14);
+  color: #ffffff;
+}
+
+.window-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.window-btn.is-close:hover:not(:disabled) {
+  background: #d61f3c;
+  color: #ffffff;
+}
+
+/* --- Connection & Security Pills --------------------------------------- */
+
+.conn-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--ss-stroke-soft);
+  background: rgba(8, 16, 28, 0.6);
+  font-size: 11px;
+  color: var(--ss-text-2);
+}
+
+.conn-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--ss-green);
+  box-shadow: 0 0 8px var(--ss-green);
+}
+
+.crypto-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(53, 230, 255, 0.08);
+  border: 1px solid rgba(53, 230, 255, 0.25);
+  color: var(--ss-cyan);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-family: var(--ss-font-mono);
+}
+
+/* --- Sidebar Navigation ------------------------------------------------ */
+
+.sidebar {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: var(--ss-sidebar-w);
+  padding: 14px 12px 12px;
+  border-right: 1px solid rgba(120, 200, 255, 0.1);
+  background: linear-gradient(180deg, rgba(8, 15, 26, 0.92), rgba(6, 12, 21, 0.86));
+  backdrop-filter: blur(18px);
+}
+
+.sidebar-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+}
+
+.nav-group {
+  margin: 8px 0 12px;
+}
+
+.nav-group-title {
+  padding: 0 10px 6px;
+  font-size: 9.5px;
+  font-weight: 650;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ss-text-3);
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  margin-bottom: 3px;
+  border-radius: var(--ss-radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ss-text-2);
+  font-family: var(--ss-font-ui);
+  font-size: 12.5px;
+  font-weight: 550;
+  text-align: left;
+  cursor: pointer;
+  transition: color var(--ss-transition), background var(--ss-transition), border-color var(--ss-transition);
+}
+
+.nav-item:hover {
+  color: #ffffff;
+  background: rgba(148, 183, 215, 0.08);
+}
+
+.nav-item[aria-current='page'],
+.nav-item.is-active {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(53, 230, 255, 0.16), rgba(139, 92, 246, 0.14));
+  border-color: rgba(53, 230, 255, 0.32);
+  box-shadow: inset 2px 0 0 var(--ss-cyan), inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 20px rgba(5, 14, 26, 0.45);
+}
+
+.nav-item-icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
+
+.nav-item-label {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item-badge {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--ss-cyan-soft);
+  border: 1px solid rgba(53, 230, 255, 0.3);
+  color: #a5f3ff;
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+/* Sidebar Footer Globe */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-globe-banner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  border-radius: var(--ss-radius-md);
+  border: 1px solid var(--ss-stroke-soft);
+  background: radial-gradient(circle at center, rgba(53, 230, 255, 0.1) 0%, transparent 70%);
+  overflow: hidden;
+}
+
+.sidebar-globe-img {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 18px rgba(53, 230, 255, 0.35));
+}
+
+.sidebar-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  color: var(--ss-text-2);
+  margin-top: 4px;
+}
+
+.sidebar-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ss-green);
+  box-shadow: 0 0 6px var(--ss-green);
+}
+
+/* --- Main Layout Grid -------------------------------------------------- */
+
+.app-body {
+  display: grid;
+  grid-template-columns: var(--ss-sidebar-w) minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-main {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 18px 22px 22px;
+}
+
+/* Statusbar */
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  height: var(--ss-statusbar-h);
+  border-top: 1px solid rgba(120, 200, 255, 0.08);
+  background: rgba(5, 8, 15, 0.95);
+  font-size: 11px;
+  color: var(--ss-text-3);
+  z-index: 30;
+}

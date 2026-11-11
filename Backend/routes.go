@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package backend
 
 import (
@@ -10,6 +9,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -103,7 +103,7 @@ func SetupRoutesWithRuntimeConfig(rootContext context.Context, store repository.
 	}
 	authHandler := auth.NewAuthHandler(authService, secSystem)
 
-	identityService := identity.NewIdentityService(store)
+	identityService := identity.NewIdentityService(store, identity.WithLocalDomain(serverName))
 	identityHandler := identity.NewIdentityHandler(identityService)
 
 	msgService := messaging.NewMessagingService(store, store)
@@ -125,19 +125,42 @@ func SetupRoutesWithRuntimeConfig(rootContext context.Context, store repository.
 	channelHandler := publicchannels.NewHandler(channelService)
 
 	gaiaDropService := gaiadrop.NewService(store)
-	gaiaDropHandler := gaiadrop.NewHandler(gaiaDropService)
+	gaiaDropHandler := gaiadrop.NewHandler(gaiaDropService, secSystem)
 	smtpBridgeService := smtpbridge.NewService(store, store, secSystem)
-	smtpBridgeHandler := smtpbridge.NewHandler(smtpBridgeService)
+	smtpBridgeHandler := smtpbridge.NewHandler(smtpBridgeService, secSystem)
 
 	draftScheduler := NewDraftScheduler(store, msgService, smtpBridgeService)
 
 	trustMeshService := trustmesh.NewService(store, trustMeshEpochSecret)
 	trustMeshHandler := trustmesh.NewHandler(trustMeshService)
-	fedService := federation.NewService(store, serverName, serverPrivKey)
+	fedService := federation.NewService(
+		store,
+		serverName,
+		serverPrivKey,
+		federation.WithTrustMode(federation.TrustModeFromEnv(os.Getenv("GAIACOM_FEDERATION_TRUST_MODE"))),
+		federation.WithSecuritySystem(secSystem),
+		federation.WithFederationAllowlist(strings.Split(os.Getenv("GAIACOM_FEDERATION_ALLOWLIST"), ",")),
+	)
 	fedHandler := federation.NewHandler(fedService, secSystem)
 	nodeRegistryService := noderegistry.NewService(store, serverName, serverPrivKey.Public().(ed25519.PublicKey))
 	nodeRegistryHandler := noderegistry.NewHandler(nodeRegistryService, store)
-	healthService := networkhealth.NewService(store, serverName, serverPrivKey, startedAt)
+	// Public network health must project real operational state. The monitor
+	// snapshot is the only source for readiness, database health and uptime;
+	// without it the endpoint reports "unavailable" instead of a constant.
+	healthService := networkhealth.NewService(
+		store,
+		serverName,
+		serverPrivKey,
+		startedAt,
+		networkhealth.WithStatusProvider(func(ctx context.Context) networkhealth.RuntimeSnapshot {
+			snapshot := monitor.Status(ctx)
+			return networkhealth.RuntimeSnapshot{
+				Ready:         snapshot.Ready,
+				DatabaseReady: snapshot.DatabaseReady,
+				UptimeSeconds: snapshot.UptimeSeconds,
+			}
+		}),
+	)
 	healthHandler := networkhealth.NewHandler(healthService)
 	presenceService := presence.NewService(store)
 	presenceHandler := presence.NewHandler(presenceService)
@@ -308,6 +331,11 @@ func SetupRoutesWithRuntimeConfig(rootContext context.Context, store repository.
 	protected.POST("/api/v1/gsn/unfollow", gsnHandler.UnfollowUser)
 	protected.GET("/api/v1/gsn/profile/:gaia_id", gsnHandler.GetProfile)
 	protected.POST("/api/v1/gsn/profile", gsnHandler.UpdateProfile)
+	protected.GET("/api/v1/gsn/notifications", gsnHandler.GetNotifications)
+	protected.POST("/api/v1/gsn/notifications/read", gsnHandler.MarkNotificationsRead)
+	protected.GET("/api/v1/gsn/trends", gsnHandler.GetTrends)
+	protected.GET("/api/v1/gsn/suggestions", gsnHandler.GetSuggestions)
+	protected.GET("/api/v1/gsn/network", gsnHandler.GetNetwork)
 
 	protected.POST("/api/v1/rooms/create", roomHandler.CreateRoom)
 	protected.POST("/api/v1/rooms/update", roomHandler.UpdateRoom)
@@ -380,6 +408,7 @@ func SetupRoutesWithRuntimeConfig(rootContext context.Context, store repository.
 	protected.POST("/api/v1/node/registry/ping-main", nodeRegistryHandler.PingMain)
 	protected.POST("/api/v1/node/registry/:domain/status", nodeRegistryHandler.UpdateStatus)
 
+	launchRouteWorker(runtimeConfig, func() { secSystem.StartEventWriter(rootContext) })
 	launchRouteWorker(runtimeConfig, func() { secSystem.RunRetentionSweeper(rootContext) })
 	launchRouteWorker(runtimeConfig, func() { storageService.RunFileRetentionSweeper(rootContext) })
 	launchRouteWorker(runtimeConfig, func() { draftScheduler.Start(rootContext) })

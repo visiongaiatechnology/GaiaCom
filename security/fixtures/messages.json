@@ -1,9 +1,0 @@
-[
-  {
-    "id": "44444444-4444-4444-8444-444444444444",
-    "sender": "alice@gaiacom.test",
-    "recipient": "bob@gaiacom.test",
-    "ciphertext_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-    "purpose": "synthetic proof tamper fixture"
-  }
-]

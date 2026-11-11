@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 /**
  * @fileoverview Cross-realm validation utilities
  * @module core/validation

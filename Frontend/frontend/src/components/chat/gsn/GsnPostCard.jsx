@@ -1,7 +1,15 @@
 import React from 'react';
+import Icon from '../../ui/Icon';
 import DecryptedAvatar from './DecryptedAvatar';
 import DecryptedGsnImage from './DecryptedGsnImage';
+import ReactionControl from '../../common/ReactionControl';
+import { GSN_REACTION_TOKENS, formatGsnTime } from './gsnProtocol';
 
+/**
+ * One GSN post: author provenance, verification badges, encrypted media,
+ * repost context, reaction row and the collapsible comment thread.
+ * Decryption components keep their existing props and boundaries unchanged.
+ */
 export default function GsnPostCard({
   post,
   activeIdentity,
@@ -20,197 +28,208 @@ export default function GsnPostCard({
   handleAddComment,
   reactToPost,
   handleRepost,
-  t
+  t,
+  locale
 }) {
-  const isMyPost = activeIdentity && activeIdentity.GaiaID && post.gaiaId && post.gaiaId.toLowerCase() === activeIdentity.GaiaID.toLowerCase();
+  const isMyPost =
+    activeIdentity &&
+    activeIdentity.GaiaID &&
+    post.gaiaId &&
+    post.gaiaId.toLowerCase() === activeIdentity.GaiaID.toLowerCase();
   const isOperator = myProfile?.isVerifiedOperator === true;
   const hasImage = !!post.imageAttachment;
-  const referencedPost = post.repostOfPostId ? currentFeed.find(p => p.id === post.repostOfPostId) : null;
+  const referencedPost = post.repostOfPostId ? currentFeed.find(item => item.id === post.repostOfPostId) : null;
+  const comments = activeComments[post.id] || [];
+  const isExpanded = !!expandedComments[post.id];
 
   return (
-    <div className={`gsn-post-card nebula-social-card ${hasImage ? 'has-media' : ''}`}>
-      <div className="gsn-post-header">
-        <button type="button" className="gsn-post-avatar-trigger" onClick={() => handleOpenProfile(post.gaiaId)}>
+    <article className={`vgt-gsn-post${hasImage ? ' has-media' : ''}`}>
+      <header className="vgt-gsn-post__head">
+        <button type="button" className="vgt-gsn-post__avatar" onClick={() => handleOpenProfile(post.gaiaId)} aria-label={post.displayName || post.gaiaId}>
           <DecryptedAvatar avatarJson={post.avatar} displayName={post.displayName} />
         </button>
-        <div className="gsn-post-meta">
-          <div className="gsn-post-author-row">
-            <span className="gsn-post-author" onClick={() => handleOpenProfile(post.gaiaId)}>
+
+        <div className="vgt-gsn-post__meta">
+          <div className="vgt-gsn-post__author-row">
+            <button type="button" className="vgt-gsn-post__author" onClick={() => handleOpenProfile(post.gaiaId)}>
               {post.displayName || post.gaiaId}
-            </span>
-            <div className="gsn-badges">
+            </button>
+            <span className="vgt-gsn-post__badges">
               {post.isVerifiedOperator && (
-                <span className="gsn-badge gsn-badge-op" title="Node Operator">⭐ Operator</span>
+                <span className="vgt-badge vgt-badge--seal" title={t('ac_tab_operator') || 'Node Operator'}>
+                  <Icon name="verified" size={12} />
+                  Operator
+                </span>
               )}
               {post.isVerifiedGovernance && (
-                <span className="gsn-badge gsn-badge-gov" title="Governance Board">🛡️ Gov</span>
+                <span className="vgt-badge" title="Governance Board">
+                  <Icon name="shieldCheck" size={12} />
+                  Governance
+                </span>
               )}
               {post.isVerifiedPassport && (
-                <span className="gsn-badge gsn-badge-pass" title="Verifizierter Passport">💎 Passport</span>
+                <span className="vgt-badge" title="Verifizierter Passport">
+                  <Icon name="seal" size={12} />
+                  Passport
+                </span>
               )}
-            </div>
+            </span>
           </div>
-          <span className="gsn-post-gaiaid" onClick={() => handleOpenProfile(post.gaiaId)}>
+          <button type="button" className="vgt-gsn-post__gaia" onClick={() => handleOpenProfile(post.gaiaId)}>
             {post.gaiaId}
-          </span>
+          </button>
         </div>
-        <div className="gsn-post-time">
-          {new Date(post.timestamp).toLocaleString()}
-        </div>
-        <div className="gsn-post-admin-actions">
+
+        <time className="vgt-gsn-post__time" dateTime={post.timestamp || undefined}>
+          {formatGsnTime(post.timestamp, locale)}
+        </time>
+
+        <div className="vgt-gsn-post__tools">
           <button
             type="button"
-            className="btn-action gsn-post-admin-btn"
+            className="btn-icon"
             title={t('gsn_report_post') || 'Beitrag melden'}
+            aria-label={t('gsn_report_post') || 'Beitrag melden'}
             onClick={() => handleOpenReportModal('post', post.id)}
           >
-            🚩
+            <Icon name="alertTriangle" size={15} />
           </button>
           {(isMyPost || isOperator) && (
             <button
               type="button"
-              className="btn-action gsn-post-admin-btn danger"
+              className="btn-icon vgt-danger-text"
               title={t('delete') || 'Löschen'}
+              aria-label={t('delete') || 'Löschen'}
               onClick={() => handleDeletePost(post.id)}
             >
-              🗑️
+              <Icon name="trash" size={15} />
             </button>
           )}
         </div>
-      </div>
+      </header>
 
-      {/* Body */}
-      <div className="gsn-post-body">
-        {post.body}
-      </div>
+      {post.body && <div className="vgt-gsn-post__body">{post.body}</div>}
 
-      {/* Render Encrypted Image */}
-      {hasImage && (
-        <DecryptedGsnImage attachmentJson={post.imageAttachment} />
-      )}
+      {hasImage && <DecryptedGsnImage attachmentJson={post.imageAttachment} />}
 
-      {/* Repost content */}
       {post.repostOfPostId && (
-        <div className="gsn-repost-card">
+        <div className="vgt-gsn-repost">
           {referencedPost ? (
-            <div>
-              <div className="gsn-repost-meta">
-                <span className="gsn-repost-author">{referencedPost.displayName}</span>
-                <span className="gsn-repost-gaiaid">{referencedPost.gaiaId}</span>
+            <>
+              <div className="vgt-gsn-repost__meta">
+                <span>{referencedPost.displayName}</span>
+                <span className="vgt-id">{referencedPost.gaiaId}</span>
               </div>
-              <div className="gsn-repost-body">{referencedPost.body}</div>
-            </div>
+              <div className="vgt-gsn-repost__body">{referencedPost.body}</div>
+            </>
           ) : (
-            <div className="gsn-repost-missing">
-              🔄 Shared post: <code>{post.repostOfPostId.slice(0, 8)}...</code>
+            <div className="vgt-gsn-repost__missing">
+              <Icon name="sync" size={14} />
+              Geteilter Beitrag <code className="vgt-id">{String(post.repostOfPostId).slice(0, 8)}…</code>
             </div>
           )}
         </div>
       )}
 
-      {/* Actions */}
-      <div className="gsn-reactions-row">
-        {['👍', '❤️', '🔥', '👀'].map(emoji => {
-          const reactionCount = (post.reactions && post.reactions[emoji]) || 0;
-          const didIReact = post.reactedByMe && post.reactedByMe[emoji] === true;
-          return (
-            <button
-              key={emoji}
-              type="button"
-              className={`gsn-action-btn ${didIReact ? 'active' : ''}`}
-              onClick={() => reactToPost(post.id, emoji)}
-            >
-              <span>{emoji}</span>
-              <span>{reactionCount}</span>
-            </button>
-          );
-        })}
+      <div className="vgt-gsn-post__actions">
+        <ReactionControl
+          options={GSN_REACTION_TOKENS}
+          reactions={post.reactions || {}}
+          reactedByMe={post.reactedByMe || {}}
+          onReact={token => reactToPost(post.id, token)}
+          label={t('message_reactions') || 'Reaktionen'}
+        />
 
-        <button
-          type="button"
-          className={`gsn-action-btn ${expandedComments[post.id] ? 'active' : ''}`}
-          onClick={() => toggleComments(post.id)}
-        >
-          💬 {post.commentCount || 0}
-        </button>
-
-        <button
-          type="button"
-          className="gsn-action-btn"
-          onClick={() => handleRepost(post)}
-          title={t('gsn_repost') || 'Teilen / Reposten'}
-        >
-          🔄
-        </button>
+        <div className="vgt-gsn-post__tools">
+          <button
+            type="button"
+            className="btn-ghost"
+            aria-expanded={isExpanded}
+            aria-controls={`gsn-comments-${post.id}`}
+            onClick={() => toggleComments(post.id)}
+          >
+            <Icon name="chat" size={14} />
+            <span className="vgt-numeric">{post.commentCount || 0}</span>
+          </button>
+          <button type="button" className="btn-ghost" onClick={() => handleRepost(post)} title={t('gsn_repost') || 'Teilen / Reposten'}>
+            <Icon name="sync" size={14} />
+            <span>{t('gsn_repost') || 'Teilen'}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Collapsible Comments Section */}
-      {expandedComments[post.id] && (
-        <div className="gsn-comments-section">
-          {loadingComments && !activeComments[post.id] ? (
-            <div className="gsn-comments-state">
-              Lade Kommentare...
+      {isExpanded && (
+        <section className="vgt-gsn-comments" id={`gsn-comments-${post.id}`} aria-label="Kommentare">
+          {loadingComments && comments.length === 0 ? (
+            <div className="vgt-state" role="status">
+              <Icon name="spinner" size={16} />
+              <span>Lade Kommentare…</span>
             </div>
-          ) : (activeComments[post.id] || []).length === 0 ? (
-            <div className="gsn-comments-state">
-              Noch keine Kommentare. Schreib den ersten!
-            </div>
+          ) : comments.length === 0 ? (
+            <p className="vgt-caption">Noch keine Kommentare.</p>
           ) : (
-            (activeComments[post.id] || []).map(comment => {
-              const isMyComment = activeIdentity && activeIdentity.GaiaID && comment.gaiaId && comment.gaiaId.toLowerCase() === activeIdentity.GaiaID.toLowerCase();
-              return (
-                <div key={comment.id} className="gsn-comment-item">
-                  <DecryptedAvatar avatarJson={comment.avatar} displayName={comment.displayName} />
-                  <div className="gsn-comment-meta">
-                    <div className="gsn-comment-header">
-                      <span className="gsn-comment-author">{comment.displayName || comment.gaiaId}</span>
-                      <div className="gsn-comment-side-actions">
-                        <span className="gsn-comment-time">{new Date(comment.timestamp).toLocaleTimeString()}</span>
-                        {(isMyComment || isMyPost || isOperator) && (
-                          <button
-                            type="button"
-                            className="btn-action gsn-comment-delete-btn"
-                            title={t('delete') || 'Löschen'}
-                            onClick={() => handleDeleteComment(post.id, comment.id)}
-                          >
-                            🗑️
-                          </button>
-                        )}
+            <ul className="vgt-gsn-comments__list">
+              {comments.map(comment => {
+                const isMyComment =
+                  activeIdentity && activeIdentity.GaiaID && comment.gaiaId
+                    ? comment.gaiaId.toLowerCase() === activeIdentity.GaiaID.toLowerCase()
+                    : false;
+                return (
+                  <li key={comment.id} className="vgt-gsn-comment">
+                    <DecryptedAvatar avatarJson={comment.avatar} displayName={comment.displayName} />
+                    <div className="vgt-gsn-comment__body">
+                      <div className="vgt-gsn-comment__head">
+                        <strong>{comment.displayName || comment.gaiaId}</strong>
+                        <time>{formatGsnTime(comment.timestamp, locale)}</time>
                       </div>
+                      <span>{comment.body}</span>
                     </div>
-                    <div className="gsn-comment-body">{comment.body}</div>
-                  </div>
-                </div>
-              );
-            })
+                    {(isMyComment || isMyPost || isOperator) && (
+                      <button
+                        type="button"
+                        className="btn-icon vgt-danger-text"
+                        title={t('delete') || 'Löschen'}
+                        aria-label={t('delete') || 'Löschen'}
+                        onClick={() => handleDeleteComment(post.id, comment.id)}
+                      >
+                        <Icon name="trash" size={13} />
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           )}
 
           {activeIdentity && (
-            <div className="gsn-comment-composer">
+            <form
+              className="vgt-gsn-comment-form"
+              onSubmit={event => {
+                event.preventDefault();
+                handleAddComment(post.id);
+              }}
+            >
+              <label className="vgt-sr-only" htmlFor={`gsn-comment-input-${post.id}`}>
+                {t('gsn_comment_placeholder') || 'Schreibe einen Kommentar…'}
+              </label>
               <input
+                id={`gsn-comment-input-${post.id}`}
                 type="text"
-                className="gsn-comment-input"
-                placeholder={t('gsn_comment_placeholder') || 'Schreibe einen Kommentar...'}
+                className="input-field"
+                placeholder={t('gsn_comment_placeholder') || 'Schreibe einen Kommentar…'}
                 value={commentTextMap[post.id] || ''}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setCommentTextMap(prev => ({ ...prev, [post.id]: val }));
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleAddComment(post.id);
+                onChange={event => {
+                  const value = event.target.value;
+                  setCommentTextMap(prev => ({ ...prev, [post.id]: value }));
                 }}
               />
-              <button
-                type="button"
-                className="btn-primary gsn-comment-submit-btn"
-                onClick={() => handleAddComment(post.id)}
-              >
-                💬
+              <button type="submit" className="btn-primary" aria-label={t('gsn_comment_send') || 'Kommentar senden'}>
+                <Icon name="send" size={15} />
               </button>
-            </div>
+            </form>
           )}
-        </div>
+        </section>
       )}
-    </div>
+    </article>
   );
 }

@@ -1,0 +1,239 @@
+/* ============================================================================
+   VGT GLASS 2100 — PANES MEDIA: GAIADROP
+   Anonymous inbound exchange. List/detail split, opaque working surfaces.
+   ========================================================================== */
+
+.vgt-drop {
+  display: flex;
+  flex-direction: column;
+}
+
+.vgt-drop__head .vgt-pane-head__actions {
+  flex-wrap: wrap;
+}
+
+.vgt-drop__layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.4fr);
+  gap: clamp(16px, 2.4vw, 26px);
+  min-height: 0;
+  flex: 1;
+  align-items: start;
+}
+
+/* ---------- List ---------- */
+.vgt-drop__list {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-1);
+  overflow: hidden;
+}
+
+.vgt-drop__list-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--vgt-space-2);
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+}
+
+.vgt-drop__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  max-height: min(60vh, 640px);
+}
+
+.vgt-drop__row {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  width: 100%;
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border: 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-drop__row:hover { background: var(--vgt-bg-2); }
+.vgt-drop__row.is-active { background: var(--vgt-pigment-soft); }
+.vgt-drop__row:focus-visible { outline: none; box-shadow: inset var(--vgt-focus-ring); }
+
+.vgt-drop__row-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: var(--vgt-radius-control);
+  color: var(--vgt-pigment);
+  background: var(--vgt-pigment-soft);
+}
+
+.vgt-drop__row-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vgt-drop__row-title {
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-drop__row-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+}
+
+/* ---------- Detail ---------- */
+.vgt-drop__detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  min-height: 0;
+  padding: var(--vgt-space-4);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-drop__detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  padding-bottom: var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+}
+
+.vgt-drop__detail-head .vgt-h3 { margin: 4px 0; }
+.vgt-drop__detail-head .vgt-caption { display: inline-flex; align-items: center; gap: 4px; }
+
+.vgt-drop__detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-drop__message {
+  padding: var(--vgt-space-4);
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-primary);
+  font-family: var(--vgt-font-mono);
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 42vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.vgt-drop__evidence {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  padding-top: var(--vgt-space-3);
+  border-top: var(--vgt-hairline) solid var(--vgt-border);
+}
+
+.vgt-drop__evidence .vgt-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vgt-drop__evidence-grid {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.3fr) minmax(0, 1fr);
+  gap: var(--vgt-space-2) var(--vgt-space-3);
+  margin: 0;
+}
+
+.vgt-drop__evidence-grid dt {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-drop__evidence-grid dd {
+  margin: 0;
+  min-width: 0;
+}
+
+/* ---------- Intro (no drop selected) ---------- */
+.vgt-drop__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+}
+
+.vgt-drop__address {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-drop__address > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.vgt-drop__address code { word-break: break-all; }
+
+.vgt-drop__steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-drop__steps ol {
+  margin: 0;
+  padding-left: var(--vgt-space-5);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 992px) {
+  .vgt-drop__layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vgt-drop__rows { max-height: 40vh; }
+
+  .vgt-drop__detail { padding: var(--vgt-space-3); }
+}

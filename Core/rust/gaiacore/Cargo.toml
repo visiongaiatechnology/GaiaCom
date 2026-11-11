@@ -1,9 +1,8 @@
-# STATUS: DIAMANT VGT SUPREME
 [package]
 name = "gaiacore"
 version = "0.1.0"
 edition = "2021"
-license = "Proprietary"
+license = "AGPL-3.0-or-later"
 
 [lib]
 crate-type = ["rlib", "staticlib"]

@@ -1,0 +1,13 @@
+
+/* Hard safety net: even if a transition state ever fails to clear, the boot and
+   welcome veils hide themselves after the animation window instead of blocking
+   the whole workspace. */
+.vgt-switch-veil,
+.vgt-boot {
+  animation: vgt-veil-auto-hide 2400ms ease forwards;
+}
+
+@keyframes vgt-veil-auto-hide {
+  0%, 78% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}

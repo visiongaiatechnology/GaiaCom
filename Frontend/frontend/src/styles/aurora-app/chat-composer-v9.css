@@ -1,0 +1,164 @@
+/* ============================================================================
+   Chat composer v9 — slim, elegant single-row dock for 1:1 and group chats.
+   Fixes the 96px textarea min-height inherited from the global form controls
+   and makes the emoji / attachment anchors visibly clickable.
+   ========================================================================== */
+
+/* The global `textarea.input-field` rule (min-height 96px) outranks the plain
+   composer class, so scroll/auto-grow textareas need a more specific rule. */
+.vgt-chat-composer textarea.vgt-chat-composer__input {
+  flex: 1 1 auto;
+  min-height: 36px;
+  height: 36px;
+  max-height: 104px;
+  margin: 0;
+  padding: 7px 10px;
+  border: 0 !important;
+  border-radius: 10px;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: #f4faff;
+  font: inherit;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  resize: none;
+}
+
+.vgt-chat-composer textarea.vgt-chat-composer__input::placeholder {
+  color: #7d95a8;
+}
+
+.vgt-chat-composer__form {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 4px 6px 4px 10px;
+  border: 1px solid rgba(53, 230, 255, 0.2);
+  border-radius: 18px;
+  background: rgba(10, 20, 34, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.vgt-chat-composer__form:focus-within {
+  border-color: rgba(0, 229, 255, 0.5);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.45), 0 0 14px rgba(0, 229, 255, 0.16);
+}
+
+.vgt-chat-composer__tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  padding-bottom: 2px;
+}
+
+/* Make every popover anchor visibly interactive instead of an invisible hitbox. */
+.vgt-chat-anchor {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.vgt-chat-anchor > button,
+.vgt-chat-composer__tools > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: rgba(84, 116, 146, 0.12);
+  color: #a9c2d6;
+  cursor: pointer;
+  transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.vgt-chat-anchor > button:hover,
+.vgt-chat-anchor > button:focus-visible,
+.vgt-chat-composer__tools > button:hover,
+.vgt-chat-composer__tools > button:focus-visible {
+  border-color: rgba(53, 230, 255, 0.32);
+  background: rgba(53, 230, 255, 0.12);
+  color: #7ef3ff;
+  outline: none;
+}
+
+.vgt-chat-anchor > button[aria-expanded='true'] {
+  border-color: rgba(53, 230, 255, 0.42);
+  background: rgba(53, 230, 255, 0.16);
+  color: #bdf6ff;
+}
+
+.vgt-chat-anchor > button:disabled,
+.vgt-chat-composer__tools > button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vgt-chat-composer__send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  margin-bottom: 1px;
+  border-radius: 10px;
+}
+
+.vgt-chat-composer__send svg {
+  width: 17px;
+  height: 17px;
+}
+
+.vgt-chat-composer {
+  padding: 8px 16px calc(10px + env(safe-area-inset-bottom));
+}
+
+/* Emoji / drive popovers keep a comfortable click target above the dock. */
+.vgt-chat-emojis,
+.vgt-chat-drive {
+  bottom: calc(100% + 8px);
+  top: auto;
+  left: 0;
+  right: auto;
+}
+
+.vgt-chat-emojis__option {
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 720px) {
+  .vgt-chat-composer {
+    padding: 6px 10px calc(8px + env(safe-area-inset-bottom));
+  }
+
+  .vgt-chat-composer__form {
+    padding: 4px 5px 4px 8px;
+    border-radius: 16px;
+  }
+
+  .vgt-chat-anchor > button,
+  .vgt-chat-composer__tools > button {
+    width: 34px;
+    height: 34px;
+  }
+
+  .vgt-chat-composer__send {
+    width: 36px;
+    height: 36px;
+  }
+
+  .vgt-chat-composer textarea.vgt-chat-composer__input {
+    min-height: 38px;
+    height: 38px;
+    font-size: 0.88rem;
+  }
+}

@@ -1,0 +1,340 @@
+/* ============================================================================
+   VGT GLASS 2100 — CONTROLS
+   Semantic, keyboard-complete controls. Legacy class names are kept because
+   they are used across the whole product, but their visual grammar is replaced
+   (no neon gradients, no glow borders, no permanent animations).
+   States: default / hover / focus-visible / active / disabled / loading.
+   ========================================================================== */
+
+/* ---------- Base control geometry ---------- */
+.btn-primary,
+.btn-secondary,
+.btn-action,
+.btn-danger,
+.btn-danger-outline,
+.btn-ghost {
+  --vgt-control-min-h: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vgt-space-2);
+  min-height: var(--vgt-control-min-h);
+  padding: 0 var(--vgt-space-4);
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid transparent;
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-sm);
+  font-weight: 620;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  user-select: none;
+  transition:
+    background-color var(--vgt-dur-micro) ease,
+    border-color var(--vgt-dur-micro) ease,
+    color var(--vgt-dur-micro) ease,
+    box-shadow var(--vgt-dur-micro) ease,
+    transform var(--vgt-dur-micro) ease;
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-action:focus-visible,
+.btn-danger:focus-visible,
+.btn-danger-outline:focus-visible,
+.btn-ghost:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.btn-primary:active,
+.btn-secondary:active,
+.btn-action:active,
+.btn-danger:active,
+.btn-danger-outline:active,
+.btn-ghost:active {
+  transform: translateY(1px);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-action:disabled,
+.btn-danger:disabled,
+.btn-danger-outline:disabled,
+.btn-ghost:disabled,
+.btn-primary[aria-disabled='true'],
+.btn-secondary[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ---------- Primary: pigment action ---------- */
+.btn-primary {
+  background: var(--vgt-pigment-strong);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--vgt-text-on-pigment);
+  box-shadow: var(--vgt-elevation-1), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--vgt-pigment);
+  color: var(--vgt-text-on-pigment);
+}
+
+body.light-mode .btn-primary {
+  background: var(--vgt-pigment);
+  color: var(--vgt-text-on-pigment);
+}
+
+body.light-mode .btn-primary:hover:not(:disabled) {
+  background: var(--vgt-pigment-strong);
+}
+
+/* ---------- Secondary: glass control ---------- */
+.btn-secondary {
+  background: var(--vgt-glass-1);
+  border-color: var(--vgt-border);
+  color: var(--vgt-text-primary);
+  backdrop-filter: blur(var(--vgt-blur-1));
+  -webkit-backdrop-filter: blur(var(--vgt-blur-1));
+  box-shadow: var(--vgt-inner-highlight);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--vgt-bg-4);
+  border-color: var(--vgt-border-strong);
+}
+
+/* ---------- Action: dense/compact control (list rows, panes) ---------- */
+.btn-action {
+  --vgt-control-min-h: 32px;
+  padding: 0 var(--vgt-space-3);
+  background: transparent;
+  border-color: var(--vgt-border);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+}
+
+.btn-action:hover:not(:disabled) {
+  background: var(--vgt-pigment-soft);
+  border-color: var(--vgt-pigment-line);
+  color: var(--vgt-text-primary);
+}
+
+/* ---------- Ghost: icon-ish tertiary action ---------- */
+.btn-ghost {
+  --vgt-control-min-h: 32px;
+  padding: 0 var(--vgt-space-2);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--vgt-bg-4);
+  color: var(--vgt-text-primary);
+}
+
+/* ---------- Danger ---------- */
+.btn-danger {
+  background: var(--vgt-danger-soft);
+  border-color: rgba(228, 112, 111, 0.42);
+  color: var(--vgt-danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: rgba(228, 112, 111, 0.20);
+  border-color: var(--vgt-danger);
+}
+
+.btn-danger-outline {
+  background: transparent;
+  border-color: rgba(228, 112, 111, 0.42);
+  color: var(--vgt-danger);
+}
+
+.btn-danger-outline:hover:not(:disabled) {
+  background: var(--vgt-danger-soft);
+  border-color: var(--vgt-danger);
+}
+
+body.light-mode .btn-danger { color: var(--vgt-danger-strong); border-color: color-mix(in srgb, var(--vgt-danger-strong) 45%, transparent); }
+body.light-mode .btn-danger-outline { color: var(--vgt-danger-strong); border-color: color-mix(in srgb, var(--vgt-danger-strong) 45%, transparent); }
+
+/* ---------- Icon-only control ---------- */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: var(--vgt-hairline) solid transparent;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+.btn-icon:hover { background: var(--vgt-bg-4); color: var(--vgt-text-primary); }
+.btn-icon:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+.btn-icon:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ---------- Inputs ---------- */
+.input-field,
+textarea.input-field,
+select.input-field {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px var(--vgt-space-3);
+  background: var(--vgt-bg-2);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  color: var(--vgt-text-primary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-md);
+  line-height: 1.4;
+  box-shadow: var(--vgt-inner-highlight);
+  transition: border-color var(--vgt-dur-micro) ease, box-shadow var(--vgt-dur-micro) ease,
+              background-color var(--vgt-dur-micro) ease;
+}
+
+.input-field::placeholder {
+  color: var(--vgt-text-muted);
+  opacity: 1;
+}
+
+.input-field:hover:not(:disabled):not(:focus) {
+  border-color: var(--vgt-border-strong);
+}
+
+.input-field:focus,
+.input-field:focus-visible {
+  outline: none;
+  border-color: var(--vgt-pigment);
+  box-shadow: var(--vgt-inner-highlight), 0 0 0 1px var(--vgt-pigment-line),
+              0 0 0 4px var(--vgt-pigment-soft);
+}
+
+.input-field:disabled,
+.input-field[aria-disabled='true'] {
+  color: var(--vgt-text-disabled);
+  background: var(--vgt-bg-3);
+  cursor: not-allowed;
+}
+
+.input-field[aria-invalid='true'] {
+  border-color: var(--vgt-danger);
+  box-shadow: 0 0 0 3px var(--vgt-danger-soft);
+}
+
+textarea.input-field {
+  min-height: 96px;
+  resize: vertical;
+}
+
+/* Native label association is required; placeholder is never the label. */
+.input-label,
+.field-label {
+  display: block;
+  margin-bottom: var(--vgt-space-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.field-hint {
+  margin-top: var(--vgt-space-2);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
+}
+
+.field-error {
+  margin-top: var(--vgt-space-2);
+  color: var(--vgt-danger);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+}
+
+/* ---------- Badges ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.badge-success {
+  color: var(--vgt-success);
+  border-color: rgba(91, 190, 146, 0.35);
+  background: var(--vgt-success-soft);
+}
+
+/* ---------- Toggle switch ---------- */
+.vgt-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  cursor: pointer;
+  min-height: 32px;
+}
+
+.vgt-switch input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.vgt-switch__track {
+  width: 42px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-4);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  transition: background-color var(--vgt-dur-component) var(--vgt-ease-out);
+}
+
+.vgt-switch__track::after {
+  content: '';
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin: 2px;
+  border-radius: 50%;
+  background: var(--vgt-text-secondary);
+  transition: transform var(--vgt-dur-component) var(--vgt-ease-out), background-color var(--vgt-dur-component) ease;
+}
+
+.vgt-switch input:checked + .vgt-switch__track {
+  background: var(--vgt-pigment-strong);
+  border-color: var(--vgt-pigment-line);
+}
+
+.vgt-switch input:checked + .vgt-switch__track::after {
+  transform: translateX(18px);
+  background: var(--vgt-text-on-pigment);
+}
+
+.vgt-switch input:focus-visible + .vgt-switch__track {
+  box-shadow: var(--vgt-focus-ring);
+}

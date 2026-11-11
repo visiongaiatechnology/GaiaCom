@@ -1,0 +1,438 @@
+/* ============================================================================
+   VGT GLASS 2100 — LIST RAIL: SHELL, HEAD, TOOLBARS, CONTEXT MENU
+   The rail is a Z1 content canvas (opaque, readability first); the sticky head
+   and toolbars are Z2 glass over it. Dense rows are hairlines, never cards.
+   All colours come from tokens so dark/light/high-contrast stay consistent.
+   ========================================================================== */
+
+.vgt-inbox {
+  --vgt-inbox-row-h: 64px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--vgt-bg-1);
+  border-right: var(--vgt-hairline) solid var(--vgt-border);
+  color: var(--vgt-text-primary);
+  overflow: hidden;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* ---------- Sticky head ---------- */
+.vgt-inbox__head {
+  position: relative;
+  z-index: var(--vgt-z-sticky);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  flex: none;
+  padding: var(--vgt-space-4) var(--vgt-space-4) var(--vgt-space-3);
+  background: var(--vgt-glass-1);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.06);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.06);
+}
+
+.vgt-inbox__title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  min-width: 0;
+}
+
+.vgt-inbox__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-1);
+  min-width: 0;
+}
+
+.vgt-inbox__scope {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  line-height: 1;
+}
+
+.vgt-inbox__title {
+  margin: 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-lg);
+  font-weight: 620;
+  line-height: var(--vgt-leading-snug);
+  letter-spacing: -0.012em;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-inbox__title-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  flex: none;
+}
+
+.vgt-inbox__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: var(--vgt-radius-pill);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  line-height: 1;
+}
+
+.vgt-inbox__compose {
+  --vgt-control-min-h: 34px;
+  min-height: 34px;
+  padding: 0 var(--vgt-space-3);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-inbox__collapse {
+  width: 32px;
+  height: 32px;
+  color: var(--vgt-text-muted);
+}
+
+/* Mobile-only action row is hidden on desktop (legacy hook kept for the shell). */
+.vgt-inbox__mobile-actions {
+  display: none;
+  gap: var(--vgt-space-2);
+  align-items: center;
+}
+
+.vgt-inbox__menu-toggle {
+  --vgt-control-min-h: 34px;
+  padding: 0 var(--vgt-space-3);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-inbox__menu-toggle-text {
+  line-height: 1;
+}
+
+/* ---------- Toolbars (search, segments, labels, bulk, per-menu actions) ---- */
+.vgt-inbox__toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  flex: none;
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-inbox__toolbar--compact {
+  padding-top: var(--vgt-space-2);
+  padding-bottom: var(--vgt-space-2);
+}
+
+.vgt-inbox__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-inbox__actions > .btn-primary,
+.vgt-inbox__actions > .btn-secondary {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.vgt-inbox__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  min-width: 0;
+}
+
+.vgt-inbox__search-icon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--vgt-text-muted);
+  pointer-events: none;
+}
+
+.vgt-inbox__search .input-field,
+.vgt-inbox__search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 36px 0 34px;
+  font-size: var(--vgt-text-sm);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-inbox__search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.vgt-inbox__search-clear {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-inbox__search-submit {
+  flex: none;
+}
+
+.vgt-inbox__search--inline .vgt-inbox__search-input {
+  padding-right: var(--vgt-space-3);
+}
+
+/* Folder segments: one horizontal rail, real buttons, aria-current for state. */
+.vgt-inbox__segments {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.vgt-inbox__segments::-webkit-scrollbar {
+  display: none;
+}
+
+.vgt-inbox__segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  min-height: 30px;
+  padding: 0 10px;
+  border: var(--vgt-hairline) solid transparent;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--vgt-dur-micro) ease,
+    border-color var(--vgt-dur-micro) ease,
+    color var(--vgt-dur-micro) ease;
+}
+
+.vgt-inbox__segment:hover {
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-inbox__segment.is-active {
+  background: var(--vgt-pigment-soft);
+  border-color: var(--vgt-pigment-line);
+  color: var(--vgt-text-primary);
+  box-shadow: var(--vgt-inner-highlight);
+}
+
+.vgt-inbox__segment:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+/* Custom labels: user colour is data, shown as a dot, never as the only cue. */
+.vgt-inbox__labels {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.vgt-inbox__labels::-webkit-scrollbar {
+  display: none;
+}
+
+.vgt-inbox__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  height: 26px;
+  padding: 0 10px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.vgt-inbox__label:hover {
+  border-color: var(--vgt-border-strong);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-inbox__label.is-active {
+  border-color: var(--vgt-inbox-label-color);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-inbox__label-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vgt-inbox-label-color);
+  flex: none;
+}
+
+/* Bulk actions: pigment-bordered block, destructive action styled danger. */
+.vgt-inbox__bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  padding: var(--vgt-space-2);
+  border: var(--vgt-hairline) solid var(--vgt-pigment-line);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-pigment-soft);
+}
+
+.vgt-inbox__bulk-count {
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-inbox__bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.vgt-inbox__bulk-actions .btn-action,
+.vgt-inbox__bulk-actions .btn-ghost,
+.vgt-inbox__bulk-actions .btn-danger-outline {
+  --vgt-control-min-h: 28px;
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+/* ---------- GaiaDrop address block ---------- */
+.vgt-inbox-drop {
+  gap: var(--vgt-space-3);
+}
+
+.vgt-inbox-drop__address {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: var(--vgt-space-2) var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-inbox-drop__code {
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-xs);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Context menu (Z3 floating material) ---------- */
+.vgt-inbox-menu {
+  position: fixed;
+  z-index: var(--vgt-z-floating);
+  min-width: 176px;
+  padding: 4px;
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke-strong);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-glass-3);
+  box-shadow: var(--vgt-elevation-3), var(--vgt-inner-highlight);
+  backdrop-filter: blur(var(--vgt-blur-2)) saturate(1.1);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-2)) saturate(1.1);
+}
+
+.vgt-inbox-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  width: 100%;
+  min-height: 34px;
+  padding: 0 var(--vgt-space-2);
+  border: 0;
+  border-radius: var(--vgt-radius-xs);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.vgt-inbox-menu__item:hover {
+  background: var(--vgt-bg-4);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-inbox-menu__item:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-inbox-menu__item--danger {
+  color: var(--vgt-danger);
+}
+
+.vgt-inbox-menu__item--danger:hover {
+  background: var(--vgt-danger-soft);
+  color: var(--vgt-danger);
+}
+
+/* ---------- Reduced transparency / high contrast keep the same hierarchy --- */
+@media (prefers-reduced-transparency: reduce) {
+  .vgt-inbox__head,
+  .vgt-inbox-menu {
+    background: var(--vgt-bg-2);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .vgt-inbox__segment.is-active,
+  .vgt-inbox__label.is-active {
+    border: 1px solid CanvasText;
+  }
+
+  .vgt-inbox-menu {
+    border: 1px solid CanvasText;
+    box-shadow: none;
+    background: Canvas;
+  }
+}

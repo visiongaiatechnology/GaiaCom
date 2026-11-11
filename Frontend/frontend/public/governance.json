@@ -1,12 +1,4 @@
-{
-  "operators": [
-    {
-      "gaiaID": "operator@gaiacom.de",
-      "displayName": "Primary Node Operator"
-    },
-    {
-      "gaiaID": "sysadmin@gaiacom.de",
-      "displayName": "Core Security Auditor"
-    }
-  ]
+﻿{
+  "bootstrap_gaia_id": "",
+  "operators": []
 }

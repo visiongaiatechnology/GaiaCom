@@ -1,0 +1,11 @@
+/* ============================================================================
+   VGT GLASS 2100 — AREA: IDENTITY
+   Entry aggregator only; part sheets stay below the VGT 500-line rule.
+   ========================================================================== */
+
+@import './base.css';
+@import './profile.css';
+@import './profile-forms.css';
+@import './vault.css';
+@import './security.css';
+@import './abuse.css';

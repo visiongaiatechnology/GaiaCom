@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 import * as api from '../api';
 import * as crypto from '../crypto';
 import { createClientMessageId } from './payload';
@@ -12,10 +11,9 @@ export async function encryptForRecipientDevices({
   senderMldsa87Private = '',
   senderDeviceVault = null
 }) {
-  if (!recipientPublicKeys?.hqc256) throw new Error('HQC-256 Capability fehlt; kryptografischer Downgrade wurde blockiert.');
-  // Sovereign v1 encrypts only to the identity-signed keyset. Device-specific
-  // prekeys must not be substituted until an identity-signed ratchet prekey
-  // certificate and its verification chain are part of the wire protocol.
+  const hasHqc = typeof recipientPublicKeys?.hqc256 === 'string' && recipientPublicKeys.hqc256.length >= 1024;
+  const sovereignProfile = hasHqc ? (topSecret ? 'top-secret' : 'accelerated') : undefined;
+
   const targets = [{
     id: '',
     box: recipientPublicKeys.box,
@@ -26,11 +24,23 @@ export async function encryptForRecipientDevices({
 
   const envelopes = await Promise.all(targets.map(target => crypto.encryptPayload(
     plaintext,
-    { pke: target.pke, box: target.box, hqc256: target.hqc256, keyset_proof: target.keyset_proof, identity: recipientPublicKeys.identity, mldsa87: recipientPublicKeys.mldsa87 || '' },
+    {
+      pke: target.pke,
+      box: target.box,
+      hqc256: target.hqc256,
+      keyset_proof: target.keyset_proof,
+      identity: recipientPublicKeys.identity,
+      mldsa87: recipientPublicKeys.mldsa87 || ''
+    },
     senderSignPrivate,
     createClientMessageId(),
     undefined,
-    { topSecret, sovereignProfile: topSecret ? 'top-secret' : 'accelerated', senderMldsa87PrivHex: senderMldsa87Private, recipientDeviceKeyId: target.id }
+    {
+      topSecret,
+      sovereignProfile,
+      senderMldsa87PrivHex: senderMldsa87Private,
+      recipientDeviceKeyId: target.id
+    }
   )));
   return envelopes.map(envelope => crypto.attachDeviceEnvelopeProof(envelope, senderDeviceVault));
 }

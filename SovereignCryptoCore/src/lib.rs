@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 use aes_gcm::aead::{generic_array::GenericArray, KeyInit, Payload};
 use aes_gcm::Aes256Gcm;
 use aes_gcm_siv::Aes256GcmSiv;

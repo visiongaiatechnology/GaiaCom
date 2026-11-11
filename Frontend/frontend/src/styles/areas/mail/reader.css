@@ -1,0 +1,316 @@
+/* ============================================================================
+   VGT GLASS 2100 — MAIL READER
+   Reading surface for a mail thread: Z2 header with identity, subject and
+   security context; Z1 opaque transcript with a readable measure; evidence,
+   proof and attachments stay secondary to the message itself.
+   Owner: WP-MAIL. Foundation: styles/glass2100/**. Keep <= 500 lines.
+   ========================================================================== */
+
+/* ---------- Pane canvas while a mail surface is mounted ----------
+   `.mail-content-pane` is shared by every centre pane. Only while a mail
+   surface is its direct child does the opaque Z1 canvas replace the legacy
+   pane gradient/pseudo grid; other panes are untouched. */
+.mail-content-pane:has(> .vgt-mail-reader),
+.mail-content-pane:has(> .vgt-mail-compose),
+.mail-content-pane:has(> .vgt-mail-empty) {
+  background: var(--vgt-bg-1);
+  border-color: var(--vgt-border);
+}
+
+.mail-content-pane:has(> .vgt-mail-reader)::before,
+.mail-content-pane:has(> .vgt-mail-compose)::before,
+.mail-content-pane:has(> .vgt-mail-empty)::before {
+  content: none;
+}
+
+.vgt-mail-reader {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--vgt-bg-1);
+  color: var(--vgt-text-primary);
+}
+
+/* ---------- Header (functional Z2 surface, not a card) ---------- */
+.vgt-mail-reader__head {
+  flex: none;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-3) clamp(var(--vgt-space-4), 2.2vw, var(--vgt-space-7)) var(--vgt-space-4);
+  background: var(--vgt-bg-2);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+  box-shadow: var(--vgt-inner-highlight);
+}
+
+.vgt-mail-reader__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-mail-reader__ops {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-1);
+  margin-left: auto;
+}
+
+.vgt-mail-reader__hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-4);
+}
+
+.vgt-mail-reader__hero-main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  min-width: 0;
+}
+
+.vgt-mail-reader__hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.vgt-mail-reader__hero-text .vgt-h2 {
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.vgt-mail-reader__sender-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 6px;
+  margin: 0;
+}
+
+.vgt-mail-reader__sender-name {
+  color: var(--vgt-text-primary);
+  font-weight: 620;
+}
+
+.vgt-mail-reader__dot {
+  color: var(--vgt-text-muted);
+}
+
+.vgt-mail-reader__address {
+  color: var(--vgt-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.vgt-mail-reader__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.vgt-mail-reader__hero-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex: none;
+  text-align: right;
+}
+
+.vgt-mail-time {
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  white-space: nowrap;
+}
+
+/* ---------- Scroll region and transcript ---------- */
+.vgt-mail-reader__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  padding: clamp(var(--vgt-space-3), 1.8vw, var(--vgt-space-5)) clamp(var(--vgt-space-3), 2.4vw, var(--vgt-space-7))
+    calc(var(--vgt-space-9) + env(safe-area-inset-bottom));
+}
+
+.vgt-mail-reader__scroll > .vgt-mail-notice {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+.vgt-mail-reader__thread {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+
+/* ---------- Empty / no selection ---------- */
+.vgt-mail-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  gap: var(--vgt-space-2);
+  padding: clamp(var(--vgt-space-6), 6vw, var(--vgt-space-11));
+  text-align: center;
+  background: var(--vgt-bg-1);
+}
+
+.vgt-mail-empty__glyph {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--vgt-space-2);
+  border: var(--vgt-hairline) solid var(--vgt-pigment-line);
+  border-radius: 50%;
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-pigment);
+}
+
+.vgt-mail-empty .vgt-h2 {
+  margin: 0;
+}
+
+.vgt-mail-empty__copy {
+  max-width: 46ch;
+  margin: var(--vgt-space-1) 0 0;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-md);
+  line-height: var(--vgt-leading-normal);
+}
+
+.vgt-mail-empty__hint {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
+}
+
+/* ---------- Mobile: full-width reader, compact header, sticky actions ------ */
+@media (max-width: 992px) {
+  .vgt-mail-reader__head {
+    gap: var(--vgt-space-2);
+    padding: var(--vgt-space-2) var(--vgt-space-3) var(--vgt-space-3);
+  }
+
+  .vgt-mail-reader__bar {
+    align-items: flex-start;
+  }
+
+  .vgt-mail-reader__ops {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+    margin-left: 0;
+    gap: var(--vgt-space-2);
+  }
+
+  .vgt-mail-reader__ops .btn-action {
+    flex: none;
+    min-height: 40px;
+  }
+
+  .vgt-mail-reader__hero,
+  .vgt-mail-reader__hero-main {
+    gap: var(--vgt-space-2);
+  }
+
+  .vgt-mail-reader__hero {
+    flex-direction: column;
+  }
+
+  .vgt-mail-reader__hero-side {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--vgt-space-3);
+    text-align: left;
+  }
+
+  .vgt-mail-reader__hero-text .vgt-h2 {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .vgt-mail-reader__scroll {
+    padding: var(--vgt-space-3) var(--vgt-space-3)
+      calc(var(--vgt-space-9) + env(safe-area-inset-bottom));
+  }
+
+  .vgt-mail-msg__panel {
+    padding: var(--vgt-space-2) var(--vgt-space-1) var(--vgt-space-5) var(--vgt-space-1);
+  }
+
+  .vgt-mail-msg__signals {
+    gap: 4px;
+  }
+
+  .vgt-mail-msg__signals .vgt-mail-time {
+    display: none;
+  }
+
+  .vgt-mail-routing__row {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .vgt-mail-proof__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vgt-mail-reader__hero-main .vgt-mail-avatar {
+    display: none;
+  }
+
+  .vgt-mail-msg__signals .vgt-status {
+    font-size: max(var(--vgt-text-xs), 10px);
+  }
+}
+
+@media (max-width: 992px) and (max-height: 520px) {
+  .vgt-mail-reader__hero-main .vgt-mail-avatar,
+  .vgt-mail-reader__hero-text .vgt-eyebrow {
+    display: none;
+  }
+
+  .vgt-mail-reader__head {
+    max-height: 42dvh;
+    overflow-y: auto;
+  }
+}
+
+@media (pointer: coarse) {
+  .vgt-mail-msg__disclosure {
+    min-height: 52px;
+  }
+
+  .vgt-mail-attachment {
+    min-height: 44px;
+  }
+}

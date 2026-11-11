@@ -1,0 +1,348 @@
+/* VGT GLASS 2100 — PANES MEDIA: SHARED PRIMITIVES (shell, controls, dense lists). */
+
+/* ============================================================================
+   VGT GLASS 2100 — PANES MEDIA: SHARED PRIMITIVES
+   Small, reusable building blocks for the media panes and their dialogs:
+   pane heads, segmented controls, tabs, list rows, chips, empty/state blocks,
+   progress, notices, popovers. No decorative backgrounds, no glows.
+   ========================================================================== */
+
+/* ---------- Pane shell ---------- */
+.vgt-drive,
+.vgt-drop,
+.vgt-gsn,
+.vgt-ch {
+  padding: clamp(16px, 2.4vw, 28px);
+  gap: clamp(14px, 2vw, 22px);
+  min-height: 0;
+}
+
+/* .vgt-pane-head / .vgt-pane-fallback now live in glass2100/layout.css. */
+
+.vgt-pane-mobile {
+  display: none;
+  gap: var(--vgt-space-2);
+  align-items: center;
+}
+
+@media (max-width: 992px) {
+  .vgt-pane-mobile {
+    display: flex;
+  }
+}
+
+/* ---------- Segmented control ---------- */
+.vgt-segmented {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-segmented__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  min-height: 34px;
+  padding: 0 var(--vgt-space-3);
+  border: 0;
+  border-radius: calc(var(--vgt-radius-control) - 4px);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+.vgt-segmented__item:hover {
+  color: var(--vgt-text-primary);
+  background: var(--vgt-bg-4);
+}
+
+.vgt-segmented__item.is-active {
+  color: var(--vgt-text-primary);
+  background: var(--vgt-pigment-soft);
+  box-shadow: inset 0 0 0 1px var(--vgt-pigment-line);
+}
+
+.vgt-segmented__item:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+/* ---------- Tabs (dialogs, settings) ---------- */
+.vgt-tabs {
+  display: flex;
+  gap: var(--vgt-space-1);
+  overflow-x: auto;
+  padding-bottom: var(--vgt-space-2);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+  scrollbar-width: thin;
+}
+
+.vgt-tabs__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  min-height: 36px;
+  padding: 0 var(--vgt-space-3);
+  border: 0;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.vgt-tabs__item:hover {
+  color: var(--vgt-text-primary);
+  background: var(--vgt-bg-4);
+}
+
+.vgt-tabs__item.is-active {
+  color: var(--vgt-text-primary);
+  background: var(--vgt-pigment-soft);
+}
+
+.vgt-tabs__item:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+/* ---------- Chips ---------- */
+.vgt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--vgt-dur-micro) ease, background-color var(--vgt-dur-micro) ease,
+    color var(--vgt-dur-micro) ease;
+}
+
+.vgt-chip:hover {
+  color: var(--vgt-text-primary);
+  border-color: var(--vgt-border-strong);
+}
+
+.vgt-chip.is-active {
+  color: var(--vgt-text-primary);
+  border-color: var(--vgt-pigment-line);
+  background: var(--vgt-pigment-soft);
+}
+
+.vgt-chip:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+/* ---------- Badges (extension of the foundation badge) ---------- */
+.vgt-badge--seal {
+  color: var(--vgt-accent-bronze);
+  border-color: rgba(201, 168, 119, 0.34);
+  background: rgba(201, 168, 119, 0.10);
+}
+
+.vgt-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-3);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+}
+
+.vgt-danger-text { color: var(--vgt-danger); }
+.vgt-success-text { color: var(--vgt-success); }
+.vgt-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--vgt-pigment);
+  text-decoration: none;
+}
+.vgt-link:hover { text-decoration: underline; }
+
+/* ---------- Field helpers ---------- */
+.vgt-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  min-width: 0;
+}
+
+.vgt-field__label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+}
+
+.vgt-input--compact {
+  min-height: 34px;
+  padding: 4px var(--vgt-space-2);
+  font-size: var(--vgt-text-sm);
+  width: auto;
+}
+
+.vgt-file-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.vgt-file-button input[type='file'],
+.vgt-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.vgt-file-input {
+  position: static;
+  width: auto;
+  height: auto;
+  opacity: 1;
+  clip-path: none;
+  font-size: var(--vgt-text-sm);
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-fieldset > legend {
+  padding: 0;
+  margin-bottom: var(--vgt-space-1);
+}
+
+.vgt-inline-field {
+  display: flex;
+  gap: var(--vgt-space-2);
+  align-items: stretch;
+}
+
+.vgt-inline-field .input-field { flex: 1; }
+
+/* ---------- List rows (dense, not cards) ---------- */
+.vgt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.vgt-list__row {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-3) 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-list__row:last-child { border-bottom: 0; }
+
+.vgt-list__row:hover { background: color-mix(in srgb, var(--vgt-bg-4) 60%, transparent); }
+
+.vgt-list__main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  border-radius: var(--vgt-radius-control);
+}
+
+.vgt-list__main:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+
+.vgt-list__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.vgt-list__title {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-md);
+  font-weight: 600;
+  min-width: 0;
+}
+
+.vgt-list__title > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-list__meta,
+.vgt-list__sub {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-snug);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-list__sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.vgt-list__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-1);
+  flex: none;
+}
+
+/* Post action row (pin/comments) shared by channel post cards. */
+.vgt-ch-post__tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+  margin-top: var(--vgt-space-2);
+  min-width: 0;
+}

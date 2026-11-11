@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"gaiacom/backend/core/uuid"
+	"gaiacom/backend/core/validate"
 	"gaiacom/backend/governance"
 	"gaiacom/backend/httpx"
 	"gaiacom/backend/repository"
@@ -128,10 +129,8 @@ func (h *Handler) hasRole(ctx context.Context, userID uuid.UUID, role string) bo
 		return false
 	}
 	for _, ident := range identities {
-		for _, bootstrapID := range append([]string{governance.BootstrapGaiaID}, governance.BootstrapGaiaIDs...) {
-			if bootstrapID != "" && bootstrapIdentityMatches(ident.GaiaID, bootstrapID) {
-				return role == "node_operator" || role == "senior_reviewer" || role == "trusted_reviewer"
-			}
+		if validate.GaiaIDInList(ident.GaiaID, append([]string{governance.BootstrapGaiaID}, governance.BootstrapGaiaIDs...)) {
+			return role == "node_operator" || role == "senior_reviewer" || role == "trusted_reviewer"
 		}
 		creds, err := h.store.GetCredentialsBySubject(ctx, ident.GaiaID)
 		if err != nil {
@@ -161,28 +160,4 @@ func (h *Handler) primaryGaiaID(ctx context.Context, userID uuid.UUID) string {
 		return ""
 	}
 	return identities[0].GaiaID
-}
-
-func bootstrapIdentityMatches(identityGaiaID string, bootstrapGaiaID string) bool {
-	identity := normalizeGaiaID(identityGaiaID)
-	bootstrap := normalizeGaiaID(bootstrapGaiaID)
-	if identity == bootstrap {
-		return true
-	}
-	return stripDomain(identity) == stripDomain(bootstrap)
-}
-
-func normalizeGaiaID(value string) string {
-	return strings.ToLower(strings.TrimSpace(value))
-}
-
-func stripDomain(value string) string {
-	value = strings.TrimPrefix(strings.ToLower(strings.TrimSpace(value)), "@")
-	if idx := strings.Index(value, ":"); idx >= 0 {
-		return value[:idx]
-	}
-	if idx := strings.Index(value, "@"); idx >= 0 {
-		return value[:idx]
-	}
-	return value
 }

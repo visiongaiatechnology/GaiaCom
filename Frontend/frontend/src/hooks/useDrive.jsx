@@ -41,6 +41,11 @@ import * as crypto from '../crypto';
 import { createClientMessageId } from '../utils/payload';
 import * as api from '../api';
 import { safeJsonParse } from '../utils/safeJson';
+import {
+  MAX_DRIVE_CLOUD_DOWNLOAD_BYTES,
+  exceedsLimit,
+  limitError
+} from '../utils/mediaLimits';
 
 const CLOUD_TTL_DAYS = 14;
 const MAX_CLOUD_BYTES = 20 * 1024 * 1024; // 20 MB
@@ -275,7 +280,7 @@ export default function useDrive({ user, triggerAlert }) {
         const chunkBuffer = await chunkBlob.arrayBuffer();
         const chunkHash = await sha256Hex(chunkBuffer);
         await api.uploadChunk(fileId, i, chunkHash, chunkBlob);
-        setDriveUploadProgress(Math.round(((i + 1) / totalChunks) * 80));
+        setDriveUploadProgress(Math.round(((i + 1) / totalChunks) * 95)); // chunks = 0-95%, 100 only after server completeUpload
       }
 
       await api.completeUpload(fileId);
@@ -334,8 +339,16 @@ export default function useDrive({ user, triggerAlert }) {
       return;
     }
     try {
-      const encBlob        = await api.downloadFileAttachment(record.cloudFileId);
+      // SEC-FE FE-03 residual: refuse to buffer a cloud blob beyond the safe cap
+      // before decrypting it (Content-Length abort + post-download size check).
+      const encBlob        = await api.downloadFileAttachment(record.cloudFileId, { maxBytes: MAX_DRIVE_CLOUD_DOWNLOAD_BYTES });
+      if (exceedsLimit(encBlob?.size, MAX_DRIVE_CLOUD_DOWNLOAD_BYTES)) {
+        throw limitError('Die Cloud-Datei', MAX_DRIVE_CLOUD_DOWNLOAD_BYTES);
+      }
       const decryptedBlob  = await crypto.decryptFileSymmetric(encBlob, record.keyHex, record.ivHex);
+      if (exceedsLimit(decryptedBlob?.size, MAX_DRIVE_CLOUD_DOWNLOAD_BYTES)) {
+        throw limitError('Die Cloud-Datei', MAX_DRIVE_CLOUD_DOWNLOAD_BYTES);
+      }
       const typedBlob      = new Blob([decryptedBlob], { type: record.mimeType || 'application/octet-stream' });
       const url = URL.createObjectURL(typedBlob);
       const a   = document.createElement('a');

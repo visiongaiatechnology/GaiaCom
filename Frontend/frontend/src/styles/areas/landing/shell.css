@@ -1,0 +1,446 @@
+/* ============================================================================
+   VGT GLASS 2100 — LANDING SHELL & HERO
+   Scroll container, floating navigation, editorial hero, spatial Aegis Seal.
+   ========================================================================== */
+
+.vgt-public {
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  background: transparent;
+}
+
+.vgt-landing {
+  position: relative;
+  min-height: 100dvh;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-landing__main {
+  width: min(1180px, 100% - 2 * clamp(20px, 5vw, 64px));
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(64px, 9vw, 116px);
+  padding-bottom: clamp(48px, 7vw, 96px);
+}
+
+/* ---------- Header ---------- */
+.vgt-landing-header {
+  position: sticky;
+  top: clamp(10px, 2vw, 18px);
+  z-index: var(--vgt-z-navigation);
+  width: min(1180px, 100% - 2 * clamp(20px, 5vw, 64px));
+  margin: clamp(10px, 2vw, 18px) auto 0;
+}
+
+.vgt-landing-header__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-4);
+  padding: 10px 12px 10px 16px;
+  border-radius: var(--vgt-radius-floating);
+}
+
+.vgt-landing-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  text-decoration: none;
+}
+
+.vgt-landing-nav ul {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vgt-landing-nav a {
+  display: inline-block;
+  padding: 8px 11px;
+  border-radius: var(--vgt-radius-control);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 550;
+  text-decoration: none;
+  transition: color var(--vgt-dur-micro) ease, background-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-landing-nav a:hover {
+  color: var(--vgt-text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.vgt-landing-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-landing-header__actions .btn-ghost {
+  font-size: var(--vgt-text-xs);
+  color: var(--vgt-text-muted);
+}
+
+.vgt-landing-header__actions .btn-primary {
+  padding: 0 var(--vgt-space-4);
+  min-height: 36px;
+  font-size: var(--vgt-text-sm);
+}
+
+.vgt-landing-header__burger { display: none; }
+
+/* ---------- Language select ---------- */
+.vgt-lang {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.vgt-lang__select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 34px;
+  padding: 0 28px 0 10px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vgt-lang__select:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-lang__chevron {
+  position: absolute;
+  right: 9px;
+  pointer-events: none;
+  color: var(--vgt-text-muted);
+}
+
+/* ---------- Mobile sheet ---------- */
+.vgt-landing-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: var(--vgt-z-modal);
+}
+
+.vgt-landing-sheet__scrim {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(4, 6, 9, 0.6);
+  backdrop-filter: blur(3px);
+}
+
+.vgt-landing-sheet__panel {
+  position: absolute;
+  inset: 8px 8px auto 8px;
+  padding: var(--vgt-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  animation: vgt-rise var(--vgt-dur-view) var(--vgt-ease-spring) both;
+}
+
+.vgt-landing-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vgt-landing-sheet__nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.vgt-landing-sheet__nav a,
+.vgt-landing-sheet__nav button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 13px 4px;
+  border: 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  background: none;
+  color: var(--vgt-text-primary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-md);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.vgt-landing-sheet__nav a svg,
+.vgt-landing-sheet__nav button svg { color: var(--vgt-text-muted); }
+
+.vgt-landing-sheet__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+}
+
+/* ---------- Hero ---------- */
+.vgt-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+  padding-top: clamp(48px, 8vh, 96px);
+  min-height: min(760px, calc(100dvh - 120px));
+}
+
+.vgt-hero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-5);
+  max-width: 620px;
+}
+
+.vgt-hero__title {
+  font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-display);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.032em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.vgt-hero__lead {
+  margin: 0;
+  max-width: 54ch;
+  font-size: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  line-height: 1.6;
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-hero__cta {
+  min-height: 46px;
+  padding: 0 var(--vgt-space-5);
+  font-size: var(--vgt-text-md);
+}
+
+.vgt-hero__facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: var(--vgt-space-2) 0 0;
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+  padding-top: var(--vgt-space-4);
+}
+
+.vgt-hero__facts > div {
+  padding-right: var(--vgt-space-3);
+  border-right: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-hero__facts > div:last-child { border-right: 0; }
+
+.vgt-hero__facts dt {
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--vgt-text-muted);
+  margin-bottom: 4px;
+}
+
+.vgt-hero__facts dd {
+  margin: 0;
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-hero__note {
+  margin: 0;
+  max-width: 54ch;
+  font-size: var(--vgt-text-xs);
+  line-height: 1.55;
+  color: var(--vgt-text-muted);
+  padding-left: var(--vgt-space-3);
+  border-left: 2px solid var(--vgt-pigment-line);
+}
+
+.vgt-hero__visual {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- Aegis Seal (spatial signature) ---------- */
+.vgt-seal {
+  width: min(460px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-5);
+}
+
+.vgt-seal__frame {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.vgt-seal__stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.vgt-seal__halo {
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, rgba(111, 195, 178, 0.10), transparent 72%),
+    radial-gradient(closest-side at 68% 28%, rgba(201, 168, 119, 0.08), transparent 60%);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+.vgt-seal__ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.vgt-seal__ring--outer {
+  width: 92%;
+  height: 92%;
+  border-top-color: rgba(132, 167, 201, 0.55);
+  border-right-color: rgba(132, 167, 201, 0.16);
+  box-shadow: inset 0 0 40px rgba(132, 167, 201, 0.06);
+  rotate: -18deg;
+}
+
+.vgt-seal__ring--mid {
+  width: 68%;
+  height: 68%;
+  border-top-color: rgba(111, 195, 178, 0.68);
+  border-left-color: rgba(111, 195, 178, 0.20);
+  box-shadow: inset 0 0 32px rgba(111, 195, 178, 0.07);
+  rotate: 34deg;
+}
+
+.vgt-seal__ring--inner {
+  width: 45%;
+  height: 45%;
+  border-top-color: rgba(201, 168, 119, 0.62);
+  border-right-color: rgba(201, 168, 119, 0.24);
+  box-shadow: inset 0 0 24px rgba(201, 168, 119, 0.06);
+  rotate: -64deg;
+}
+
+.vgt-seal__core {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  color: var(--vgt-pigment);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.02));
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke-strong);
+  box-shadow: var(--vgt-elevation-3), var(--vgt-inner-highlight);
+  backdrop-filter: blur(var(--vgt-blur-2));
+  -webkit-backdrop-filter: blur(var(--vgt-blur-2));
+}
+
+.vgt-seal__legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-seal__legend-item {
+  display: grid;
+  grid-template-columns: 8px 22px minmax(96px, auto) 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 2px;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-seal__legend-marker {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--vgt-text-muted);
+}
+
+.vgt-seal__legend-item--titan .vgt-seal__legend-marker { background: var(--vgt-t-400); }
+.vgt-seal__legend-item--sage .vgt-seal__legend-marker { background: var(--vgt-pigment); }
+.vgt-seal__legend-item--bronze .vgt-seal__legend-marker { background: var(--vgt-b-400); }
+
+.vgt-seal__legend-layer {
+  font-family: var(--vgt-font-mono);
+  font-size: 10px;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-seal__legend-name {
+  font-weight: 620;
+  color: var(--vgt-text-primary);
+  white-space: nowrap;
+}
+
+.vgt-seal__legend-role {
+  color: var(--vgt-text-muted);
+  text-align: right;
+}
+
+.vgt-seal__caption {
+  margin: 0;
+  font-size: var(--vgt-text-xs);
+  line-height: 1.55;
+  color: var(--vgt-text-muted);
+}
+
+/* ---------- Section rhythm ---------- */
+.vgt-section-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  max-width: 760px;
+  margin-bottom: clamp(28px, 4vw, 44px);
+}
+
+.vgt-section-head .vgt-body { margin: 0; }

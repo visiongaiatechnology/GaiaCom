@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 /**
  * @fileoverview Error classes for LibOQS operations
  * @module @oqs/liboqs-js/errors

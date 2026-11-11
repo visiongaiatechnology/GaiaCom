@@ -16,7 +16,7 @@ npm run build
 npm audit --audit-level=low
 ```
 
-`npm run build` writes immutable, content-hashed production assets to `dist/`. Deploy the contents of that directory behind the CSP and security headers in `docs/deployment-guide.md`.
+`npm run build` writes immutable, content-hashed production assets to `dist/`. Deploy the contents of that directory behind the CSP and reverse-proxy security headers documented in [the root README](../../README.md#become-a-node-operator) and [BETA_LIMITATIONS.md](../../docs/BETA_LIMITATIONS.md).
 
 ## Development
 

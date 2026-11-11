@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 import { isTrustedDesktopLocation } from './api';
 
 describe('desktop runtime origin boundary', () => {

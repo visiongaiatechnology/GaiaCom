@@ -329,6 +329,42 @@ func TestSecurityHandlerHasRoleAllowsBootstrapAndCredentialNodeOperator(t *testi
 	}
 }
 
+// P-01 regression: a local part that matches the bootstrap operator but belongs
+// to a foreign domain must never grant a privileged role.
+func TestSecurityHandlerHasRoleRejectsForeignDomainLocalPart(t *testing.T) {
+	store := NewMockStore()
+	sys, err := NewSecuritySystem(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sys.Store = store
+	handler := NewSecurityHandler(sys)
+
+	userID := uuid.New()
+	store.userIdentities[userID] = []models.Identity{{
+		ID:     uuid.New(),
+		UserID: userID,
+		GaiaID: "operator@evil.example",
+	}}
+
+	previousBootstrapID, previousBootstrapIDs := BootstrapGaiaID, BootstrapGaiaIDs
+	BootstrapGaiaID, BootstrapGaiaIDs = "@operator:gaiacom.local", nil
+	defer func() { BootstrapGaiaID, BootstrapGaiaIDs = previousBootstrapID, previousBootstrapIDs }()
+
+	if handler.hasRole(context.Background(), userID, "node_operator") {
+		t.Fatal("foreign-domain local part must not match the bootstrap operator")
+	}
+
+	store.userIdentities[userID] = []models.Identity{{
+		ID:     uuid.New(),
+		UserID: userID,
+		GaiaID: "@operator:gaiacom.local",
+	}}
+	if !handler.hasRole(context.Background(), userID, "node_operator") {
+		t.Fatal("exact fully-qualified bootstrap identity must match")
+	}
+}
+
 func TestAttachmentGuardRejectsBundledNativeAttachmentAttacks(t *testing.T) {
 	store := NewMockStore()
 	sys := &SecuritySystem{

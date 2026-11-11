@@ -1,0 +1,133 @@
+/* ============================================================================
+   VGT GLASS 2100 — TYPOGRAPHY
+   System-first type (no CDN fonts). Hierarchy is built from position, size,
+   weight, tracking, space and colour — never from gradient text.
+   Roles: display / h1..h4 / body / label / eyebrow / caption / numeric / mono.
+   ========================================================================== */
+
+:root {
+  --vgt-measure: 68ch;
+}
+
+.vgt-display {
+  font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-display);
+  font-weight: 600;
+  line-height: var(--vgt-leading-tight);
+  letter-spacing: var(--vgt-tracking-tight);
+  color: var(--vgt-text-primary);
+  text-wrap: balance;
+}
+
+.vgt-h1 {
+  font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-3xl);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.018em;
+  color: var(--vgt-text-primary);
+  text-wrap: balance;
+}
+
+.vgt-h2 {
+  font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-2xl);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.012em;
+  color: var(--vgt-text-primary);
+  text-wrap: balance;
+}
+
+.vgt-h3 {
+  font-size: var(--vgt-text-xl);
+  font-weight: 620;
+  line-height: var(--vgt-leading-snug);
+  letter-spacing: -0.008em;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-h4 {
+  font-size: var(--vgt-text-lg);
+  font-weight: 620;
+  line-height: var(--vgt-leading-snug);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-body {
+  font-size: var(--vgt-text-md);
+  line-height: var(--vgt-leading-normal);
+  color: var(--vgt-text-secondary);
+  max-width: var(--vgt-measure);
+  text-wrap: pretty;
+}
+
+.vgt-body--sm {
+  font-size: var(--vgt-text-sm);
+}
+
+.vgt-label {
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vgt-text-muted);
+}
+
+/* The single reusable brand signal: short upper-case eyebrow with pigment rule. */
+.vgt-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: var(--vgt-tracking-wide);
+  text-transform: uppercase;
+  color: var(--vgt-pigment);
+}
+
+.vgt-eyebrow::before {
+  content: '';
+  width: 18px;
+  height: 1px;
+  background: var(--vgt-pigment-line);
+  flex: none;
+}
+
+.vgt-caption {
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
+  color: var(--vgt-text-muted);
+}
+
+.vgt-numeric {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+  letter-spacing: -0.01em;
+}
+
+.vgt-mono {
+  font-family: var(--vgt-font-mono);
+  font-size: 0.8125em;
+  letter-spacing: 0;
+  font-variant-ligatures: none;
+}
+
+/* Technical identifiers are data, not decoration: restrained colour, no glow. */
+.vgt-id {
+  font-family: var(--vgt-font-mono);
+  font-size: var(--vgt-text-xs);
+  color: var(--vgt-text-muted);
+  word-break: break-all;
+}
+
+/* Editorial heading treatment for full-bleed product surfaces. */
+.vgt-title-em {
+  color: var(--vgt-pigment);
+  font-style: normal;
+}
+
+body.light-mode .vgt-body { color: var(--vgt-text-secondary); }
+body.light-mode .vgt-caption { color: var(--vgt-text-muted); }
+body.light-mode .vgt-label { color: var(--vgt-text-muted); }
+

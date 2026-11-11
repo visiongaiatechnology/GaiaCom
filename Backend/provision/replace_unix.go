@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 //go:build !windows
 
 package provision

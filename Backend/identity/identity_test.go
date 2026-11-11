@@ -7,9 +7,11 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -43,7 +45,7 @@ func TestIdentityService(t *testing.T) {
 	_, store, cleanup := setupTestIdentityDBAndStore(t)
 	defer cleanup()
 
-	svc := NewIdentityService(store)
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
 
 	user1 := &models.User{
 		ID:           uuid.New(),
@@ -145,7 +147,7 @@ func TestSaveHumanProofPersistsInTrustPassport(t *testing.T) {
 	_, store, cleanup := setupTestIdentityDBAndStore(t)
 	defer cleanup()
 
-	svc := NewIdentityService(store)
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
 	user := &models.User{ID: uuid.New(), Username: "alice", PasswordHash: "hash", PublicKey: "pk"}
 	if err := store.CreateUser(user); err != nil {
 		t.Fatalf("failed to create user: %v", err)
@@ -202,7 +204,7 @@ func TestSaveHumanProofPersistsHybridMLDSA87Suite(t *testing.T) {
 	_, store, cleanup := setupTestIdentityDBAndStore(t)
 	defer cleanup()
 
-	svc := NewIdentityService(store)
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
 	user := &models.User{ID: uuid.New(), Username: "alice", PasswordHash: "hash", PublicKey: "pk"}
 	if err := store.CreateUser(user); err != nil {
 		t.Fatalf("failed to create user: %v", err)
@@ -275,7 +277,7 @@ func TestSaveHumanProofRejectsHybridMLDSA87Mismatch(t *testing.T) {
 	_, store, cleanup := setupTestIdentityDBAndStore(t)
 	defer cleanup()
 
-	svc := NewIdentityService(store)
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
 	user := &models.User{ID: uuid.New(), Username: "alice", PasswordHash: "hash", PublicKey: "pk"}
 	_ = store.CreateUser(user)
 	publicKey, privateKey, _ := ed25519.GenerateKey(nil)
@@ -333,7 +335,7 @@ func TestSaveHumanProofRejectsWrongSigner(t *testing.T) {
 	_, store, cleanup := setupTestIdentityDBAndStore(t)
 	defer cleanup()
 
-	svc := NewIdentityService(store)
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
 	user := &models.User{ID: uuid.New(), Username: "alice", PasswordHash: "hash", PublicKey: "pk"}
 	_ = store.CreateUser(user)
 	publicKey, _, _ := ed25519.GenerateKey(nil)
@@ -373,7 +375,7 @@ func TestIdentityHandler(t *testing.T) {
 	_, store, cleanup := setupTestIdentityDBAndStore(t)
 	defer cleanup()
 
-	svc := NewIdentityService(store)
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
 	handler := NewIdentityHandler(svc)
 
 	user1 := &models.User{
@@ -495,5 +497,212 @@ func TestIdentityHandler(t *testing.T) {
 	_ = json.Unmarshal(rec.Body.Bytes(), &neutralResp)
 	if neutralResp.Found || string(neutralResp.PublicRecord) != "null" {
 		t.Errorf("expected neutral unresolved identity response, got body %s", rec.Body.String())
+	}
+}
+
+// P-03 / FIND-010: unauthenticated remote resolution must stay ephemeral.
+func TestResolveRemoteIdentityDoesNotPersist(t *testing.T) {
+	_, store, cleanup := setupTestIdentityDBAndStore(t)
+	defer cleanup()
+
+	var requests int64
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt64(&requests, 1)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":           uuid.New().String(),
+			"gaiaId":       "@target:remote.example",
+			"displayName":  "Remote Target",
+			"publicRecord": `{"public_keys":{"identity":"deadbeef"}}`,
+		})
+	}))
+	defer ts.Close()
+
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
+	svc.httpClient = ts.Client()
+	svc.resolutionEndpoint = func(gaiaID, domain, scheme string) string {
+		return ts.URL + "/api/v1/public/identity/" + gaiaID
+	}
+
+	resolved, err := svc.ResolveRemoteIdentity("@target:remote.example")
+	if err != nil {
+		t.Fatalf("ResolveRemoteIdentity failed: %v", err)
+	}
+	if resolved["resolvedRemotely"] != true || resolved["verified"] != false || resolved["persisted"] != false {
+		t.Fatalf("expected ephemeral provenance markers, got %#v", resolved)
+	}
+	if resolved["publicRecord"] == "" || resolved["displayName"] != "Remote Target" {
+		t.Fatalf("expected remote payload preserved in ephemeral response, got %#v", resolved)
+	}
+
+	// No persistent identity row may be created, and no local lookup may succeed.
+	count, err := store.CountIdentitiesByGaiaID("@target:remote.example")
+	if err != nil {
+		t.Fatalf("CountIdentitiesByGaiaID: %v", err)
+	}
+	if count != 0 {
+		t.Fatalf("remote resolution persisted %d identity row(s)", count)
+	}
+	if _, err := store.FindIdentityByGaiaID("@target:remote.example"); err == nil {
+		t.Fatal("remote resolution created a persistent identity row")
+	}
+	if _, err := svc.GetIdentityByGaiaID("@target:remote.example"); err == nil {
+		t.Fatal("service served a remotely resolved stub as a local identity")
+	}
+
+	// Second lookup within the TTL is served from the in-memory cache.
+	if _, err := svc.ResolveRemoteIdentity("@target:remote.example"); err != nil {
+		t.Fatalf("cached ResolveRemoteIdentity failed: %v", err)
+	}
+	if got := atomic.LoadInt64(&requests); got != 1 {
+		t.Fatalf("expected 1 outbound request (cache hit), got %d", got)
+	}
+
+	// P-02: a foreign-domain identity can no longer be created locally, even
+	// though the remote lookup did not persist a stub.
+	user := &models.User{ID: uuid.New(), Username: "localowner", PasswordHash: "hash", PublicKey: "pk"}
+	if err := store.CreateUser(user); err != nil {
+		t.Fatalf("create user: %v", err)
+	}
+	if _, err := svc.CreateIdentity(user.ID, CreateIdentityInput{
+		GaiaID:       "@target:remote.example",
+		DisplayName:  "Local Owner",
+		PublicRecord: map[string]interface{}{"key": "value"},
+	}); err == nil {
+		t.Fatal("foreign-domain identity creation must be rejected by the local-domain binding")
+	}
+}
+
+func TestGetIdentityByGaiaIDIgnoresUnownedLegacyStub(t *testing.T) {
+	_, store, cleanup := setupTestIdentityDBAndStore(t)
+	defer cleanup()
+
+	stub := &models.Identity{
+		ID:           uuid.New(),
+		UserID:       uuid.Nil,
+		GaiaID:       "@legacy:remote.example",
+		DisplayName:  "Legacy Stub",
+		PublicRecord: models.JSONB([]byte(`{"public_keys":{"identity":"deadbeef"}}`)),
+		IsActive:     true,
+	}
+	if err := store.CreateIdentity(stub); err != nil {
+		t.Fatalf("create legacy stub: %v", err)
+	}
+
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
+	if _, err := svc.GetIdentityByGaiaID("@legacy:remote.example"); err == nil {
+		t.Fatal("unowned legacy stub was served as a local identity")
+	}
+}
+
+func TestResolveRemoteIdentityRateLimited(t *testing.T) {
+	_, store, cleanup := setupTestIdentityDBAndStore(t)
+	defer cleanup()
+
+	var requests int64
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt64(&requests, 1)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":           uuid.New().String(),
+			"displayName":  "Remote",
+			"publicRecord": `{"public_keys":{"identity":"deadbeef"}}`,
+		})
+	}))
+	defer ts.Close()
+
+	nowValue := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
+	svc.httpClient = ts.Client()
+	svc.now = func() time.Time { return nowValue }
+	svc.resolutionEndpoint = func(gaiaID, domain, scheme string) string {
+		return ts.URL + "/api/v1/public/identity/" + gaiaID
+	}
+
+	for i := 0; i < remoteResolutionDomainLimit; i++ {
+		gaia := fmt.Sprintf("@user%d:limited.example", i)
+		if _, err := svc.ResolveRemoteIdentity(gaia); err != nil {
+			t.Fatalf("resolution %d within budget failed: %v", i, err)
+		}
+	}
+	if _, err := svc.ResolveRemoteIdentity("@user-over-limit:limited.example"); err == nil || !strings.Contains(err.Error(), "temporarily unavailable") {
+		t.Fatalf("expected rate-limit error, got %v", err)
+	}
+	if got := atomic.LoadInt64(&requests); got != remoteResolutionDomainLimit {
+		t.Fatalf("expected %d outbound requests, got %d", remoteResolutionDomainLimit, got)
+	}
+
+	// A different destination domain has its own budget.
+	if _, err := svc.ResolveRemoteIdentity("@user0:other.example"); err != nil {
+		t.Fatalf("resolution for a different domain failed: %v", err)
+	}
+
+	// After the window elapses the domain budget resets.
+	nowValue = nowValue.Add(remoteResolutionWindow + time.Second)
+	if _, err := svc.ResolveRemoteIdentity("@user-after-window:limited.example"); err != nil {
+		t.Fatalf("resolution after window reset failed: %v", err)
+	}
+}
+
+func TestResolveRemoteIdentityFallbackBounded(t *testing.T) {
+	_, store, cleanup := setupTestIdentityDBAndStore(t)
+	defer cleanup()
+
+	var requests int64
+	var fallbackRequests int64
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt64(&requests, 1)
+		if r.URL.Query().Get("d") != "alt" {
+			http.Error(w, "not found", http.StatusNotFound)
+			return
+		}
+		atomic.AddInt64(&fallbackRequests, 1)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"id":           uuid.New().String(),
+			"displayName":  "Fallback Target",
+			"publicRecord": `{"public_keys":{"identity":"deadbeef"}}`,
+		})
+	}))
+	defer ts.Close()
+
+	pub := make([]byte, ed25519.PublicKeySize)
+	for i := 1; i <= 5; i++ {
+		domain := fmt.Sprintf("alt%d.example", i)
+		if err := store.CreateFederationServer(&models.FederationServer{
+			Domain:      domain,
+			PublicKey:   pub,
+			FirstSeenAt: time.Now().UTC(),
+			LastSeenAt:  time.Now().UTC(),
+		}); err != nil {
+			t.Fatalf("create federation server %s: %v", domain, err)
+		}
+	}
+	if err := store.SetFederationServerBlocked(context.Background(), "alt1.example", true); err != nil {
+		t.Fatalf("block alt1: %v", err)
+	}
+
+	svc := NewIdentityService(store, WithLocalDomain("gaiacom.local"))
+	svc.httpClient = ts.Client()
+	svc.resolutionEndpoint = func(gaiaID, domain, scheme string) string {
+		kind := "primary"
+		if strings.HasPrefix(domain, "alt") {
+			kind = "alt"
+		}
+		return ts.URL + "/api/v1/public/identity/" + gaiaID + "?d=" + kind
+	}
+
+	resolved, err := svc.ResolveRemoteIdentity("@target:primary.example")
+	if err != nil {
+		t.Fatalf("fallback resolution failed: %v", err)
+	}
+	if resolved["displayName"] != "Fallback Target" {
+		t.Fatalf("unexpected fallback result: %#v", resolved)
+	}
+	if got := atomic.LoadInt64(&fallbackRequests); got != maxRemoteFallbackServers {
+		t.Fatalf("expected %d fallback attempts, got %d", maxRemoteFallbackServers, got)
+	}
+	if got := atomic.LoadInt64(&requests); got != 1+maxRemoteFallbackServers {
+		t.Fatalf("expected %d total outbound requests, got %d", 1+maxRemoteFallbackServers, got)
 	}
 }

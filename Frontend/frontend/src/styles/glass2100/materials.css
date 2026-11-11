@@ -1,0 +1,227 @@
+/* ============================================================================
+   VGT GLASS 2100 — MATERIALS & SURFACES
+   Glass is the material language, not the decoration. Five functional levels:
+     Z1 content canvas (opaque / near-opaque, readability first)
+     Z2 glass surface (navigation, toolbars, inspectors)
+     Z3 floating glass (palette, popover, drawer, context menu)
+     Z4 modal / critical (stable, high-contrast focus)
+   Never card-in-card-in-card. One light model: light falls from above.
+   ========================================================================== */
+
+/* ---------- Z2 — standard glass surface ---------- */
+.vgt-glass,
+.glass-panel {
+  position: relative;
+  background: var(--vgt-glass-2);
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke);
+  border-radius: var(--vgt-radius-panel);
+  box-shadow: var(--vgt-elevation-2), var(--vgt-inner-highlight);
+  backdrop-filter: blur(var(--vgt-blur-2)) saturate(1.12);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-2)) saturate(1.12);
+  transition: border-color var(--vgt-dur-component) var(--vgt-ease-out),
+              background-color var(--vgt-dur-component) var(--vgt-ease-out);
+}
+
+/* Top light edge — the only recurring reflection in the system. */
+.vgt-glass::after,
+.glass-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, var(--vgt-glass-highlight), transparent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.glass-panel:hover {
+  border-color: var(--vgt-glass-stroke-strong);
+  transform: none;
+}
+
+/* ---------- Scroll containers (panes own their scroll, never the page) ---------- */
+.vgt-scroll-page {
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+/* ---------- Z1 — content canvas (task-first, opaque) ---------- */
+.vgt-canvas {
+  background: var(--vgt-bg-1);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+}
+
+/* ---------- Quiet navigation glass ---------- */
+.vgt-glass--quiet {
+  background: var(--vgt-glass-1);
+  box-shadow: none;
+  backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.08);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.08);
+}
+
+/* ---------- Z3 — floating context ---------- */
+.vgt-glass--floating {
+  background: var(--vgt-glass-3);
+  border-radius: var(--vgt-radius-floating);
+  box-shadow: var(--vgt-elevation-3), var(--vgt-inner-highlight);
+  backdrop-filter: blur(var(--vgt-blur-3)) saturate(1.15);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-3)) saturate(1.15);
+}
+
+/* ---------- Z4 — modal / critical ---------- */
+.vgt-glass--modal {
+  background: var(--vgt-glass-4);
+  border-radius: var(--vgt-radius-modal);
+  border-color: var(--vgt-glass-stroke-strong);
+  box-shadow: var(--vgt-elevation-4), var(--vgt-inner-highlight);
+  backdrop-filter: blur(var(--vgt-blur-3)) saturate(1.1);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-3)) saturate(1.1);
+}
+
+/* ---------- Hairlines & dividers ---------- */
+.vgt-hairline {
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-divider {
+  height: var(--vgt-hairline);
+  border: 0;
+  background: var(--vgt-divider);
+}
+
+/* ---------- Focus / selection / scrollbars ---------- */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+  border-radius: var(--vgt-radius-xs);
+}
+
+::selection {
+  background: var(--vgt-selection);
+  color: var(--vgt-text-primary);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+
+body.light-mode * {
+  scrollbar-color: rgba(16, 32, 38, 0.22) transparent;
+}
+
+::-webkit-scrollbar,
+.gaia-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track,
+.gaia-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb,
+.gaia-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: var(--vgt-radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover,
+.gaia-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--vgt-border-pigment);
+}
+
+body.light-mode ::-webkit-scrollbar-thumb,
+body.light-mode .gaia-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(16, 32, 38, 0.20);
+}
+
+body.light-mode ::-webkit-scrollbar-thumb:hover,
+body.light-mode .gaia-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(43, 122, 107, 0.45);
+}
+
+/* ---------- Status material (never colour alone) ---------- */
+.vgt-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  min-height: 22px;
+  padding: 2px 10px;
+  border-radius: var(--vgt-radius-pill);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.vgt-status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.vgt-status--ok { color: var(--vgt-success); border-color: rgba(91, 190, 146, 0.32); background: var(--vgt-success-soft); }
+.vgt-status--warn { color: var(--vgt-warning); border-color: rgba(216, 168, 78, 0.32); background: var(--vgt-warning-soft); }
+.vgt-status--danger { color: var(--vgt-danger); border-color: rgba(228, 112, 111, 0.32); background: var(--vgt-danger-soft); }
+.vgt-status--info { color: var(--vgt-info); border-color: rgba(127, 169, 214, 0.32); background: var(--vgt-info-soft); }
+.vgt-status--signed { color: var(--vgt-accent-bronze); border-color: rgba(201, 168, 119, 0.34); background: rgba(201, 168, 119, 0.10); }
+.vgt-status--idle { color: var(--vgt-text-muted); }
+
+/* ---------- Adaptive material budget ---------- */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --vgt-backdrop-enabled: 0; }
+
+  .vgt-glass,
+  .glass-panel,
+  .vgt-glass--quiet,
+  .vgt-glass--floating,
+  .vgt-glass--modal {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--vgt-bg-2);
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --vgt-glass-stroke: rgba(255, 255, 255, 0.28);
+    --vgt-glass-stroke-strong: rgba(255, 255, 255, 0.45);
+    --vgt-border: rgba(255, 255, 255, 0.30);
+    --vgt-border-strong: rgba(255, 255, 255, 0.52);
+    --vgt-text-secondary: var(--vgt-hc-text-secondary);
+    --vgt-text-muted: var(--vgt-hc-text-muted);
+  }
+
+  .vgt-glass,
+  .glass-panel {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--vgt-bg-2);
+  }
+}
+
+@media (forced-colors: active) {
+  .vgt-glass,
+  .glass-panel,
+  .vgt-glass--floating,
+  .vgt-glass--modal {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid CanvasText;
+    box-shadow: none;
+    background: Canvas;
+  }
+}

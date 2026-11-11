@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -56,10 +57,24 @@ func (h *Handler) InitUpload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	metadata, err := h.Service.InitializeUpload(userID, req.FileName, req.FileSize, req.MimeType, req.FileHash)
+	// Coupled FIND-012 hardening: reject active-web-content filenames/MIMEs even
+	// though the payload itself is client-side encrypted at rest.
+	if IsDangerousWebUploadName(req.FileName) || IsDangerousWebUploadMIME(req.MimeType) {
+		httpx.WriteError(w, http.StatusBadRequest, "Upload rejected")
+		return
+	}
+
+	metadata, err := h.Service.InitializeUploadContext(r.Context(), userID, req.FileName, req.FileSize, req.MimeType, req.FileHash)
 	if err != nil {
 		log.Printf("storage init rejected: %v", err)
-		httpx.WriteError(w, http.StatusBadRequest, "Upload rejected")
+		switch {
+		case errors.Is(err, ErrStorageQuotaExceeded):
+			httpx.WriteError(w, http.StatusRequestEntityTooLarge, "Storage quota exceeded")
+		case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
+			httpx.WriteError(w, http.StatusRequestTimeout, "Upload request timed out")
+		default:
+			httpx.WriteError(w, http.StatusBadRequest, "Upload rejected")
+		}
 		return
 	}
 
@@ -236,7 +251,11 @@ func (h *Handler) DownloadFile(w http.ResponseWriter, r *http.Request) {
 		httpx.WriteError(w, http.StatusRequestedRangeNotSatisfiable, "Requested range is not satisfiable")
 		return
 	}
-	w.Header().Set("Content-Type", metadata.MimeType)
+	// FIND-012 (partial): never echo a client-declared content type. Only the
+	// server-side safe media allowlist may be rendered; everything else is
+	// forced to application/octet-stream and stays a download attachment.
+	w.Header().Set("Content-Type", DownloadContentType(metadata.MimeType))
+	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Accept-Ranges", "bytes")
 	w.Header().Set("Content-Length", strconv.FormatInt(end-start+1, 10))
 	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, safeDownloadFileName(metadata.FileName)))

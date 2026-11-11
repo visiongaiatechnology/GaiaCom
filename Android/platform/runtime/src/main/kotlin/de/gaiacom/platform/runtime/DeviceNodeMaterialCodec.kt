@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package de.gaiacom.platform.runtime
 
 import de.gaiacom.platform.node.DeviceNodeMaterial

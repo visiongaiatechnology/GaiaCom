@@ -1,0 +1,297 @@
+/* ============================================================================
+   VGT GLASS 2100 — MESSAGING: GROUP ROOM SURFACE
+   Room rail (Z2), channel header, member panel and the compact mobile drawer.
+   Part sheet of areas/messaging.css.
+   ========================================================================== */
+
+.vgt-group {
+  position: relative;
+  display: flex;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--vgt-bg-1);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-group--empty {
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Room rail: channels, policy, invite, leave ---------- */
+.vgt-group__side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  width: 288px;
+  flex: none;
+  min-height: 0;
+  padding: var(--vgt-space-4) var(--vgt-space-3) calc(var(--vgt-space-4) + env(safe-area-inset-bottom));
+  border-right: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-glass-1);
+  backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.05);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.05);
+  overflow-y: auto;
+}
+
+.vgt-group__side-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-group__side-title {
+  min-width: 0;
+}
+
+.vgt-group__room-name {
+  margin: 2px 0 0;
+  overflow: hidden;
+  font-size: var(--vgt-text-lg);
+  font-weight: 620;
+  letter-spacing: -0.008em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-group__side-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.vgt-group__side-close {
+  display: none;
+}
+
+.vgt-group__channels {
+  flex: 1;
+  min-height: 0;
+}
+
+.vgt-group__channels-label {
+  margin: 0 0 6px;
+  padding: 0 var(--vgt-space-2);
+}
+
+.vgt-group__channels ul {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vgt-group__channel {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  width: 100%;
+  padding: 7px var(--vgt-space-2);
+  border: var(--vgt-hairline) solid transparent;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease,
+              border-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-group__channel svg {
+  flex: none;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-group__channel:hover {
+  background: var(--vgt-bg-4);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-group__channel.is-active {
+  border-color: var(--vgt-pigment-line);
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-text-primary);
+  font-weight: 600;
+}
+
+.vgt-group__channel.is-active svg {
+  color: var(--vgt-pigment);
+}
+
+.vgt-group__side-empty {
+  padding: var(--vgt-space-2);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-group__policy {
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-group__policy-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+}
+
+.vgt-group__policy .vgt-caption {
+  margin: 4px 0 0;
+}
+
+.vgt-group__invite {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) dashed var(--vgt-border-strong);
+  border-radius: var(--vgt-radius-control);
+}
+
+.vgt-group__invite-code {
+  display: block;
+  color: var(--vgt-text-secondary);
+  font-size: 0.65rem;
+  word-break: break-all;
+}
+
+.vgt-group__invite .btn-action {
+  align-self: flex-start;
+}
+
+.vgt-group__leave {
+  width: 100%;
+  min-height: 40px;
+}
+
+@media (pointer: coarse) {
+  .vgt-group__channel {
+    min-height: 44px;
+  }
+}
+/* ---------- Main channel column ---------- */
+.vgt-group__main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.vgt-group__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  flex: none;
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-glass-1);
+  backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.05);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.05);
+}
+
+.vgt-group__head-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  min-width: 0;
+  flex: 1;
+}
+
+.vgt-group__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-3);
+  color: var(--vgt-pigment);
+}
+
+.vgt-group__head-copy {
+  min-width: 0;
+}
+
+.vgt-group__channel-name {
+  margin: 1px 0 0;
+  overflow: hidden;
+  font-size: var(--vgt-text-lg);
+  font-weight: 620;
+  letter-spacing: -0.008em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-group__channel-id {
+  margin: 1px 0 0;
+  font-size: 0.65rem;
+}
+
+.vgt-group__typing {
+  margin: 3px 0 0;
+  color: var(--vgt-pigment);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-group__head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  flex: none;
+}
+
+.vgt-group__search {
+  width: 190px;
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: var(--vgt-text-sm);
+}
+
+.vgt-group__channels-toggle {
+  display: none;
+}
+
+.vgt-group__composer-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 var(--vgt-space-2);
+  color: var(--vgt-warning);
+  font-size: var(--vgt-text-xs);
+}
+
+/* Derived security state inside the room rail / channel head (M-15). */
+.vgt-group__policy-chip {
+  display: flex;
+  width: fit-content;
+  margin-top: 6px;
+}
+
+.vgt-group__policy-line {
+  margin: 6px 0 0;
+}
+
+.vgt-group__head-chip {
+  display: flex;
+  width: fit-content;
+  margin-top: 4px;
+}

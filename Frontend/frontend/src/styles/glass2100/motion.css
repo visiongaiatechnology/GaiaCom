@@ -1,0 +1,139 @@
+/* ============================================================================
+   VGT GLASS 2100 — MOTION
+   Motion explains state change. No ambient loops, no attention-seeking
+   decoration. Everything here degrades to static under reduced motion.
+   ========================================================================== */
+
+:root {
+  --vgt-motion-distance: 10px;
+}
+
+/* ---------- Functional state transitions ---------- */
+.vgt-transition {
+  transition:
+    color var(--vgt-dur-micro) ease,
+    background-color var(--vgt-dur-micro) ease,
+    border-color var(--vgt-dur-micro) ease,
+    transform var(--vgt-dur-micro) var(--vgt-ease-out),
+    opacity var(--vgt-dur-micro) ease;
+}
+
+/* ---------- Entry reveal for view-level content (one shot, not scroll-jacked) ---------- */
+@keyframes vgt-rise {
+  from { opacity: 0; transform: translateY(var(--vgt-motion-distance)); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vgt-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.vgt-enter {
+  animation: vgt-rise var(--vgt-dur-view) var(--vgt-ease-spring) both;
+}
+
+.vgt-enter--fade {
+  animation: vgt-fade var(--vgt-dur-view) var(--vgt-ease-out) both;
+}
+
+/* Stagger only when the container declares intent. */
+.vgt-enter-stagger > * {
+  animation: vgt-rise var(--vgt-dur-view) var(--vgt-ease-spring) both;
+}
+
+.vgt-enter-stagger > *:nth-child(2) { animation-delay: 40ms; }
+.vgt-enter-stagger > *:nth-child(3) { animation-delay: 80ms; }
+.vgt-enter-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.vgt-enter-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.vgt-enter-stagger > *:nth-child(6) { animation-delay: 200ms; }
+
+/* ---------- Spatial accent (CSS tier only, product-related) ----------
+   Used by the landing "Aegis Seal": three layered arcs representing the
+   X25519 + ML-KEM-1024 + HQC-256 secrets converging into one envelope.
+   Perspective is CSS-native; there is no WebGL dependency and no loop. */
+.vgt-spatial {
+  --vgt-tilt-x: 0deg;
+  --vgt-tilt-y: 0deg;
+  transform-style: preserve-3d;
+  transform: perspective(1100px) rotateX(var(--vgt-tilt-x)) rotateY(var(--vgt-tilt-y));
+  transition: transform var(--vgt-dur-view) var(--vgt-ease-out);
+}
+
+.vgt-spatial__layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.vgt-spatial__layer--1 { transform: translateZ(-46px); }
+.vgt-spatial__layer--2 { transform: translateZ(-18px); }
+.vgt-spatial__layer--3 { transform: translateZ(14px); }
+
+/* ---------- View transitions (progressive enhancement) ---------- */
+@supports (view-transition-name: none) {
+  .vgt-view-transition {
+    view-transition-name: vgt-view;
+  }
+
+  ::view-transition-old(vgt-view) {
+    animation: vgt-fade 160ms ease reverse both;
+  }
+
+  ::view-transition-new(vgt-view) {
+    animation: vgt-fade 220ms var(--vgt-ease-out) both;
+  }
+}
+
+/* ---------- Reduced motion: stop ambient/spatial motion, keep state feedback ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .vgt-spatial {
+    transform: none;
+  }
+
+  .vgt-enter,
+  .vgt-enter--fade,
+  .vgt-enter-stagger > * {
+    animation: none;
+  }
+}
+
+/* Low-end devices: no spatial transform, no blur loops. */
+@media (max-width: 480px) and (pointer: coarse) {
+  .vgt-spatial {
+    transform: none;
+  }
+}
+
+
+/* ----------------------------------------------------------------------------
+   Boot veil keyframes — migrated from the legacy reader sheet (M10 prerequisite).
+   The deleted legacy sheet must not be the only definition source.
+   -------------------------------------------------------------------------- */
+@keyframes bootPulse {
+  0% { opacity: 0; transform: translateY(16px) scale(0.96); filter: blur(8px); }
+  18% { opacity: 1; filter: blur(0); }
+  60% { transform: translateY(0) scale(1); }
+  100% { opacity: 1; transform: translateY(-4px) scale(1.02); }
+}
+
+@keyframes bootSubline {
+  0%, 24% { opacity: 0; transform: translateY(8px); }
+  50% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0.86; transform: translateY(0); }
+}
+
+@keyframes bootFadeOut {
+  0%, 78% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}

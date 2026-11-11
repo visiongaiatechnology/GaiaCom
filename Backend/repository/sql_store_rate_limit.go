@@ -62,3 +62,37 @@ func (s *SQLStore) ResetSecurityRateLimit(ctx context.Context, key string) error
 	_, err := s.db.ExecContext(ctx, `DELETE FROM security_rate_limits WHERE scope_key = ?`, key)
 	return err
 }
+
+// IncrementSecurityRateLimitBy atomically adds amount (>0) to a security
+// rate-limit counter. Used for fan-out recipient/byte budgets (P-09).
+func (s *SQLStore) IncrementSecurityRateLimitBy(ctx context.Context, key string, amount int, window time.Duration) (int, error) {
+	if ctx == nil || key == "" || window <= 0 || amount <= 0 {
+		return 0, errors.New("invalid security rate-limit request")
+	}
+	now := utcNow()
+	expiresAt := now.Add(window)
+	var count int
+	err := withSQLiteBusyRetry(ctx, func() error {
+		return s.db.QueryRowContext(
+			ctx,
+			`INSERT INTO security_rate_limits (scope_key, hit_count, window_start, expires_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?)
+			 ON CONFLICT(scope_key) DO UPDATE SET
+			   hit_count = CASE WHEN security_rate_limits.expires_at <= excluded.updated_at THEN excluded.hit_count ELSE security_rate_limits.hit_count + excluded.hit_count END,
+			   window_start = CASE WHEN security_rate_limits.expires_at <= excluded.updated_at THEN excluded.window_start ELSE security_rate_limits.window_start END,
+			   expires_at = CASE WHEN security_rate_limits.expires_at <= excluded.updated_at THEN excluded.expires_at ELSE security_rate_limits.expires_at END,
+			   updated_at = excluded.updated_at
+			 RETURNING hit_count`,
+			key,
+			amount,
+			formatTime(now),
+			formatTime(expiresAt),
+			formatTime(now),
+		).Scan(&count)
+	})
+	if err != nil {
+		return 0, err
+	}
+	_, _ = s.db.ExecContext(ctx, `DELETE FROM security_rate_limits WHERE expires_at <= ? AND scope_key <> ?`, formatTime(now), key)
+	return count, nil
+}

@@ -8,14 +8,22 @@ import (
 	"gaiacom/backend/auth"
 	"gaiacom/backend/core/uuid"
 	"gaiacom/backend/httpx"
+	"gaiacom/backend/internal/security"
 )
 
 type Handler struct {
-	service *Service
+	service  *Service
+	security *security.SecuritySystem
 }
 
-func NewHandler(service *Service) *Handler {
-	return &Handler{service: service}
+// NewHandler accepts an optional SecuritySystem so the public submit path can be
+// budgeted (P-07/FIND-007). Variadic keeps existing call sites/tests source-compatible.
+func NewHandler(service *Service, securitySystems ...*security.SecuritySystem) *Handler {
+	handler := &Handler{service: service}
+	if len(securitySystems) > 0 {
+		handler.security = securitySystems[0]
+	}
+	return handler
 }
 
 func (h *Handler) Submit(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +32,16 @@ func (h *Handler) Submit(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		httpx.WriteError(w, http.StatusBadRequest, "Invalid GaiaDrop request")
 		return
+	}
+
+	// P-07 / FIND-007: unauthenticated submit budgets (per IP, per target,
+	// global). Fail closed with 429 when the limiter or its backend rejects.
+	if h.security != nil {
+		if err := h.security.CheckGaiaDropSubmit(r.Context(), r, input.TargetGaiaID); err != nil {
+			log.Printf("gaiadrop submit throttled: %v", err)
+			httpx.WriteError(w, http.StatusTooManyRequests, "GaiaDrop request temporarily throttled")
+			return
+		}
 	}
 
 	drop, err := h.service.Submit(r.Context(), input)

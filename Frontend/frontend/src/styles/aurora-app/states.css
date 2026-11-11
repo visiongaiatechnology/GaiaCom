@@ -1,0 +1,187 @@
+/* ============================================================================
+   VGT NEON APP — STATES
+   Empty, loading and error surfaces for the workspace views. Each empty state is
+   a real card with a calm illustration watermark from the asset pack (never a
+   decorative full-frame background), so blank accounts still feel intentional.
+   ========================================================================== */
+
+.vgt-inbox-empty,
+.vgt-mail-empty,
+.vgt-chat-stream__empty,
+.vgt-chat--empty,
+.vgt-group--empty,
+.vgt-group__side-empty,
+.vgt-drive-empty,
+.vgt-empty,
+.vgt-state,
+.vgt-pane-fallback {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-card);
+  background: linear-gradient(160deg, #0f1a2a, #0b1422);
+  color: var(--gc-muted);
+  padding: 26px clamp(18px, 3vw, 30px);
+}
+
+.vgt-inbox-empty::after,
+.vgt-mail-empty::after,
+.vgt-chat-stream__empty::after,
+.vgt-chat--empty::after,
+.vgt-group--empty::after,
+.vgt-group__side-empty::after,
+.vgt-drive-empty::after,
+.vgt-empty::after,
+.vgt-pane-fallback::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  bottom: 6px;
+  width: 190px;
+  height: 190px;
+  background: center / contain no-repeat;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.vgt-inbox-empty::after,
+.vgt-mail-empty::after {
+  background-image: url('/ui/pqc_envelope.png');
+}
+
+.vgt-chat-stream__empty::after,
+.vgt-chat--empty::after,
+.vgt-group--empty::after {
+  background-image: url('/ui/secure_chat.png');
+}
+
+.vgt-group__side-empty::after {
+  background-image: url('/ui/group_collaboration.png');
+  width: 120px;
+  height: 120px;
+  opacity: 0.12;
+}
+
+.vgt-drive-empty::after {
+  background-image: url('/ui/secure_cloud.png');
+}
+
+.vgt-ch .vgt-empty::after,
+.vgt-ch-create-cta::after {
+  background-image: url('/ui/broadcast_channel.png');
+}
+
+.vgt-gsn .vgt-empty::after {
+  background-image: url('/ui/social_feed.png');
+}
+
+.vgt-empty strong,
+.vgt-inbox-empty__title,
+.vgt-mail-empty__copy .vgt-h2,
+.vgt-chat-stream__empty strong {
+  color: #ffffff;
+}
+
+.vgt-empty span,
+.vgt-inbox-empty__text,
+.vgt-mail-empty__hint,
+.vgt-chat-stream__empty span {
+  color: var(--gc-muted);
+}
+
+.vgt-empty svg,
+.vgt-inbox-empty__mark,
+.vgt-pane-fallback svg {
+  color: var(--gc-cyan);
+}
+
+.vgt-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vgt-state svg {
+  color: var(--gc-cyan);
+  animation: vgt-state-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes vgt-state-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+.vgt-pane-fallback {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+}
+
+.vgt-pane-fallback::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(50% 60% at 50% 40%, rgba(0, 229, 255, 0.10), transparent 70%);
+  pointer-events: none;
+}
+
+/* Error / warning notices */
+.vgt-notice,
+.vgt-notice--danger,
+.vgt-notice--warn,
+.vgt-chat-banner {
+  border: 1px solid var(--gc-border);
+  border-radius: 12px;
+  background: rgba(17, 29, 46, 0.85);
+  color: var(--gc-text);
+}
+
+.vgt-notice--danger,
+.vgt-chat-banner--danger {
+  border-color: rgba(255, 102, 125, 0.38);
+  background: rgba(255, 102, 125, 0.10);
+}
+
+.vgt-notice--warn,
+.vgt-chat-banner--warning {
+  border-color: rgba(255, 200, 87, 0.34);
+  background: rgba(255, 200, 87, 0.08);
+}
+
+.vgt-chat-banner__copy,
+.vgt-notice,
+.vgt-chat-banner__list {
+  color: var(--gc-muted);
+}
+
+.field-error {
+  color: #ffb4ab;
+}
+
+@media (max-width: 720px) {
+  .vgt-inbox-empty::after,
+  .vgt-mail-empty::after,
+  .vgt-chat-stream__empty::after,
+  .vgt-chat--empty::after,
+  .vgt-group--empty::after,
+  .vgt-drive-empty::after,
+  .vgt-empty::after,
+  .vgt-pane-fallback::after {
+    width: 120px;
+    height: 120px;
+    right: 10px;
+    bottom: 4px;
+    opacity: 0.1;
+  }
+
+  .vgt-inbox-empty,
+  .vgt-mail-empty,
+  .vgt-chat-stream__empty,
+  .vgt-chat--empty,
+  .vgt-group--empty,
+  .vgt-drive-empty,
+  .vgt-empty,
+  .vgt-state {
+    padding: 18px;
+  }
+}

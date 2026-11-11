@@ -1,0 +1,5 @@
+/* GSN Social v7 - aggregator. Layout / sections / chat dock stay in separate sheets. */
+@import './gsn-layout-v7.css';
+@import './gsn-sections-v7.css';
+@import './gsn-chat-v7.css';
+@import './gsn-profile-v7.css';

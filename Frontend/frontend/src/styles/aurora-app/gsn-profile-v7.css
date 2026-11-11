@@ -1,0 +1,344 @@
+/* ============================================================================
+   GSN profile drawer v7 — identity hero, real stat strip, passport integration.
+   Replaces the previously unstyled stack (identity / passport / dl stats) with a
+   composed vertical rhythm. All values remain real profile/GSN data.
+   ========================================================================== */
+
+.vgt-gsn-profile-drawer {
+  background: linear-gradient(180deg, rgba(9, 18, 31, 0.98), rgba(6, 12, 21, 0.98));
+}
+
+.vgt-gsn-drawer__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vgt-gsn-drawer__heading .vgt-h3 {
+  margin: 0;
+}
+
+.vgt-gsn-profile {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* ---------- 1. Identity hero (banner, avatar, name, handle, real badges) ---- */
+.vgt-gsn-profile__hero {
+  position: relative;
+  border: 1px solid rgba(53, 230, 255, 0.14);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(9, 17, 30, 0.75);
+}
+
+.vgt-gsn-profile__banner {
+  position: relative;
+  height: 92px;
+}
+
+.vgt-gsn-profile__banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  filter: brightness(0.62) saturate(1.15);
+}
+
+.vgt-gsn-profile__banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 14, 26, 0.05) 0%, rgba(6, 14, 26, 0.96) 100%);
+}
+
+.vgt-gsn-profile__hero-body {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: -40px;
+  padding: 0 16px 14px;
+}
+
+.vgt-gsn-profile__avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  flex: none;
+  border: 3px solid #08121e;
+  box-shadow: 0 0 0 1px rgba(53, 230, 255, 0.45), 0 10px 22px rgba(0, 0, 0, 0.45);
+  background: #0b1624;
+  font-size: 1.35rem;
+  font-weight: 750;
+  color: #c9f4ff;
+}
+
+.vgt-gsn-profile__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vgt-gsn-profile__avatar > .vgt-gsn-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  font-size: inherit;
+}
+
+.vgt-gsn-profile__identity {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-bottom: 2px;
+}
+
+.vgt-gsn-profile__name {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-gsn-profile__handle {
+  font-size: 0.78rem;
+  color: #7fa8c9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-gsn-profile__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.vgt-gsn-profile__badges .vgt-badge {
+  font-size: 0.66rem;
+  padding: 2px 8px;
+}
+
+/* ---------- 2. Primary actions directly under the identity ----------------- */
+.vgt-gsn-profile__actions {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.vgt-gsn-profile__action {
+  flex: 1 1 auto;
+  min-height: 38px;
+  justify-content: center;
+  font-size: 0.82rem;
+}
+
+.vgt-gsn-profile__report {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: none;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(228, 112, 111, 0.32);
+  border-radius: 10px;
+  background: transparent;
+  color: #ff9d96;
+  font-size: 0.8rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.vgt-gsn-profile__report:hover {
+  background: rgba(228, 112, 111, 0.1);
+}
+
+.vgt-gsn-profile__report:focus-visible {
+  outline: 2px solid #7ef3ff;
+  outline-offset: 2px;
+}
+
+/* ---------- 3. Real stats strip (Beiträge / Follower / Folge ich) ---------- */
+.vgt-gsn-profile__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 12px 0;
+  border: 1px solid rgba(84, 116, 146, 0.24);
+  border-radius: 14px;
+  background: rgba(8, 18, 30, 0.72);
+}
+
+.vgt-gsn-profile__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  border-left: 1px solid rgba(84, 116, 146, 0.18);
+  min-width: 0;
+}
+
+.vgt-gsn-profile__stat:first-child {
+  border-left: 0;
+}
+
+.vgt-gsn-profile__stat dt {
+  font-size: 0.66rem;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #7fa8c9;
+  white-space: nowrap;
+}
+
+.vgt-gsn-profile__stat dd {
+  margin: 0;
+  font-size: 1.22rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 4. Sections (Federated Identity passport / About) -------------- */
+.vgt-gsn-profile__section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.vgt-gsn-profile__section-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  padding: 0 2px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #8fb2cf;
+}
+
+/* The passport document already carries avatar/name/ID; inside the drawer the
+   hero owns those, so the duplicate header lines are not repeated twice. */
+.vgt-gsn-profile .vgt-apass {
+  background: rgba(9, 17, 30, 0.75);
+  border-color: rgba(53, 230, 255, 0.14);
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.vgt-gsn-profile .vgt-apass__head {
+  padding-bottom: 10px;
+}
+
+.vgt-gsn-profile .vgt-apass__head .vgt-h4,
+.vgt-gsn-profile .vgt-apass__head .vgt-id {
+  display: none;
+}
+
+.vgt-gsn-profile .vgt-apass__photo {
+  display: none;
+}
+
+.vgt-gsn-profile .vgt-apass__identity {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.vgt-gsn-profile .vgt-apass__fields {
+  gap: 10px 14px;
+}
+
+.vgt-gsn-profile .vgt-apass__meta {
+  padding-top: 10px;
+}
+
+/* ---------- 5. About facts ------------------------------------------------- */
+.vgt-gsn-profile__facts {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  border: 1px solid rgba(84, 116, 146, 0.22);
+  border-radius: 14px;
+  background: rgba(8, 18, 30, 0.72);
+  overflow: hidden;
+}
+
+.vgt-gsn-profile__fact {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(84, 116, 146, 0.16);
+}
+
+.vgt-gsn-profile__fact:first-child {
+  border-top: 0;
+}
+
+.vgt-gsn-profile__fact dt {
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: #7fa8c9;
+}
+
+.vgt-gsn-profile__fact dd {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #d7ecfb;
+  overflow-wrap: anywhere;
+}
+
+.vgt-gsn-profile__bio {
+  white-space: pre-wrap;
+}
+
+.vgt-gsn-profile__gaia-id {
+  font-size: 0.78rem;
+  color: #bdf6ff;
+}
+
+/* ---------- 6. Responsive ------------------------------------------------ */
+@media (max-width: 520px) {
+  .vgt-gsn-drawer__head {
+    padding: 12px 14px;
+  }
+
+  .vgt-gsn-drawer__body {
+    padding: 14px;
+  }
+
+  .vgt-gsn-profile__hero-body {
+    margin-top: -34px;
+    padding: 0 14px 12px;
+  }
+
+  .vgt-gsn-profile__avatar {
+    width: 66px;
+    height: 66px;
+  }
+
+  .vgt-gsn-profile__fact {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+}

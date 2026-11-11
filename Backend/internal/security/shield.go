@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package security
 
 import (
@@ -12,6 +11,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"gaiacom/backend/httpx"
@@ -19,16 +19,20 @@ import (
 )
 
 type SecuritySystem struct {
-	Store         repository.Store
-	HMACKey       []byte
-	NodeID        string
-	rateLimiterMu sync.Mutex
-	rateLimits    map[string]*rateLimitEntry
-	rateLimitLRU  *list.List
-	quarantinesMu sync.Mutex
-	quarantines   map[string]time.Time
-	criticalMu    sync.Mutex
-	critical      map[string]criticalRateLimitEntry
+	Store          repository.Store
+	HMACKey        []byte
+	NodeID         string
+	rateLimiterMu  sync.Mutex
+	rateLimits     map[string]*rateLimitEntry
+	rateLimitLRU   *list.List
+	quarantinesMu  sync.Mutex
+	quarantines    map[string]time.Time
+	criticalMu     sync.Mutex
+	critical       map[string]criticalRateLimitEntry
+	eventQueue     chan queuedSecurityEvent
+	eventWriterOn  atomic.Bool
+	lastOverflowNS atomic.Int64
+	droppedEvents  atomic.Uint64
 }
 
 type SystemConfig struct {
@@ -91,7 +95,21 @@ func NewSecuritySystemWithConfig(store repository.Store, config SystemConfig) (*
 		rateLimitLRU: list.New(),
 		quarantines:  make(map[string]time.Time),
 		critical:     make(map[string]criticalRateLimitEntry),
+		eventQueue:   make(chan queuedSecurityEvent, defaultEventQueueCapacity),
 	}, nil
+}
+
+// Active reports whether the GaiaShield enforcement boundary is constructed and
+// usable. It is derived from real instance state only: a non-nil system whose
+// HMAC key satisfies the construction invariant (at least 32 bytes).
+//
+// Construction already fails closed: NewSecuritySystemWithConfig rejects short
+// keys, and route setup aborts startup when construction fails. A running server
+// therefore always reports active; a nil or key-less instance reports inactive.
+// This is a construction-state check, not a runtime attestation of detection
+// quality or of peer-network state.
+func (s *SecuritySystem) Active() bool {
+	return s != nil && len(s.HMACKey) >= 32
 }
 
 func devMode() bool {
@@ -256,6 +274,36 @@ func (s *SecuritySystem) incrementCriticalRateLimit(ctx context.Context, scope s
 		}
 	}
 	return entry.count, nil
+}
+
+// additiveRateLimitStore is an optional store extension for atomic counters that
+// increase by more than one per request (fan-out recipients, byte budgets).
+type additiveRateLimitStore interface {
+	IncrementSecurityRateLimitBy(ctx context.Context, key string, amount int, window time.Duration) (int, error)
+}
+
+// incrementCriticalRateLimitBy adds amount to the counter in one step when the
+// store supports it; otherwise it falls back to a bounded loop.
+func (s *SecuritySystem) incrementCriticalRateLimitBy(ctx context.Context, scope string, material string, window time.Duration, amount int) (int, error) {
+	if amount <= 0 {
+		amount = 1
+	}
+	key := s.opaqueRateLimitKey(scope, material)
+	if store, ok := s.Store.(additiveRateLimitStore); ok {
+		return store.IncrementSecurityRateLimitBy(ctx, key, amount, window)
+	}
+	if amount > 256 {
+		amount = 256
+	}
+	last := 0
+	for i := 0; i < amount; i++ {
+		count, err := s.incrementCriticalRateLimit(ctx, scope, material, window)
+		if err != nil {
+			return 0, err
+		}
+		last = count
+	}
+	return last, nil
 }
 
 func (s *SecuritySystem) criticalRateLimitCount(ctx context.Context, scope string, material string) (int, error) {

@@ -12,22 +12,40 @@ export default function useGsn({ activeIdentity, derivedKeys, triggerAlert }) {
   const [activeComments, setActiveComments] = useState({});
   const [loadingComments, setLoadingComments] = useState(false);
   const [myProfile, setMyProfile] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+  const [loadingNotifications, setLoadingNotifications] = useState(false);
+  const [notificationsError, setNotificationsError] = useState('');
+  const [trends, setTrends] = useState([]);
+  const [loadingTrends, setLoadingTrends] = useState(false);
+  const [trendsError, setTrendsError] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [suggestionsError, setSuggestionsError] = useState('');
+  const [network, setNetwork] = useState({ followers: [], following: [] });
+  const [loadingNetwork, setLoadingNetwork] = useState(false);
+  const [networkError, setNetworkError] = useState('');
+
+  const fetchMyProfile = useCallback(async () => {
+    if (!activeIdentity || !activeIdentity.GaiaID) {
+      setMyProfile(null);
+      return null;
+    }
+    try {
+      const response = await api.getGsnProfile(activeIdentity.GaiaID);
+      if (response && response.profile) {
+        setMyProfile(response.profile);
+        return response.profile;
+      }
+    } catch (err) {
+      console.error('Failed to load own GSN profile', err);
+    }
+    return null;
+  }, [activeIdentity]);
 
   useEffect(() => {
-    if (activeIdentity && activeIdentity.GaiaID) {
-      api.getGsnProfile(activeIdentity.GaiaID)
-        .then(response => {
-          if (response && response.profile) {
-            setMyProfile(response.profile);
-          }
-        })
-        .catch(err => {
-          console.error('Fehler beim Laden des eigenen GSN Profils', err);
-        });
-    } else {
-      setMyProfile(null);
-    }
-  }, [activeIdentity]);
+    fetchMyProfile();
+  }, [fetchMyProfile]);
 
   const fetchNodeFeed = useCallback(async (nodeId = '') => {
     setLoadingNodeFeed(true);
@@ -220,8 +238,97 @@ export default function useGsn({ activeIdentity, derivedKeys, triggerAlert }) {
     return updated;
   }, [activeIdentity, activeProfile, triggerAlert]);
 
-  const deleteComment = useCallback(async (postId, commentId) => {
-    await api.deleteGsnComment(postId, commentId);
+  const fetchNotifications = useCallback(async () => {
+    if (!activeIdentity || !activeIdentity.ID) {
+      setNotifications([]);
+      setUnreadNotifications(0);
+      return;
+    }
+    setLoadingNotifications(true);
+    setNotificationsError('');
+    try {
+      const response = await api.getGsnNotifications(activeIdentity.ID);
+      setNotifications(Array.isArray(response?.items) ? response.items : []);
+      setUnreadNotifications(Number(response?.unreadCount) || 0);
+    } catch (err) {
+      setNotifications([]);
+      setUnreadNotifications(0);
+      setNotificationsError('Benachrichtigungen konnten nicht geladen werden.');
+      console.warn('GSN notifications unavailable', err);
+    } finally {
+      setLoadingNotifications(false);
+    }
+  }, [activeIdentity]);
+
+  const markAllNotificationsRead = useCallback(async () => {
+    if (!activeIdentity || !activeIdentity.ID) return;
+    try {
+      await api.markGsnNotificationsRead(activeIdentity.ID);
+      setNotifications(prev => prev.map(item => ({ ...item, read: true })));
+      setUnreadNotifications(0);
+    } catch (err) {
+      console.warn('GSN notification read failed', err);
+      throw err;
+    }
+  }, [activeIdentity]);
+
+  const fetchTrends = useCallback(async (windowHours = 168) => {
+    setLoadingTrends(true);
+    setTrendsError('');
+    try {
+      const response = await api.getGsnTrends(windowHours);
+      setTrends(Array.isArray(response?.items) ? response.items : []);
+    } catch (err) {
+      setTrends([]);
+      setTrendsError('Trends konnten nicht geladen werden.');
+      console.warn('GSN trends unavailable', err);
+    } finally {
+      setLoadingTrends(false);
+    }
+  }, []);
+
+  const fetchSuggestions = useCallback(async (limit = 5) => {
+    if (!activeIdentity || !activeIdentity.ID) {
+      setSuggestions([]);
+      return;
+    }
+    setLoadingSuggestions(true);
+    setSuggestionsError('');
+    try {
+      const response = await api.getGsnSuggestions(activeIdentity.ID, limit);
+      setSuggestions(Array.isArray(response?.items) ? response.items : []);
+    } catch (err) {
+      setSuggestions([]);
+      setSuggestionsError('Empfehlungen konnten nicht geladen werden.');
+      console.warn('GSN suggestions unavailable', err);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  }, [activeIdentity]);
+
+  const fetchNetwork = useCallback(async () => {
+    if (!activeIdentity || !activeIdentity.ID) {
+      setNetwork({ followers: [], following: [] });
+      return;
+    }
+    setLoadingNetwork(true);
+    setNetworkError('');
+    try {
+      const response = await api.getGsnNetwork(activeIdentity.ID);
+      setNetwork({
+        followers: Array.isArray(response?.followers) ? response.followers : [],
+        following: Array.isArray(response?.following) ? response.following : []
+      });
+    } catch (err) {
+      setNetwork({ followers: [], following: [] });
+      setNetworkError('Netzwerk konnte nicht geladen werden.');
+      console.warn('GSN network unavailable', err);
+    } finally {
+      setLoadingNetwork(false);
+    }
+  }, [activeIdentity]);
+
+  const deleteComment = useCallback(async (postId, commentId) => {    await api.deleteGsnComment(postId, commentId);
     setActiveComments(prev => {
       const postComments = prev[postId] || [];
       return {
@@ -262,6 +369,25 @@ export default function useGsn({ activeIdentity, derivedKeys, triggerAlert }) {
     unfollowUser,
     fetchProfile,
     updateProfile,
-    setActiveProfile
+    setActiveProfile,
+    fetchMyProfile,
+    notifications,
+    unreadNotifications,
+    loadingNotifications,
+    notificationsError,
+    fetchNotifications,
+    markAllNotificationsRead,
+    trends,
+    loadingTrends,
+    trendsError,
+    fetchTrends,
+    suggestions,
+    loadingSuggestions,
+    suggestionsError,
+    fetchSuggestions,
+    network,
+    loadingNetwork,
+    networkError,
+    fetchNetwork
   };
 }

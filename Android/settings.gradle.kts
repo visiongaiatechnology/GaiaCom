@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 pluginManagement {
     repositories {
         google()

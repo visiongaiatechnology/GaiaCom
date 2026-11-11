@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 import { createNativeProvider } from './sovereign/nativeProvider.js';
 import { createWebProvider } from './sovereign/webProvider.js';
 

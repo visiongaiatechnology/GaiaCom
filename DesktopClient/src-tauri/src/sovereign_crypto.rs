@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 use gaiacom_sovereign_core::{open, seal, MAX_PAYLOAD_BYTES, ROOT_SECRET_BYTES};
 use pqcrypto_hqc::hqc256::{
     decapsulate, encapsulate, keypair, Ciphertext as HqcCiphertext, PublicKey as HqcPublicKey,

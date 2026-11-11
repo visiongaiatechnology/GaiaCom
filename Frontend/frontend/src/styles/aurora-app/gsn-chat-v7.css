@@ -1,0 +1,316 @@
+/* ---------------------------------------------------------------------------
+   6. Nachrichten-Popup (bottom-right, real GaiaCom chat)
+   --------------------------------------------------------------------------- */
+.vgt-gsn-chatdock {
+  position: fixed;
+  right: 22px;
+  bottom: 44px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  width: 360px;
+  max-width: calc(100vw - 28px);
+  height: min(520px, calc(100vh - 140px));
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  border-radius: 16px;
+  background: rgba(7, 15, 26, 0.98);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.vgt-gsn-chatdock__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(84, 116, 146, 0.2);
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.08), rgba(7, 15, 26, 0));
+}
+
+.vgt-gsn-chatdock__title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.vgt-gsn-chatdock__mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: #7ef3ff;
+  flex: none;
+}
+
+.vgt-gsn-chatdock__title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.vgt-gsn-chatdock__title strong {
+  font-size: 0.86rem;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-gsn-chatdock__title span {
+  font-size: 0.68rem;
+  color: #7fa8c9;
+}
+
+.vgt-gsn-chatdock__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+.vgt-gsn-chatdock__body {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.vgt-gsn-chatdock__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 12px 6px;
+  padding: 7px 10px;
+  border: 1px solid rgba(84, 116, 146, 0.24);
+  border-radius: 10px;
+  background: rgba(8, 18, 30, 0.7);
+  color: #8fb2cf;
+}
+
+.vgt-gsn-chatdock__search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: #eaf6ff;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.vgt-gsn-chatdock__contacts {
+  list-style: none;
+  margin: 0;
+  padding: 4px 8px 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vgt-gsn-chatdock__contact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.vgt-gsn-chatdock__contact:hover {
+  background: rgba(0, 229, 255, 0.08);
+}
+
+.vgt-gsn-chatdock__contact-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vgt-gsn-chatdock__contact-copy strong {
+  font-size: 0.82rem;
+  color: #eaf6ff;
+}
+
+.vgt-gsn-chatdock__contact-copy span {
+  font-size: 0.72rem;
+  color: #7fa8c9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-gsn-chatdock__stream {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vgt-gsn-chatdock__msg {
+  align-self: flex-start;
+  max-width: 84%;
+  padding: 7px 10px;
+  border-radius: 12px 12px 12px 3px;
+  border: 1px solid rgba(84, 116, 146, 0.24);
+  background: rgba(15, 27, 42, 0.9);
+}
+
+.vgt-gsn-chatdock__msg.is-own {
+  align-self: flex-end;
+  border-color: rgba(0, 229, 255, 0.3);
+  background: rgba(0, 229, 255, 0.12);
+  border-radius: 12px 12px 3px 12px;
+}
+
+.vgt-gsn-chatdock__msg p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: #e7f4ff;
+  overflow-wrap: anywhere;
+}
+
+.vgt-gsn-chatdock__msg time {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.64rem;
+  color: #7fa8c9;
+  text-align: right;
+}
+
+.vgt-gsn-chatdock__composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(84, 116, 146, 0.2);
+}
+
+.vgt-gsn-chatdock__composer input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgba(84, 116, 146, 0.28);
+  border-radius: 10px;
+  background: rgba(8, 18, 30, 0.8);
+  color: #eaf6ff;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.vgt-gsn-chatdock__composer input:focus {
+  border-color: rgba(0, 229, 255, 0.42);
+}
+
+/* ---------------------------------------------------------------------------
+   7. Responsive composition
+   --------------------------------------------------------------------------- */
+@media (max-width: 1320px) {
+  .vgt-gsn__layout,
+  .app-container.gsn-expanded .vgt-gsn__layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .vgt-gsn-rail-v2 {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .vgt-gsn__layout,
+  .app-container.gsn-expanded .vgt-gsn__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 8px;
+  }
+
+  .vgt-gsn-nav-rail {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    height: auto;
+    padding: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .vgt-gsn-nav-brand,
+  .vgt-gsn-nav-identity {
+    display: none;
+  }
+
+  .vgt-gsn-nav-list,
+  .vgt-gsn-nav-footer {
+    flex-direction: row;
+    align-items: center;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+    flex: none;
+  }
+
+  .vgt-gsn-nav-btn {
+    width: auto;
+    min-height: 38px;
+    padding: 6px 10px;
+    gap: 7px;
+    white-space: nowrap;
+  }
+
+  .vgt-gsn-nav-btn__label {
+    font-size: 0.78rem;
+  }
+
+  .vgt-gsn-main {
+    min-height: 0;
+  }
+
+  .vgt-gsn-section__head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vgt-gsn-trendbars__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'tag time'
+      'bar count';
+    row-gap: 4px;
+  }
+
+  .vgt-gsn-trendbars__tag { grid-area: tag; }
+  .vgt-gsn-trendbars__time { grid-area: time; text-align: right; }
+  .vgt-gsn-trendbars__bar { grid-area: bar; }
+  .vgt-gsn-trendbars__count { grid-area: count; text-align: right; }
+
+  .vgt-gsn-chatdock {
+    right: 10px;
+    left: 10px;
+    bottom: 40px;
+    width: auto;
+    height: min(66vh, 520px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vgt-gsn-nav-btn,
+  .vgt-btn-follow,
+  .vgt-gsn-trendbars__bar::after {
+    transition: none !important;
+  }
+}

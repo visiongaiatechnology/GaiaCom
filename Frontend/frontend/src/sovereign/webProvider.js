@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 const OPERATION_TIMEOUT_MS = 60_000;
 
 export function createWebProvider() {

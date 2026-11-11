@@ -1,0 +1,465 @@
+/* ============================================================================
+   GSN Social v7 — real-data surface (sections, chat dock, identity, fullscreen)
+   Additive layer on top of the existing GSN glass styles. Every visual state
+   below corresponds to a real data source; empty states stay empty.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. Layout + Vollbild ("Großansicht")
+   --------------------------------------------------------------------------- */
+.vgt-gsn__layout {
+  grid-template-columns: 232px minmax(0, 1fr) 336px;
+  gap: 14px;
+  padding: 12px 14px;
+}
+
+.vgt-gsn-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.vgt-gsn-main > .vgt-gsn-feed-v2 {
+  height: 100%;
+  min-height: 0;
+}
+
+.vgt-gsn-main > .vgt-gsn-section {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Dedicated section surfaces keep the context rail only on Startseite; every
+   other section gets the full working width. */
+.vgt-gsn__layout.has-no-rail {
+  grid-template-columns: 232px minmax(0, 1fr);
+}
+
+.vgt-gsn__layout.has-no-rail .vgt-gsn-main {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+@media (max-width: 1320px) {
+  .vgt-gsn__layout.has-no-rail {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .vgt-gsn__layout.has-no-rail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The GaiaCom rail is a direct child of .app-container. In fullscreen GSN the
+   GSN rail remains the only navigation, exactly as requested. */
+.app-container.gsn-expanded {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.app-container.gsn-expanded > .navigation-sidebar,
+.app-container.gsn-expanded > .vgt-rail {
+  display: none !important;
+}
+
+.app-container.gsn-expanded > .mail-content-pane {
+  grid-column: 1 / -1;
+}
+
+.app-container.gsn-expanded .vgt-gsn__layout {
+  grid-template-columns: 244px minmax(0, 1fr) 360px;
+  max-width: 1760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 14px 20px;
+}
+
+/* ---------------------------------------------------------------------------
+   2. Navigation rail — footer, identity chip, active state
+   --------------------------------------------------------------------------- */
+.vgt-gsn-nav-brand__logo-wrap {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  border: 1px solid rgba(53, 230, 255, 0.22);
+  background: rgba(8, 20, 34, 0.8);
+  flex: none;
+}
+
+.vgt-gsn-nav-brand__globe {
+  width: 28px;
+  height: 28px;
+}
+
+.vgt-gsn-nav-list {
+  gap: 2px;
+}
+
+.vgt-gsn-nav-btn {
+  min-height: 40px;
+}
+
+.vgt-gsn-nav-btn:focus-visible,
+.vgt-gsn-nav-identity:focus-visible,
+.vgt-gsn-nav-btn--cloud:focus-visible {
+  outline: 2px solid var(--vgt-focus, #5ef7e6);
+  outline-offset: 2px;
+}
+
+.vgt-gsn-nav-btn.is-active {
+  background: linear-gradient(90deg, rgba(0, 229, 255, 0.16) 0%, rgba(0, 229, 255, 0.04) 100%);
+  border-color: rgba(0, 229, 255, 0.34);
+  color: #eafcff;
+  box-shadow: inset 2px 0 0 var(--vgt-accent, #35e6ff);
+}
+
+.vgt-gsn-nav-btn__badge {
+  background: rgba(0, 229, 255, 0.18);
+  border-color: rgba(0, 229, 255, 0.34);
+  color: #bdf6ff;
+}
+
+.vgt-gsn-nav-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(84, 116, 146, 0.18);
+}
+
+.vgt-gsn-nav-identity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px solid rgba(84, 116, 146, 0.24);
+  border-radius: 12px;
+  background: rgba(8, 18, 30, 0.72);
+  color: var(--gc-text, #e7f4ff);
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.vgt-gsn-nav-identity:hover {
+  border-color: rgba(0, 229, 255, 0.32);
+}
+
+.vgt-gsn-nav-identity__copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.vgt-gsn-nav-identity__copy strong {
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vgt-gsn-nav-identity__copy span {
+  font-size: 0.7rem;
+  color: #7fa8c9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------------------------------------------------------------------------
+   3. Avatar slots (AvatarMark handles envelope / data URL / glyph / initials)
+   --------------------------------------------------------------------------- */
+.vgt-gsn-nav-identity__avatar,
+.vgt-gsn-composer-v2__avatar,
+.vgt-gsn-profile-card__avatar,
+.vgt-gsn-suggest-avatar,
+.vgt-gsn-people__avatar,
+.vgt-gsn-notifications__avatar,
+.vgt-gsn-rooms__avatar,
+.vgt-gsn-chatdock__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  font-size: 0.85rem;
+}
+
+.vgt-gsn-composer-v2__avatar {
+  width: 44px;
+  height: 44px;
+}
+
+.vgt-gsn-profile-card__avatar {
+  width: 68px;
+  height: 68px;
+  border: 2px solid rgba(9, 17, 30, 0.9);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.35);
+  font-size: 1.2rem;
+}
+
+.vgt-gsn-profile__avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+
+.vgt-gsn-nav-identity__avatar img,
+.vgt-gsn-composer-v2__avatar img,
+.vgt-gsn-profile-card__avatar img,
+.vgt-gsn-suggest-avatar img,
+.vgt-gsn-people__avatar img,
+.vgt-gsn-notifications__avatar img,
+.vgt-gsn-rooms__avatar img,
+.vgt-gsn-chatdock__avatar img,
+.vgt-gsn-profile__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* AvatarMark may resolve to an encrypted span/glyph instead of an image. */
+.vgt-gsn-nav-identity__avatar > .vgt-gsn-avatar,
+.vgt-gsn-composer-v2__avatar > .vgt-gsn-avatar,
+.vgt-gsn-profile-card__avatar > .vgt-gsn-avatar,
+.vgt-gsn-suggest-avatar > .vgt-gsn-avatar,
+.vgt-gsn-people__avatar > .vgt-gsn-avatar,
+.vgt-gsn-notifications__avatar > .vgt-gsn-avatar,
+.vgt-gsn-rooms__avatar > .vgt-gsn-avatar,
+.vgt-gsn-chatdock__avatar > .vgt-gsn-avatar,
+.vgt-gsn-profile__avatar > .vgt-gsn-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  font-size: inherit;
+}
+
+/* ---------------------------------------------------------------------------
+   4. Context rail — stats, trends, real contact suggestions
+   --------------------------------------------------------------------------- */
+.vgt-gsn-profile-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 14px;
+  margin-top: -30px;
+  position: relative;
+  z-index: 2;
+}
+
+.vgt-gsn-profile-card__avatar-wrap {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.vgt-gsn-profile-card__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vgt-gsn-profile-card__name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.vgt-gsn-profile-card__name {
+  font-size: 0.98rem;
+  font-weight: 750;
+  color: #ffffff;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-gsn-profile-card__handle {
+  font-size: 0.72rem;
+  color: #7fa8c9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.vgt-gsn-profile-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  margin: 4px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px solid rgba(84, 116, 146, 0.16);
+}
+
+.vgt-gsn-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: 2px;
+}
+
+.vgt-gsn-stat__num {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 750;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.vgt-gsn-stat__lbl {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7fa8c9;
+}
+
+.vgt-gsn-profile-card__edit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.vgt-gsn-card__meta {
+  font-size: 0.68rem;
+  color: #7fa8c9;
+}
+
+.vgt-gsn-card__state {
+  margin: 0;
+  padding: 4px 16px 14px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #8fb2cf;
+}
+
+.vgt-gsn-card__state--error {
+  color: #ffb4a2;
+}
+
+.vgt-gsn-trends-list,
+.vgt-gsn-suggest-list {
+  list-style: none;
+  margin: 0;
+  padding: 2px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vgt-gsn-trend-row {
+  padding: 7px 8px;
+  border-radius: 9px;
+}
+
+.vgt-gsn-trend-row:hover {
+  background: rgba(0, 229, 255, 0.06);
+}
+
+.vgt-gsn-trend-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vgt-gsn-trend-tag {
+  font-size: 0.85rem;
+  color: #c9f4ff;
+}
+
+.vgt-gsn-trend-count {
+  font-size: 0.7rem;
+  color: #7fa8c9;
+}
+
+.vgt-gsn-suggest-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+}
+
+.vgt-gsn-suggest-identity {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.vgt-gsn-suggest-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+
+.vgt-gsn-suggest-info strong {
+  font-size: 0.82rem;
+  color: #eaf6ff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-gsn-suggest-role {
+  font-size: 0.7rem;
+  color: #7fa8c9;
+}
+
+.vgt-btn-follow {
+  flex: none;
+  min-height: 30px;
+  padding: 0 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 229, 255, 0.34);
+  background: rgba(0, 229, 255, 0.1);
+  color: #bdf6ff;
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.vgt-btn-follow:hover {
+  background: rgba(0, 229, 255, 0.18);
+}
+
+.vgt-btn-follow:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.vgt-btn-follow.is-following {
+  border-color: rgba(84, 116, 146, 0.4);
+  background: rgba(84, 116, 146, 0.14);
+  color: #cfe3f3;
+}
+

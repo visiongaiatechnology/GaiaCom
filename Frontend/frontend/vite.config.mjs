@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<defs>
+ <linearGradient id="trim" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#00E5FF"/><stop offset=".55" stop-color="#23D9C8"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FFF19A"/><stop offset="1" stop-color="#F6B92F"/></linearGradient>
+ <linearGradient id="beak" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFC45C"/><stop offset="1" stop-color="#F07A24"/></linearGradient>
+ <filter id="glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="12" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+ <filter id="soft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="28"/></filter>
+</defs>
+<ellipse cx="512" cy="902" rx="270" ry="40" fill="#00E5FF" opacity=".22" filter="url(#soft)"/>
+<!-- body -->
+<path d="M290 876q10-260 222-260t222 260q-100 70-222 70t-222-70z" fill="#F6F8F1" stroke="#C5E4EC" stroke-width="18"/>
+<!-- wings -->
+<path d="M324 718q-88 55-88 170 78 25 155-30" fill="#FFF7D7" stroke="#DCECF0" stroke-width="14"/>
+<path d="M700 718q88 55 88 170-78 25-155-30" fill="#FFF7D7" stroke="#DCECF0" stroke-width="14"/>
+<!-- neck and head -->
+<ellipse cx="512" cy="538" rx="240" ry="286" fill="#FFF7DA" stroke="#E8E9D9" stroke-width="18"/>
+<path d="M445 280q-22-102 38-137 15 80 49 108 32-58 73-83 7 79-28 128" fill="url(#gold)" stroke="#E7B837" stroke-width="12" stroke-linejoin="round"/>
+<!-- headphones arch and cups -->
+<path d="M285 495C250 200 775 200 739 495" fill="none" stroke="#13253A" stroke-width="42" stroke-linecap="round"/>
+<path d="M285 495C250 200 775 200 739 495" fill="none" stroke="url(#trim)" stroke-width="12" stroke-linecap="round" filter="url(#glow)"/>
+<rect x="258" y="432" width="78" height="150" rx="34" fill="#11253A" stroke="url(#trim)" stroke-width="14"/>
+<rect x="688" y="432" width="78" height="150" rx="34" fill="#11253A" stroke="url(#trim)" stroke-width="14"/>
+<!-- sunglasses -->
+<g filter="url(#glow)"><rect x="335" y="450" width="150" height="82" rx="28" fill="#101C2D" stroke="#00E5FF" stroke-width="13"/><rect x="539" y="450" width="150" height="82" rx="28" fill="#101C2D" stroke="#00E5FF" stroke-width="13"/><path d="M485 486h54" stroke="#00E5FF" stroke-width="13" stroke-linecap="round"/><path d="M354 469h100m105 0h100" stroke="#B8F9FF" stroke-width="7" opacity=".42"/></g>
+<!-- beak -->
+<path d="M512 566q-82 0-133 56 57 67 133 67t133-67q-51-56-133-56z" fill="url(#beak)" stroke="#DD7625" stroke-width="14" stroke-linejoin="round"/>
+<path d="M420 619q92 30 184 0" fill="none" stroke="#F7D28C" stroke-width="8" opacity=".75"/>
+<!-- suit jacket -->
+<path d="M308 741q76-95 204-95t204 95l76 194H232z" fill="#10243A" stroke="url(#trim)" stroke-width="18" stroke-linejoin="round"/>
+<path d="m420 668 92 124 92-124-50-28h-84z" fill="#F6F8F1"/>
+<path d="m512 716 48 66-48 97-48-97z" fill="#00DFF5" stroke="#8BF7FF" stroke-width="8"/>
+<path d="M385 750 455 700m184 50-70-50" stroke="#B7F8FF" stroke-width="10" opacity=".7"/>
+<!-- chest insignia -->
+<path d="M660 812 705 836v53l-45 25-45-25v-53z" fill="#0B1C2E" stroke="#00E5FF" stroke-width="8"/>
+<path d="M642 859h36m-18-18v36" stroke="#00E5FF" stroke-width="7" stroke-linecap="round"/>
+</svg>

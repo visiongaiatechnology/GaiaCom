@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package storage
 
 import (
@@ -161,22 +160,24 @@ func (s *StorageService) effectivePendingUploadTTL() time.Duration {
 	return defaultPendingUploadTTL
 }
 
-func (s *StorageService) enforceUserQuota(ctx context.Context, userID uuid.UUID, requestedBytes int64) error {
-	quota := s.effectiveUserQuotaBytes()
-	if requestedBytes > quota {
-		return errors.New("storage quota exceeded")
-	}
-	currentBytes, err := s.Store.SumStoredFileBytesForUser(ctx, userID)
-	if err != nil {
-		return err
-	}
-	if currentBytes > quota-requestedBytes {
-		return errors.New("storage quota exceeded")
-	}
-	return nil
+// ErrStorageQuotaExceeded is returned when the atomic quota reservation rejects
+// an upload because the user's stored bytes plus this file would exceed the quota.
+var ErrStorageQuotaExceeded = errors.New("storage quota exceeded")
+
+// InitializeUpload keeps the legacy signature; the HTTP handler calls
+// InitializeUploadContext with the request context so the atomic reservation and
+// driver work inherit cancellation/deadlines (P-08 / FIND-008).
+func (s *StorageService) InitializeUpload(userID uuid.UUID, fileName string, fileSize int64, mimeType string, fileHash string) (*models.FileMetadata, error) {
+	return s.InitializeUploadContext(context.Background(), userID, fileName, fileSize, mimeType, fileHash)
 }
 
-func (s *StorageService) InitializeUpload(userID uuid.UUID, fileName string, fileSize int64, mimeType string, fileHash string) (*models.FileMetadata, error) {
+// InitializeUploadContext validates the upload and atomically reserves the file
+// size against the user quota via CreateFileMetadataWithQuota (single statement,
+// no check-then-act window). It returns ErrStorageQuotaExceeded on rejection.
+func (s *StorageService) InitializeUploadContext(ctx context.Context, userID uuid.UUID, fileName string, fileSize int64, mimeType string, fileHash string) (*models.FileMetadata, error) {
+	if ctx == nil {
+		return nil, errors.New("invalid request context")
+	}
 	if userID == uuid.Nil {
 		return nil, errors.New("invalid user")
 	}
@@ -188,9 +189,6 @@ func (s *StorageService) InitializeUpload(userID uuid.UUID, fileName string, fil
 	}
 	if !validate.FixedHex(fileHash, sha256.Size) {
 		return nil, errors.New("invalid file hash")
-	}
-	if err := s.enforceUserQuota(context.Background(), userID, fileSize); err != nil {
-		return nil, err
 	}
 
 	fileID := uuid.New()
@@ -213,8 +211,12 @@ func (s *StorageService) InitializeUpload(userID uuid.UUID, fileName string, fil
 		Path:     fileDir,
 	}
 
-	if err := s.Store.CreateFileMetadata(&metadata); err != nil {
+	reserved, err := s.Store.CreateFileMetadataWithQuota(ctx, &metadata, s.effectiveUserQuotaBytes())
+	if err != nil {
 		return nil, err
+	}
+	if !reserved {
+		return nil, ErrStorageQuotaExceeded
 	}
 
 	return &metadata, nil

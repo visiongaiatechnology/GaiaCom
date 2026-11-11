@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"gaiacom/backend/core/uuid"
+	"gaiacom/backend/core/validate"
 	"gaiacom/backend/httpx"
 	"gaiacom/backend/models"
 )
@@ -38,9 +39,14 @@ func (h *SecurityHandler) GetMySummary(w http.ResponseWriter, r *http.Request) {
 	}
 
 	activeWarnings := 0
+	tamperChecks := 0
 	for _, ev := range events {
 		if ev.AcknowledgedAt == nil && ev.Severity != "info" && ev.Severity != "low" {
 			activeWarnings++
+		}
+		switch ev.Category {
+		case "message_replay", "policy_violation":
+			tamperChecks++
 		}
 	}
 
@@ -49,10 +55,16 @@ func (h *SecurityHandler) GetMySummary(w http.ResponseWriter, r *http.Request) {
 		status = "warnings_active"
 	}
 
+	shieldState := "inactive"
+	if h.shieldActive() {
+		shieldState = "active"
+	}
+
 	httpx.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"status":          status,
 		"activeWarnings":  activeWarnings,
-		"gaiaShieldState": "active",
+		"gaiaShieldState": shieldState,
+		"tamperChecks":    tamperChecks,
 		"lastChecked":     timeToEpoch(timeNowUTC()),
 	})
 }
@@ -193,7 +205,7 @@ func (h *SecurityHandler) GetPublicHealth(w http.ResponseWriter, r *http.Request
 	}
 
 	summary := &models.PublicSecuritySummary{
-		GaiaShieldActive:      true,
+		GaiaShieldActive:      h.shieldActive(),
 		SecurityEvents24h:     metrics.SecurityEvents24h,
 		BlockedRequests24h:    metrics.BlockedRequests24h,
 		SMTPShieldEvents24h:   metrics.SMTPShieldEvents24h,
@@ -206,6 +218,16 @@ func (h *SecurityHandler) GetPublicHealth(w http.ResponseWriter, r *http.Request
 }
 
 // Helpers
+
+// shieldActive reports the constructed GaiaShield state for handlers. A missing
+// system is treated as inactive instead of assuming protection.
+func (h *SecurityHandler) shieldActive() bool {
+	if h == nil || h.System == nil {
+		return false
+	}
+	return h.System.Active()
+}
+
 func containsString(slice []string, s string) bool {
 	for _, item := range slice {
 		if item == s {
@@ -239,12 +261,10 @@ func (h *SecurityHandler) hasRole(ctx context.Context, userID uuid.UUID, role st
 	}
 
 	for _, ident := range identities {
-		// 1. Check bootstrap config
-		for _, bootstrapID := range append([]string{BootstrapGaiaID}, BootstrapGaiaIDs...) {
-			if bootstrapID != "" && bootstrapIdentityMatches(ident.GaiaID, bootstrapID) {
-				if role == "node_operator" || role == "senior_reviewer" || role == "trusted_reviewer" {
-					return true
-				}
+		// 1. Check bootstrap config with exact full-GaiaID matching.
+		if validate.GaiaIDInList(ident.GaiaID, append([]string{BootstrapGaiaID}, BootstrapGaiaIDs...)) {
+			if role == "node_operator" || role == "senior_reviewer" || role == "trusted_reviewer" {
+				return true
 			}
 		}
 
@@ -269,29 +289,4 @@ func (h *SecurityHandler) hasRole(ctx context.Context, userID uuid.UUID, role st
 		}
 	}
 	return false
-}
-
-func normalizeGaiaID(g string) string {
-	return strings.ToLower(strings.TrimSpace(g))
-}
-
-func normalizeAndStripDomain(id string) string {
-	id = strings.ToLower(strings.TrimSpace(id))
-	id = strings.TrimPrefix(id, "@")
-	if idx := strings.Index(id, ":"); idx != -1 {
-		id = id[:idx]
-	}
-	if idx := strings.Index(id, "@"); idx != -1 {
-		id = id[:idx]
-	}
-	return id
-}
-
-func bootstrapIdentityMatches(identityGaiaID string, bootstrapGaiaID string) bool {
-	identity := normalizeGaiaID(identityGaiaID)
-	bootstrap := normalizeGaiaID(bootstrapGaiaID)
-	if identity == bootstrap {
-		return true
-	}
-	return normalizeAndStripDomain(identity) == normalizeAndStripDomain(bootstrap)
 }

@@ -21,6 +21,7 @@ import (
 	"gaiacom/backend/internal/security"
 	"gaiacom/backend/models"
 	"gaiacom/backend/repository"
+	"gaiacom/backend/storage"
 )
 
 type Service struct {
@@ -164,6 +165,8 @@ func (s *Service) CreatePost(ctx context.Context, userID uuid.UUID, identityID u
 	if strings.TrimSpace(imageAttachment) != "" {
 		var imageMeta struct {
 			FileID string `json:"fileId"`
+			KeyHex string `json:"keyHex"`
+			IvHex  string `json:"ivHex"`
 		}
 		if err := json.Unmarshal([]byte(imageAttachment), &imageMeta); err != nil {
 			return nil, errors.New("invalid image attachment")
@@ -172,7 +175,10 @@ func (s *Service) CreatePost(ctx context.Context, userID uuid.UUID, identityID u
 		if err != nil {
 			return nil, errors.New("invalid image attachment")
 		}
-		if err := s.store.MarkFilePublic(ctx, imageFileID, userID); err != nil {
+		// FIND-024/P-11: publication requires the owner, a completed
+		// allowlisted image file under the size cap AND server-side magic-byte
+		// verification after decrypting the signed client-side envelope.
+		if err := s.publishPublicImage(ctx, userID, imageFileID, imageMeta.KeyHex, imageMeta.IvHex); err != nil {
 			return nil, errors.New("image attachment access rejected")
 		}
 	}
@@ -493,7 +499,7 @@ func (s *Service) CreateComment(ctx context.Context, userID uuid.UUID, identityI
 	}
 
 	// Verify post exists
-	_, err = s.store.GetGsnPost(ctx, postID)
+	post, err := s.store.GetGsnPost(ctx, postID)
 	if err != nil {
 		return nil, fmt.Errorf("post not found: %w", err)
 	}
@@ -527,6 +533,9 @@ func (s *Service) CreateComment(ctx context.Context, userID uuid.UUID, identityI
 		return nil, err
 	}
 
+	// Real social event: notify the post author about the new comment.
+	s.createGsnNotification(ctx, post.GaiaID, ident.GaiaID, "comment", postID, comment.ID, body)
+
 	// Broadcast Comment via Federation
 	s.broadcastPDU("gsn.comment.v1", ident.GaiaID, comment)
 
@@ -540,7 +549,7 @@ func (s *Service) ReactToPost(ctx context.Context, userID uuid.UUID, identityID 
 	}
 
 	// Verify post exists
-	_, err = s.store.GetGsnPost(ctx, postID)
+	post, err := s.store.GetGsnPost(ctx, postID)
 	if err != nil {
 		return "", fmt.Errorf("post not found: %w", err)
 	}
@@ -548,6 +557,11 @@ func (s *Service) ReactToPost(ctx context.Context, userID uuid.UUID, identityID 
 	action, err := s.store.ToggleGsnReaction(ctx, postID, ident.GaiaID, emoji)
 	if err != nil {
 		return "", err
+	}
+
+	// Real social event: notify the post author when a reaction is added.
+	if action == "add" {
+		s.createGsnNotification(ctx, post.GaiaID, ident.GaiaID, "reaction", postID, "", emoji)
 	}
 
 	// Broadcast Reaction via Federation
@@ -601,6 +615,9 @@ func (s *Service) FollowUser(ctx context.Context, userID uuid.UUID, identityID u
 		FollowingGaiaID: followingGaiaID,
 	}
 	s.broadcastPDU("gsn.follow.v1", ident.GaiaID, followPayload)
+
+	// Real social event: notify the followed local identity.
+	s.createGsnNotification(ctx, followingGaiaID, ident.GaiaID, "follow", "", "", "")
 
 	return nil
 }
@@ -681,6 +698,8 @@ func (s *Service) markProfileAvatarPublic(ctx context.Context, userID uuid.UUID,
 	}
 	var envelope struct {
 		FileID string `json:"fileId"`
+		KeyHex string `json:"keyHex"`
+		IvHex  string `json:"ivHex"`
 	}
 	if err := json.Unmarshal([]byte(avatar), &envelope); err != nil {
 		return ErrInvalidProfile
@@ -688,6 +707,37 @@ func (s *Service) markProfileAvatarPublic(ctx context.Context, userID uuid.UUID,
 	fileID, err := uuid.Parse(envelope.FileID)
 	if err != nil {
 		return ErrInvalidProfile
+	}
+	if err := s.publishPublicImage(ctx, userID, fileID, envelope.KeyHex, envelope.IvHex); err != nil {
+		return errors.New("image attachment access rejected")
+	}
+	return nil
+}
+
+// publishPublicImage is the single publication path for GSN post images and
+// profile avatars. It keeps the ownership check, enforces the image/size
+// allowlist and verifies decrypted magic bytes before the file can become
+// publicly downloadable. Any failure leaves public_access untouched.
+func (s *Service) publishPublicImage(ctx context.Context, userID uuid.UUID, fileID uuid.UUID, keyHex string, ivHex string) error {
+	if fileID == uuid.Nil {
+		return errors.New("invalid image attachment")
+	}
+	meta, err := s.store.FindFileMetadata(fileID)
+	if err != nil || meta == nil {
+		return errors.New("image file not found")
+	}
+	if meta.UserID != userID {
+		return repository.ErrFileNotPublishable
+	}
+	if err := storage.ValidatePublicImageMetadata(meta); err != nil {
+		return err
+	}
+	chunks, err := s.store.FindFileChunks(fileID)
+	if err != nil {
+		return err
+	}
+	if err := storage.VerifyEncryptedPublicImage(ctx, meta, chunks, keyHex, ivHex); err != nil {
+		return err
 	}
 	return s.store.MarkFilePublic(ctx, fileID, userID)
 }

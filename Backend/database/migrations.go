@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package database
 
 import (
@@ -17,7 +16,7 @@ import (
 	"time"
 )
 
-const currentSchemaVersion = 3
+const currentSchemaVersion = 4
 
 var sqlIdentifierPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
@@ -191,6 +190,11 @@ func registeredMigrations() []schemaMigration {
 			version:    3,
 			name:       "transport_neutral_mobile_outbox",
 			statements: transportQueueMigrationStatements,
+		},
+		{
+			version:    4,
+			name:       "gsn_notifications",
+			statements: gsnNotificationMigrationStatements,
 		},
 	}
 }

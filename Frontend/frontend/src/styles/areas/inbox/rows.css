@@ -1,0 +1,453 @@
+/* ============================================================================
+   VGT GLASS 2100 — LIST RAIL: ROWS & EMPTY STATES
+   Rows are hairlines on an opaque canvas, not cards: two-line hierarchy, quiet
+   initials mark, right-aligned metadata, real hover/focus/selected states.
+   Every row body is a native button; secondary controls are siblings.
+   ========================================================================== */
+
+/* ---------- Scroll canvas + list ---------- */
+.vgt-inbox .list-scroll.vgt-inbox__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.vgt-inbox__list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vgt-inbox__status {
+  margin: 0;
+  padding: var(--vgt-space-7) var(--vgt-space-4);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-sm);
+  text-align: center;
+}
+
+/* ---------- Row frame ---------- */
+.vgt-inbox-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  min-width: 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  background: transparent;
+  transition: background-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-inbox-row:last-child {
+  border-bottom: 0;
+}
+
+.vgt-inbox-row--mail {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.vgt-inbox-row--contact {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+/* Variant rows share the single-column frame; the modifier documents which
+   object type the row renders (conversation, channel, vault record, drop). */
+.vgt-inbox-row--conversation,
+.vgt-inbox-row--channel,
+.vgt-inbox-row--record,
+.vgt-inbox-row--drop {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.vgt-inbox-row:hover,
+.vgt-inbox-row:focus-within {
+  background: var(--vgt-bg-2);
+}
+
+.vgt-inbox-row.is-active {
+  background: var(--vgt-pigment-soft);
+}
+
+.vgt-inbox-row.is-active::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: var(--vgt-pigment);
+  pointer-events: none;
+}
+
+.vgt-inbox-row.is-untrusted {
+  background-image: linear-gradient(90deg, var(--vgt-warning-soft), transparent 64%);
+}
+
+/* ---------- Primary row button ---------- */
+.vgt-inbox-row__main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  width: 100%;
+  min-width: 0;
+  min-height: var(--vgt-inbox-row-h);
+  padding: 11px var(--vgt-space-4);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-family: var(--vgt-font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* ---------- Quiet initials / glyph mark (no image frameworks) ---------- */
+.vgt-inbox-row__avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-top: 1px;
+  padding: 0 2px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: 50%;
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-inbox-row__avatar--glyph {
+  border-radius: var(--vgt-radius-xs);
+}
+
+.vgt-inbox-row.is-unread .vgt-inbox-row__avatar {
+  border-color: var(--vgt-pigment-line);
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-pigment);
+}
+
+.vgt-inbox-row__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vgt-inbox-row__line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.vgt-inbox-row__line--top {
+  min-height: 18px;
+}
+
+.vgt-inbox-row__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.vgt-inbox-row.is-unread .vgt-inbox-row__name {
+  font-weight: 700;
+}
+
+.vgt-inbox-row__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--vgt-pigment);
+}
+
+.vgt-inbox-row__time {
+  flex: none;
+  margin-left: auto;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  white-space: nowrap;
+}
+
+.vgt-inbox-row__thread {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  height: 16px;
+  padding: 0 6px;
+  border: var(--vgt-hairline) solid var(--vgt-pigment-line);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-pigment);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.vgt-inbox-row__pin {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  color: var(--vgt-pigment);
+}
+
+.vgt-inbox-row__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 20px;
+  height: 18px;
+  margin-left: auto;
+  padding: 0 6px;
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-pigment-strong);
+  color: var(--vgt-text-on-pigment);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.vgt-inbox-row__subject {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  line-height: 1.4;
+}
+
+.vgt-inbox-row.is-unread .vgt-inbox-row__subject {
+  color: var(--vgt-text-primary);
+  font-weight: 600;
+}
+
+.vgt-inbox-row__subject--meta {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-inbox-row__id {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--vgt-text-muted);
+  font-family: var(--vgt-font-mono);
+  font-size: var(--vgt-text-xs);
+  line-height: 1.4;
+}
+
+.vgt-inbox-row__preview {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  line-height: 1.45;
+}
+
+.vgt-inbox-row__tag {
+  color: var(--vgt-text-muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.vgt-inbox-row__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+/* ---------- Security / label chips (state is text, not colour only) ------- */
+.vgt-inbox-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 18px;
+  padding: 0 7px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.vgt-inbox-chip--secure {
+  border-color: var(--vgt-pigment-line);
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-pigment);
+}
+
+.vgt-inbox-chip--legacy {
+  border-color: color-mix(in srgb, var(--vgt-warning) 42%, transparent);
+  background: var(--vgt-warning-soft);
+  color: var(--vgt-warning);
+}
+
+.vgt-inbox-chip--warn {
+  border-color: color-mix(in srgb, var(--vgt-warning) 42%, transparent);
+  background: var(--vgt-warning-soft);
+  color: var(--vgt-warning);
+}
+
+.vgt-inbox-chip--label {
+  color: var(--vgt-text-secondary);
+}
+
+/* ---------- Secondary row controls ---------- */
+.vgt-inbox-row__check-wrap {
+  display: flex;
+  align-items: center;
+  padding-left: var(--vgt-space-3);
+}
+
+.vgt-inbox-row__check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--vgt-pigment-strong);
+  cursor: pointer;
+}
+
+.vgt-inbox-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding-right: var(--vgt-space-2);
+}
+
+.vgt-inbox-row__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--vgt-radius-xs);
+  color: var(--vgt-text-muted);
+}
+
+.vgt-inbox-row__icon:hover {
+  color: var(--vgt-text-primary);
+  background: var(--vgt-bg-3);
+}
+
+.vgt-inbox-row__icon.is-on {
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-inbox-row__icon--star.is-on {
+  color: var(--vgt-accent-bronze);
+}
+
+.vgt-inbox-row__icon--star.is-on svg {
+  fill: currentColor;
+}
+
+.vgt-inbox-row__icon--important.is-on {
+  color: var(--vgt-pigment);
+}
+
+.vgt-inbox-row__icon--important.is-on svg {
+  fill: currentColor;
+}
+
+.vgt-inbox-row__aside {
+  align-self: center;
+  flex: none;
+}
+
+/* ---------- Honest empty / unavailable states ---------- */
+.vgt-inbox-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--vgt-space-2);
+  max-width: 36ch;
+  margin: 0 auto;
+  padding: var(--vgt-space-8) var(--vgt-space-5);
+}
+
+.vgt-inbox-empty__mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--vgt-space-1);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-muted);
+}
+
+.vgt-inbox-empty__title {
+  margin: 0;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-md);
+  font-weight: 620;
+  line-height: var(--vgt-leading-snug);
+}
+
+.vgt-inbox-empty__text {
+  margin: 0;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+}
+
+.vgt-inbox-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+  margin-top: var(--vgt-space-2);
+}
+
+.vgt-inbox-empty__actions .btn-primary,
+.vgt-inbox-empty__actions .btn-secondary,
+.vgt-inbox-empty__actions .btn-ghost {
+  --vgt-control-min-h: 36px;
+}
+
+/* ---------- Light mode: tokens switch automatically; keep row tint calm ---- */
+body.light-mode .vgt-inbox-row.is-untrusted {
+  background-image: linear-gradient(90deg, var(--vgt-warning-soft), transparent 70%);
+}
+
+body.light-mode .vgt-inbox-row.is-active {
+  background: var(--vgt-pigment-soft);
+}
+
+/* ---------- Forced colours: keep selection visible without colour ---------- */
+@media (forced-colors: active) {
+  .vgt-inbox-row.is-active::before {
+    background: Highlight;
+  }
+
+  .vgt-inbox-row.is-active {
+    outline: 1px solid Highlight;
+    outline-offset: -1px;
+  }
+
+  .vgt-inbox-chip,
+  .vgt-inbox-row__avatar,
+  .vgt-inbox-empty__mark {
+    border: 1px solid CanvasText;
+  }
+}

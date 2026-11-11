@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package de.gaiacom.platform.identity
 
 import java.util.concurrent.locks.ReentrantReadWriteLock

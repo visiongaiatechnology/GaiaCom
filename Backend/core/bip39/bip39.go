@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 // Package bip39 implements BIP-0039: Mnemonic code for generating deterministic keys.
 //
 // Specification: https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki

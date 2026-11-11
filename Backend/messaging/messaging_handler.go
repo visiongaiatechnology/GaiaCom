@@ -86,6 +86,12 @@ func (h *MessagingHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 			httpx.WriteError(w, http.StatusBadRequest, "Message rejected")
 			return
 		}
+		// P-09 / FIND-011: per-user fan-out budgets (requests, recipients, bytes).
+		if err := sec.CheckMessageFanout(r.Context(), r, senderUUID, len(recipientUUIDs), len(envelopeBytes)); err != nil {
+			log.Printf("messaging fan-out budget rejected for sender %s: %v", senderUUID.String(), err)
+			httpx.WriteError(w, http.StatusTooManyRequests, "Message rate limit exceeded")
+			return
+		}
 	}
 
 	messageID, err := h.Service.SaveAndDistributeMessage(r.Context(), userID, senderUUID, envelopeBytes, recipientUUIDs)

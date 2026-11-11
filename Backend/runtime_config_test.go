@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package backend
 
 import (
@@ -34,7 +33,7 @@ func TestDefaultRouteOriginsExcludeDevelopmentAndWebOriginsInProduction(t *testi
 			t.Fatalf("production origin allowlist missing %q: %#v", required, origins)
 		}
 	}
-	for _, forbidden := range []string{"http://localhost:3000", "http://localhost:1420", "https://app.gaiacom.net", "https://appassets.androidplatform.net"} {
+	for _, forbidden := range []string{"http://localhost:3000", "http://localhost:1420", "https://node.example.org", "https://appassets.androidplatform.net"} {
 		if containsExactString(origins, forbidden) {
 			t.Fatalf("production origin allowlist contains %q: %#v", forbidden, origins)
 		}

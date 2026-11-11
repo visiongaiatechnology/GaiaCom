@@ -1,0 +1,141 @@
+/* ============================================================================
+   AURORA v5 — Workspace & Mockup Fidelity Extensions
+   Astraea polish for Groups, Channels, GSN, Mail Watermark, and Window Controls.
+   ========================================================================== */
+
+.vgt-ch-discovery__head, .vgt-gsn-head, .vgt-ch-header {
+  border: 1px solid rgba(84, 116, 146, 0.26);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(13, 24, 38, 0.94), rgba(8, 17, 30, 0.9));
+  padding: 16px 18px;
+}
+.vgt-gsn-head h2, .vgt-ch-discovery__head h1, .vgt-ch-header__title { color: #f6fbff; font-weight: 750; letter-spacing: -0.015em; }
+.vgt-gsn-head .vgt-body, .vgt-ch-discovery__head .vgt-body { color: #8fa6ba; }
+.vgt-list__row, .vgt-ch-results .vgt-list__row { border-radius: 11px; border: 1px solid rgba(84, 116, 146, 0.22); background: linear-gradient(160deg, rgba(13, 24, 38, 0.9), rgba(8, 17, 30, 0.9)); }
+.vgt-profile, .vgt-security, .vgt-drive { color: #eaf6f8; }
+.vgt-profile h1, .vgt-security h1, .vgt-drive h1, .vgt-profile h2, .vgt-security h2 { color: #f6fbff; }
+.vgt-security__stat, .vgt-profile__card, .vgt-drive__card { border-radius: 12px; border: 1px solid rgba(84, 116, 146, 0.24); background: linear-gradient(160deg, rgba(13, 24, 38, 0.92), rgba(8, 17, 30, 0.9)); }
+.vgt-chat--empty, .vgt-chat-empty { color: #93a9ba; }
+
+/* ---------- GSN Trends & Recommendations (Image 7) ---------- */
+.vgt-gsn-trends {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vgt-gsn-trend-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 120ms ease;
+}
+
+.vgt-gsn-trend-item:hover {
+  background: rgba(0, 229, 255, 0.08);
+}
+
+.vgt-gsn-trend-tag {
+  color: #7ef3ff;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.vgt-gsn-trend-count {
+  color: #7f99ad;
+  font-size: 0.68rem;
+}
+
+.vgt-gsn-recommend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(84, 116, 146, 0.24);
+  border-radius: 11px;
+  background: rgba(13, 24, 38, 0.7);
+}
+
+.vgt-gsn-recommend__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  object-fit: cover;
+}
+
+.vgt-gsn-recommend__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.vgt-gsn-recommend__info strong {
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.vgt-gsn-recommend__info small {
+  color: #7f99ad;
+  font-size: 0.68rem;
+}
+
+.vgt-gsn-recommend__btn {
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  background: rgba(0, 229, 255, 0.12);
+  color: #7ef3ff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vgt-gsn-recommend__btn.is-following {
+  border-color: rgba(47, 227, 165, 0.4);
+  background: rgba(47, 227, 165, 0.12);
+  color: #a9f5d8;
+}
+
+/* ---------- Mail Reader Watermark (Image 2) ---------- */
+.vgt-mail-reader__thread {
+  position: relative;
+}
+
+.vgt-mail-reader__thread::after {
+  content: '';
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  width: 130px;
+  height: 90px;
+  background: url('/ui/pqc_envelope.png') center / contain no-repeat;
+  opacity: 0.85;
+  pointer-events: none;
+  filter: drop-shadow(0 0 16px rgba(0, 229, 255, 0.4));
+}
+
+/* ---------- Chat Bubble Polish (Image 4) ---------- */
+.vgt-msg--own {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.22) 0%, rgba(35, 217, 200, 0.16) 100%) !important;
+  border: 1px solid rgba(0, 229, 255, 0.45) !important;
+  box-shadow: 0 4px 14px rgba(0, 229, 255, 0.15) !important;
+}
+
+/* ---------- Custom Frameless Desktop Window (Tauri) ---------- */
+html.is-tauri .app-container {
+  margin: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+}

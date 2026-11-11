@@ -1,0 +1,14 @@
+/* ============================================================================
+   VGT GLASS 2100 — AREA: MESSAGING
+   Entry aggregator only; part sheets stay below the VGT 500-line rule.
+   ========================================================================== */
+
+@import './core.css';
+@import './chat.css';
+@import './messages.css';
+@import './composer.css';
+@import './composer-dock.css';
+@import './dialog.css';
+@import './group.css';
+@import './group-members.css';
+@import './search.css';

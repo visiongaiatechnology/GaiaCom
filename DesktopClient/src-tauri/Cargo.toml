@@ -1,9 +1,9 @@
 [package]
 name = "gaiacom"
-version = "2.0.0"
-description = "GaiaCom secure federated communications client for AstraeaOS"
+version = "3.0.2"
+description = "GaiaCom 3 - sovereign post-quantum communications client for AstraeaOS"
 authors = ["VisionGaiaTechnology"]
-license = "AGPL-3.0-only"
+license = "AGPL-3.0-or-later"
 edition = "2021"
 rust-version = "1.85"
 

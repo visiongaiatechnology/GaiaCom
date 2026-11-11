@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 import { invoke } from '@tauri-apps/api/core';
 
 const SELF_TEST_ROOT = '6d'.repeat(32);

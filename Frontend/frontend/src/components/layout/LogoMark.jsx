@@ -1,16 +1,27 @@
 import React from 'react';
-import gaiacomLogo from '../../gaiacom.png';
 
-export default function LogoMark({ compact = false }) {
+/**
+ * GaiaCom brand mark — VGT GLASS 2100.
+ * The "Aegis Seal": a hexagonal shield containing three nested layers
+ * (classical exchange + two post-quantum KEMs) converging on one envelope core.
+ * Rendered as local SVG (no raster logo, no CDN, no gradient text).
+ */
+export default function LogoMark({ compact = false, size = 30 }) {
   return (
-    <div className={`logo-mark ${compact ? 'compact' : ''}`}>
-      <div className="logo-icon-wrapper">
-        <img className="logo-icon" src={gaiacomLogo} alt="GaiaCom Logo" />
-      </div>
+    <div className={compact ? 'vgt-brandmark vgt-brandmark--compact' : 'vgt-brandmark'}>
+      <img
+        className="vgt-brandmark__seal"
+        src="/brand/gaiacom-mark.webp"
+        width={size}
+        height={size}
+        alt=""
+        aria-hidden="true"
+        draggable="false"
+      />
       {!compact && (
-        <h1 className="logo-title font-display text-gradient">
-          Gaia<span className="logo-title-suffix">COM</span>
-        </h1>
+        <span className="vgt-brandmark__word">
+          Gaia<span className="vgt-brandmark__word-accent">Com</span>
+        </span>
       )}
     </div>
   );

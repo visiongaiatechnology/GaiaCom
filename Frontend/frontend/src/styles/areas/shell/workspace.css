@@ -1,0 +1,498 @@
+/* ============================================================================
+   VGT GLASS 2100 — WORKSPACE SHELL
+   App-root geometry, the navigation rail (Z2 quiet glass), its grouped
+   destinations, the mobile bottom dock (Z3 floating glass) with its "Mehr"
+   sheet, and the calm boot / switch veils.
+   Owner: WP-SHELL. Rules: docs/redesign/IMPLEMENTATION_SPEC.md
+   ========================================================================== */
+
+/* ---------- 1. App root: rail 264 / list 380 / working surface ---------- */
+@media (min-width: 993px) {
+  .app-container { grid-template-columns: 264px 380px minmax(0, 1fr); }
+
+  /* listpane.css and nebula.css pin the collapsed grid with; the
+     264px rail contract of the redesign must win, so this override is
+     justified and documented in the package handoff. */
+  .app-container.mail-list-collapsed { grid-template-columns: 264px minmax(0, 1fr); }
+}
+
+.app-container { background: transparent; border: 0; box-shadow: none; }
+
+/* Legacy nebula decoration (screen-blend wash, neon divider, content glow).
+   The markup is gone from App.jsx/AppMainContent; layers owned by other
+   packages are neutralised here instead of edited inside their sheets. */
+.app-container::before,
+.app-container::after,
+.nebula-content-frame::before { content: none; }
+
+/* ---------- 2. Navigation rail (Z2 quiet glass) ---------- */
+.navigation-sidebar {
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  border: 0;
+  border-right: var(--vgt-hairline) solid var(--vgt-glass-stroke);
+  border-radius: 0;
+  background: var(--vgt-glass-1); /* nebula.css pins this with */
+  box-shadow: none;
+  backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.08);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.08);
+}
+
+.navigation-sidebar::before { content: none; } /* legacy neon top rule */
+
+.vgt-rail {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-rail__brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-2);
+  flex: none;
+  padding: var(--vgt-space-5) var(--vgt-space-4) var(--vgt-space-3);
+}
+
+.vgt-rail__close { display: none; } /* shown only as the mobile rail close hook */
+
+/* ---------- 3. Active identity ---------- */
+.vgt-rail__identity {
+  flex: none;
+  margin: 0 var(--vgt-space-3) var(--vgt-space-2);
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-2);
+  box-shadow: var(--vgt-inner-highlight);
+}
+
+.vgt-identity__row { display: flex; align-items: center; gap: var(--vgt-space-3); min-width: 0; }
+
+.vgt-identity__avatar {
+  display: grid; place-items: center; flex: none; width: 34px; height: 34px;
+  border-radius: var(--vgt-radius-control); background: var(--vgt-pigment-strong);
+  color: var(--vgt-text-on-pigment); font-size: var(--vgt-text-sm); font-weight: 700;
+}
+
+.vgt-identity__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.vgt-identity__name {
+  overflow: hidden; color: var(--vgt-text-primary); font-size: var(--vgt-text-md);
+  font-weight: 620; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.vgt-identity__id {
+  overflow: hidden; color: var(--vgt-text-muted); font-family: var(--vgt-font-mono);
+  font-size: 10px; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.vgt-identity__meta {
+  display: flex; align-items: center; gap: 6px; margin-top: var(--vgt-space-2);
+  color: var(--vgt-text-muted); font-size: var(--vgt-text-xs);
+}
+
+.vgt-identity__dot { width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--vgt-success); }
+.vgt-identity__count { margin-left: auto; color: var(--vgt-text-muted); }
+.vgt-identity__action { width: 100%; margin-top: var(--vgt-space-3); font-size: var(--vgt-text-xs); }
+
+/* ---------- 4. Grouped destinations ---------- */
+.vgt-rail__scroll {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: var(--vgt-space-1) var(--vgt-space-3) var(--vgt-space-3);
+}
+
+.vgt-rail__nav { display: flex; flex-direction: column; gap: 2px; }
+.vgt-nav__group { display: flex; flex-direction: column; gap: 2px; }
+
+.vgt-nav__label {
+  display: flex; align-items: center; gap: var(--vgt-space-2);
+  margin: var(--vgt-space-4) var(--vgt-space-2) var(--vgt-space-1);
+  color: var(--vgt-text-muted); font-size: 10px; font-weight: 650;
+  letter-spacing: var(--vgt-tracking-wide); text-transform: uppercase;
+}
+
+.vgt-nav__label::after { content: ''; flex: 1; height: var(--vgt-hairline); background: var(--vgt-divider); }
+.vgt-nav__label:first-child { margin-top: var(--vgt-space-2); }
+
+.vgt-nav__item {
+  position: relative; display: flex; align-items: center; gap: 10px; width: 100%;
+  min-height: 36px; padding: 0 var(--vgt-space-3);
+  border: var(--vgt-hairline) solid transparent; border-radius: var(--vgt-radius-control);
+  background: transparent; color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-sans); font-size: var(--vgt-text-sm); font-weight: 560;
+  line-height: 1.2; text-align: left; cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease,
+              border-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+.vgt-nav__item > svg { flex: none; color: var(--vgt-text-muted); transition: color var(--vgt-dur-micro) ease; }
+.vgt-nav__item:hover { background: var(--vgt-bg-4); color: var(--vgt-text-primary); }
+.vgt-nav__item:hover > svg { color: var(--vgt-text-secondary); }
+
+.vgt-nav__item:focus-visible,
+.vgt-nav__sub-item:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+
+.vgt-nav__item[aria-current='page'],
+.vgt-nav__item[data-active='true'] {
+  background: var(--vgt-pigment-soft); border-color: var(--vgt-pigment-line);
+  color: var(--vgt-text-primary); font-weight: 620;
+}
+
+.vgt-nav__item[aria-current='page'] > svg,
+.vgt-nav__item[data-active='true'] > svg { color: var(--vgt-pigment); }
+
+/* Active marker: a pigment hairline in addition to surface and text. */
+.vgt-nav__item[aria-current='page']::before,
+.vgt-nav__item[data-active='true']::before {
+  content: ''; position: absolute; inset: 7px auto 7px 0; width: 2px;
+  border-radius: var(--vgt-radius-pill); background: var(--vgt-pigment);
+}
+
+.vgt-nav__text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.vgt-nav__item--group .vgt-nav__chevron {
+  margin-left: auto; color: var(--vgt-text-muted);
+  transition: transform var(--vgt-dur-component) var(--vgt-ease-out);
+}
+
+.vgt-nav__item--group[aria-expanded='true'] .vgt-nav__chevron { transform: rotate(180deg); }
+
+.vgt-nav__badge {
+  min-width: 20px; margin-left: auto; padding: 1px 6px;
+  border-radius: var(--vgt-radius-pill); background: var(--vgt-pigment-strong);
+  color: var(--vgt-text-on-pigment); font-size: 10px; font-weight: 700;
+  font-variant-numeric: tabular-nums; line-height: 1.5; text-align: center;
+}
+
+.vgt-nav__sub {
+  display: flex; flex-direction: column; gap: 1px;
+  margin: 2px 0 var(--vgt-space-2) var(--vgt-space-3);
+  padding-left: var(--vgt-space-2); border-left: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-nav__sub-item {
+  display: flex; align-items: center; gap: var(--vgt-space-2); width: 100%;
+  min-height: 30px; padding: 0 var(--vgt-space-2); border: 0;
+  border-radius: var(--vgt-radius-xs); background: transparent;
+  color: var(--vgt-text-muted); font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-xs); font-weight: 560; text-align: left; cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+.vgt-nav__sub-item > svg { flex: none; color: var(--vgt-text-muted); }
+.vgt-nav__sub-item:hover { background: var(--vgt-bg-4); color: var(--vgt-text-primary); }
+
+.vgt-nav__sub-item[aria-current='page'] {
+  background: var(--vgt-pigment-soft); color: var(--vgt-text-primary); font-weight: 620;
+}
+
+.vgt-nav__sub-item[aria-current='page'] > svg { color: var(--vgt-pigment); }
+
+/* ---------- 5. Quiet utility footer ---------- */
+.vgt-rail__footer {
+  flex: none; display: flex; flex-direction: column; gap: var(--vgt-space-2);
+  padding: var(--vgt-space-3); border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-rail__switch { min-height: 30px; }
+.vgt-rail__switch-label { color: var(--vgt-text-secondary); font-size: var(--vgt-text-xs); }
+.vgt-rail__lang { width: 100%; }
+.vgt-rail__lang .vgt-lang__select { width: 100%; }
+
+.vgt-rail__security {
+  display: flex; align-items: center; gap: var(--vgt-space-2); width: 100%;
+  min-height: 34px; padding: 0 var(--vgt-space-2);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control); background: transparent;
+  color: var(--vgt-text-secondary); font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-xs); font-weight: 600; text-align: left; cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, border-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-rail__security:hover {
+  background: var(--vgt-bg-4); border-color: var(--vgt-border-strong);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-rail__security:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+.vgt-rail__security-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vgt-rail__chevron { margin-left: auto; color: var(--vgt-text-muted); }
+
+.vgt-rail__actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--vgt-space-2); }
+.vgt-rail__action { min-width: 0; padding: 0 var(--vgt-space-2); font-size: var(--vgt-text-xs); }
+.vgt-rail__action svg { flex: none; }
+.vgt-rail__action--danger { color: var(--vgt-danger); }
+.vgt-rail__action--danger:hover:not(:disabled) { background: var(--vgt-danger-soft); color: var(--vgt-danger); }
+
+.vgt-rail__meta {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--vgt-space-2);
+  padding-top: var(--vgt-space-2); border-top: var(--vgt-hairline) solid var(--vgt-divider);
+  color: var(--vgt-text-muted); font-size: 10px;
+}
+
+.vgt-rail__credit a { color: var(--vgt-pigment); font-weight: 600; text-decoration: none; }
+.vgt-rail__credit a:hover { text-decoration: underline; }
+
+/* ---------- 6. Legacy light-mode guard (documented exception) ----------
+   theme.css / nebula.css force colours on the whole rail in light
+   mode. The GLASS 2100 "daylight porcelain" material needs its own hierarchy,
+   so these re-assertions repeat the legacy specificity and load later. */
+body.light-mode .navigation-sidebar {
+  background: var(--vgt-glass-1);
+  border-right-color: var(--vgt-glass-stroke);
+}
+
+body.light-mode .navigation-sidebar :where(.vgt-rail, .vgt-nav__item, .vgt-nav__sub-item, .vgt-nav__text, .vgt-rail__security, .vgt-rail__security-label, .vgt-rail__switch-label) {
+  color: var(--vgt-text-secondary);
+}
+
+body.light-mode .navigation-sidebar :where(.vgt-nav__label, .vgt-identity__id, .vgt-identity__meta, .vgt-identity__count, .vgt-rail__meta) {
+  color: var(--vgt-text-muted);
+}
+
+body.light-mode .navigation-sidebar :where(.vgt-identity__name, .vgt-nav__item[aria-current='page'], .vgt-nav__item[data-active='true'], .vgt-nav__sub-item[aria-current='page']) {
+  color: var(--vgt-text-primary);
+}
+
+body.light-mode .navigation-sidebar :where(.vgt-nav__item[aria-current='page'] .vgt-nav__text, .vgt-nav__item[data-active='true'] .vgt-nav__text) {
+  color: var(--vgt-text-primary);
+}
+
+body.light-mode .navigation-sidebar :where(.vgt-brandmark, .vgt-brandmark__seal, .vgt-rail__credit a) {
+  color: var(--vgt-pigment);
+}
+
+body.light-mode .navigation-sidebar :where(.vgt-identity__avatar, .vgt-nav__badge) {
+  color: var(--vgt-text-on-pigment);
+}
+
+body.light-mode .navigation-sidebar :where(.vgt-nav__item:hover, .vgt-nav__sub-item:hover, .vgt-rail__security:hover) {
+  color: var(--vgt-text-primary);
+}
+
+body.light-mode .navigation-sidebar :where(.vgt-nav__item, .vgt-nav__sub-item) svg {
+  color: var(--vgt-text-muted);
+}
+
+body.light-mode .navigation-sidebar :where(.vgt-nav__item[aria-current='page'], .vgt-nav__item[data-active='true'], .vgt-nav__sub-item[aria-current='page']) svg {
+  color: var(--vgt-pigment);
+}
+
+/* ---------- 7. Mobile bottom dock (Z3 floating glass) ---------- */
+.vgt-dock { display: none; }
+
+@media (max-width: 992px) {
+  .vgt-dock {
+    position: fixed; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom));
+    left: 12px; z-index: 940; /* above workspace content, below the mobile rail (1000) */
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px;
+    padding: 6px; border: var(--vgt-hairline) solid var(--vgt-glass-stroke-strong);
+    border-radius: var(--vgt-radius-floating); background: var(--vgt-glass-3);
+    box-shadow: var(--vgt-elevation-3), var(--vgt-inner-highlight);
+    backdrop-filter: blur(var(--vgt-blur-3)) saturate(1.15);
+    -webkit-backdrop-filter: blur(var(--vgt-blur-3)) saturate(1.15);
+  }
+
+  .app-container.mobile-menu-open .vgt-dock { display: none; }
+
+  .vgt-dock__item {
+    display: grid; justify-items: center; align-content: center; gap: 3px;
+    min-width: 0; min-height: 48px; padding: 6px 2px; border: 0;
+    border-radius: var(--vgt-radius-control); background: transparent;
+    color: var(--vgt-text-muted); font-family: var(--vgt-font-sans); font-size: 10px;
+    font-weight: 600; letter-spacing: 0.01em; cursor: pointer;
+    transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+  }
+
+  .vgt-dock__item:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+
+  .vgt-dock__item[aria-current='page'] { background: var(--vgt-pigment-soft); color: var(--vgt-text-primary); }
+  .vgt-dock__item[aria-current='page'] svg { color: var(--vgt-pigment); }
+
+  .vgt-dock__icon { position: relative; display: grid; place-items: center; width: 24px; height: 22px; color: inherit; }
+  .vgt-dock__label { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .vgt-dock__badge {
+    position: absolute; top: -6px; right: -9px; min-width: 15px; padding: 0 4px;
+    border: 2px solid var(--vgt-bg-1); border-radius: var(--vgt-radius-pill);
+    background: var(--vgt-pigment-strong); color: var(--vgt-text-on-pigment);
+    font-size: 9px; font-weight: 700; line-height: 1.5; text-align: center;
+  }
+
+  /* Clear the floating dock from the scrollable workspace. */
+  .app-container { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+
+  /* ---------- 8. "Mehr" sheet ---------- */
+  .vgt-dock__sheet {
+    position: fixed; inset: 0; z-index: 950;
+    display: flex; flex-direction: column; justify-content: flex-end;
+  }
+
+  .vgt-dock__scrim {
+    position: absolute; inset: 0; border: 0; background: var(--vgt-scrim);
+    backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+  }
+
+  .vgt-dock__panel {
+    position: relative; display: flex; flex-direction: column; gap: 2px;
+    max-height: 64vh; margin: 0 8px calc(8px + env(safe-area-inset-bottom));
+    padding: var(--vgt-space-2); overflow-y: auto; border-radius: var(--vgt-radius-floating);
+  }
+
+  .vgt-dock__panel-list { display: flex; flex-direction: column; gap: 2px; }
+
+  .vgt-dock__panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: var(--vgt-space-1) var(--vgt-space-2) var(--vgt-space-2);
+  }
+
+  .vgt-dock__panel-item {
+    display: flex; align-items: center; gap: var(--vgt-space-3); min-height: 46px;
+    padding: 0 var(--vgt-space-3); border: 0; border-radius: var(--vgt-radius-control);
+    background: transparent; color: var(--vgt-text-secondary);
+    font-family: var(--vgt-font-sans); font-size: var(--vgt-text-md);
+    text-align: left; cursor: pointer;
+  }
+
+  .vgt-dock__panel-item:focus-visible,
+  .vgt-dock__panel-more:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+
+  .vgt-dock__panel-item[aria-current='page'] { background: var(--vgt-pigment-soft); color: var(--vgt-text-primary); }
+  .vgt-dock__panel-item svg { flex: none; color: var(--vgt-text-muted); }
+  .vgt-dock__panel-item[aria-current='page'] svg { color: var(--vgt-pigment); }
+
+  .vgt-dock__panel-more {
+    display: flex; align-items: center; gap: var(--vgt-space-2); min-height: 44px;
+    margin-top: var(--vgt-space-2); padding: 0 var(--vgt-space-3); border: 0;
+    border-top: var(--vgt-hairline) solid var(--vgt-divider); background: transparent;
+    color: var(--vgt-text-muted); font-family: var(--vgt-font-sans);
+    font-size: var(--vgt-text-sm); font-weight: 600; text-align: left; cursor: pointer;
+  }
+
+  .vgt-dock__panel-chevron { margin-left: auto; }
+}
+
+/* ---------- 9. Boot sequence and mode-switch veils ---------- */
+.vgt-boot,
+.vgt-switch-veil {
+  position: fixed; inset: 0; z-index: var(--vgt-z-critical);
+  display: grid; place-items: center;
+  background:
+    radial-gradient(40rem 28rem at 50% 46%, rgba(111, 195, 178, 0.10), transparent 68%),
+    rgba(5, 7, 9, 0.88);
+  backdrop-filter: blur(var(--vgt-blur-2)); -webkit-backdrop-filter: blur(var(--vgt-blur-2));
+  animation: vgt-shell-veil-in var(--vgt-dur-view) var(--vgt-ease-out) both;
+}
+
+/* The token z-scale predates the legacy overlay stack (1000-99999); these two
+   veils must keep covering it, so the legacy-compatible layers are pinned. */
+.vgt-boot {
+  z-index: 1200; /* previous boot layer */
+  pointer-events: none; /* it never blocked input before */
+}
+
+.vgt-switch-veil {
+  z-index: 99999; /* previous mode-switch layer: must cover every legacy modal */
+}
+
+.vgt-boot__inner,
+.vgt-switch-veil__inner {
+  display: flex; flex-direction: column; align-items: center;
+  gap: var(--vgt-space-3); padding: var(--vgt-space-6); text-align: center;
+}
+
+.vgt-boot .vgt-brandmark__word,
+.vgt-switch-veil .vgt-brandmark__word { font-size: var(--vgt-text-xl); }
+
+.vgt-boot__caption {
+  margin: 0; color: var(--vgt-text-muted); font-size: var(--vgt-text-xs);
+  letter-spacing: var(--vgt-tracking-wide); text-transform: uppercase;
+}
+
+.vgt-switch-veil__text {
+  margin: 0; color: var(--vgt-text-primary); font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-2xl); font-weight: 600; letter-spacing: -0.02em;
+}
+
+@keyframes vgt-shell-veil-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ---------- 10. Workspace pane shell helpers ---------- */
+.vgt-pane-surface { position: relative; }
+
+.vgt-pane-expand {
+  position: absolute; top: 50%; left: 0; z-index: var(--vgt-z-sticky);
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 64px; border: var(--vgt-hairline) solid var(--vgt-border);
+  border-left: 0; border-radius: 0 var(--vgt-radius-control) var(--vgt-radius-control) 0;
+  background: var(--vgt-bg-2); color: var(--vgt-text-secondary);
+  transform: translateY(-50%); cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+.vgt-pane-expand:hover {
+  background: var(--vgt-bg-4); border-color: var(--vgt-border-strong);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-pane-expand:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+
+/* Legacy metrics kept the mobile menu toggle at 34px; the shell
+   needs a 40px touch target. */
+.vgt-pane-menu {
+  min-height: 40px; height: auto;
+  border-color: var(--vgt-border);
+  background: var(--vgt-bg-2); color: var(--vgt-text-secondary);
+}
+
+.vgt-pane-menu:hover {
+  border-color: var(--vgt-border-strong);
+  background: var(--vgt-bg-4); color: var(--vgt-text-primary);
+}
+
+.vgt-pane-fallback__copy { max-width: 380px; color: var(--vgt-text-muted); font-size: var(--vgt-text-sm); }
+
+@media (max-width: 992px) {
+  .vgt-pane-expand { display: none; }
+}
+
+/* ---------- 11. Adaptive material (mirrors glass2100/materials.css) ----------
+   The rail background is pinned with to defeat the legacy sheets, so
+   the adaptive fallbacks have to be re-asserted at the same layer. */
+@media (prefers-reduced-transparency: reduce) {
+  .navigation-sidebar {
+    background: var(--vgt-bg-2);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .vgt-dock {
+    background: var(--vgt-bg-2);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .navigation-sidebar {
+    background: Canvas;
+    border-right: 1px solid CanvasText;
+  }
+
+  .vgt-dock,
+  .vgt-dock__panel { border: 1px solid CanvasText; }
+}
+
+/* Thumb-safe rail rows on touch hardware (the rail becomes a sheet there). */
+@media (pointer: coarse) {
+  .vgt-nav__item { min-height: 44px; }
+  .vgt-nav__sub-item { min-height: 40px; }
+}

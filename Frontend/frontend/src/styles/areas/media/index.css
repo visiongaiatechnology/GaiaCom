@@ -1,0 +1,15 @@
+/* ============================================================================
+   VGT GLASS 2100 — AREA: MEDIA
+   Entry aggregator only; part sheets stay below the VGT 500-line rule.
+   ========================================================================== */
+
+@import './shared.css';
+@import './shared-support.css';
+@import './drive.css';
+@import './drop.css';
+@import './gsn.css';
+@import './gsn-rail.css';
+@import './channels.css';
+@import './dialogs.css';
+@import './dialogs-contact.css';
+@import './dialogs-settings.css';

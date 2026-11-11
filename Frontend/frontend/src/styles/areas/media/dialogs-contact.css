@@ -1,0 +1,268 @@
+/* VGT GLASS 2100 — PANES MEDIA: DIALOGS — CONTACT PROFILE, FINGERPRINT, SHIELD. */
+/* ---------- Contact profile ---------- */
+.vgt-contact-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-4);
+  flex-wrap: wrap;
+  padding-bottom: var(--vgt-space-4);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-contact-hero__avatar-box {
+  width: 80px;
+  height: 80px;
+  flex: none;
+  border-radius: 16px;
+  border: 1px solid rgba(53, 230, 255, 0.35);
+  background: rgba(11, 22, 38, 0.75);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.15);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vgt-contact-hero .vgt-gsn-avatar,
+.vgt-apass__photo .vgt-gsn-avatar {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 2.2rem !important;
+}
+
+.vgt-contact-hero__copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  min-width: 0;
+  flex: 1;
+}
+
+.vgt-contact-hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-4);
+  margin: 0;
+}
+
+.vgt-contact-hero__stats dt {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vgt-contact-hero__stats dd {
+  margin: 2px 0 0;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+}
+
+.vgt-contact-info,
+.vgt-contact-crypto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+}
+
+.vgt-contact-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--vgt-space-3);
+  margin: 0;
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-contact-facts dt {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vgt-contact-facts dd {
+  margin: 2px 0 0;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  word-break: break-word;
+}
+
+.vgt-contact-bio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-contact-bio p { margin: 0; }
+
+.vgt-contact-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-4);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-contact-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-contact-fingerprint {
+  display: block;
+  padding: var(--vgt-space-3);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-1);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
+  word-break: break-all;
+}
+
+.vgt-key-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.vgt-key-history__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-key-history__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-key-history__item code { color: var(--vgt-text-secondary); word-break: break-all; }
+
+.vgt-contact-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ---------- Contact discovery result ---------- */
+.vgt-contact-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  flex-wrap: wrap;
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-contact-result__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  min-width: 0;
+}
+
+.vgt-contact-result__identity > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vgt-contact-result__avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--vgt-pigment-soft);
+  color: var(--vgt-pigment);
+  font-weight: 700;
+}
+
+/* ---------- Key-change warning ---------- */
+.vgt-fingerprints {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--vgt-space-3);
+  margin: 0;
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-fingerprints dt { margin-bottom: 2px; }
+.vgt-fingerprints dd { margin: 0; color: var(--vgt-text-secondary); word-break: break-all; }
+
+/* ---------- Quantum shield explainer ---------- */
+.vgt-shield-layers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-shield-layer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-shield-layer__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--vgt-radius-xs);
+  background: var(--vgt-bg-3);
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-shield-layer--pigment .vgt-shield-layer__icon { color: var(--vgt-pigment); background: var(--vgt-pigment-soft); }
+.vgt-shield-layer--titan .vgt-shield-layer__icon { color: var(--vgt-accent-titan); background: var(--vgt-info-soft); }
+.vgt-shield-layer--success .vgt-shield-layer__icon { color: var(--vgt-success); background: var(--vgt-success-soft); }
+.vgt-shield-layer--bronze .vgt-shield-layer__icon { color: var(--vgt-accent-bronze); background: rgba(201, 168, 119, 0.10); }
+
+.vgt-shield-layer strong { color: var(--vgt-text-primary); }
+.vgt-shield-layer p { margin: 2px 0 0; }
+
+/* Contact trust card spacing (migrated from legacy chat.css). */
+.contact-profile-passport-card {
+  margin-bottom: 14px;
+}

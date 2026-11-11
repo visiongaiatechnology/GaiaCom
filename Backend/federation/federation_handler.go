@@ -122,6 +122,7 @@ func (h *Handler) HandleServerDiscovery(w http.ResponseWriter, r *http.Request) 
 	doc := map[string]string{
 		"server_name":        h.Service.GetServerName(),
 		"ed25519_public_key": pubKeyBase64,
+		"key_fingerprint":    keyFingerprint(pubKey),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -135,9 +136,18 @@ func (h *Handler) HandleNodeInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	serverName := h.Service.GetServerName()
+	fingerprint := keyFingerprint(h.Service.GetPublicKey())
+	signatureSuites := []string{federationTopSecretAlgorithmSuite}
+	// Sign the deterministic capability-document payload so other nodes can bind
+	// the capability advertisement to the pinned peer key (P-05 / FIND-005).
+	canonical := canonicalNodeInfoSignaturePayload(serverName, fingerprint, true, signatureSuites)
+
 	doc := map[string]interface{}{
-		"server_name": h.Service.GetServerName(),
-		"protocols":   []string{"gaiacom.s2s.v1"},
+		"server_name":     serverName,
+		"key_fingerprint": fingerprint,
+		"signature":       h.Service.SignNodeInfoPayload(canonical),
+		"protocols":       []string{"gaiacom.s2s.v1"},
 		"endpoints": map[string]string{
 			"s2s_forward": "/.well-known/gaiacom/s2s/v1/forward",
 			"node_list":   "/api/v1/public/nodes",
@@ -153,7 +163,7 @@ func (h *Handler) HandleNodeInfo(w http.ResponseWriter, r *http.Request) {
 		},
 		"capabilities": map[string]interface{}{
 			"top_secret":       true,
-			"signature_suites": []string{federationTopSecretAlgorithmSuite},
+			"signature_suites": signatureSuites,
 		},
 	}
 

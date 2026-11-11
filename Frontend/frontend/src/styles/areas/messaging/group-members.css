@@ -1,0 +1,242 @@
+/* ============================================================================
+   VGT GLASS 2100 — MESSAGING: GROUP MEMBER PANEL & RESPONSIVE
+   Member list with governance roles, moderation controls and the compact
+   mobile overlay composition. Part sheet of messaging.css.
+   ========================================================================== */
+/* ---------- Member panel ---------- */
+.vgt-group__members {
+  display: flex;
+  flex-direction: column;
+  width: 264px;
+  flex: none;
+  min-height: 0;
+  border-left: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-glass-1);
+  backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.05);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.05);
+  overflow: hidden;
+}
+
+.vgt-group__members-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-2);
+  flex: none;
+  padding: var(--vgt-space-3) var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-group__members-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.vgt-group__members-search {
+  flex: none;
+  padding: var(--vgt-space-2) var(--vgt-space-3);
+}
+
+.vgt-group__members-search .input-field {
+  min-height: 36px;
+  font-size: var(--vgt-text-sm);
+}
+
+.vgt-group__member-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.vgt-group__member {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px var(--vgt-space-2);
+  padding: 9px var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-group__member-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vgt-group__member-name {
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.vgt-group__member-name:disabled {
+  color: var(--vgt-text-secondary);
+  cursor: default;
+}
+
+.vgt-group__member-name:hover:not(:disabled) {
+  color: var(--vgt-pigment);
+}
+
+.vgt-group__member-self {
+  color: var(--vgt-text-muted);
+  font-weight: 400;
+}
+
+.vgt-group__member-id {
+  font-size: 0.65rem;
+}
+
+.vgt-group__member-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.vgt-group__role-select {
+  width: auto;
+  min-height: 30px;
+  padding: 2px 6px;
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-group__kick {
+  --vgt-control-min-h: 30px;
+  padding: 0 9px;
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-group__members-empty {
+  padding: var(--vgt-space-4) var(--vgt-space-3);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  text-align: center;
+}
+
+.vgt-group__scrim {
+  display: none;
+}
+
+/* ---------- Legacy light-mode guard (documented, see messaging-chat.css) --- */
+body.light-mode .vgt-group :where(.vgt-group__member-id, .vgt-group__policy .vgt-caption,
+  .vgt-group__invite-code, .vgt-group__channel-id, .vgt-group__side-empty,
+  .vgt-group__members-empty, .vgt-group__member-self) {
+  color: var(--vgt-text-muted);
+}
+
+body.light-mode .vgt-group :where(.vgt-group__typing, .vgt-role--trusted,
+  .vgt-group__channel.is-active svg) {
+  color: var(--vgt-pigment);
+}
+
+/* ---------- Responsive: channel drawer + overlay member panel ---------- */
+@media (max-width: 1180px) {
+  .vgt-group__side {
+    width: 248px;
+  }
+
+  .vgt-group__members {
+    width: 232px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .vgt-group__search {
+    width: 140px;
+  }
+}
+
+@media (max-width: 899px) {
+  .vgt-group {
+    flex-direction: column;
+  }
+
+  .vgt-group__side {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--vgt-z-modal);
+    width: min(86vw, 320px);
+    border-right-color: var(--vgt-glass-stroke-strong);
+    background: var(--vgt-glass-3);
+    box-shadow: var(--vgt-elevation-3);
+    transform: translateX(-102%);
+    transition: transform var(--vgt-dur-component) var(--vgt-ease-out);
+  }
+
+  .vgt-group__side.is-open {
+    transform: none;
+  }
+
+  .vgt-group__side-close {
+    display: inline-flex;
+  }
+
+  .vgt-group__scrim {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: calc(var(--vgt-z-modal) - 1);
+    padding: 0;
+    border: 0;
+    background: var(--vgt-scrim);
+  }
+
+  .vgt-group__main {
+    width: 100%;
+  }
+
+  .vgt-group__channels-toggle {
+    display: inline-flex;
+  }
+
+  .vgt-group__head {
+    flex-wrap: wrap;
+    padding: var(--vgt-space-2) var(--vgt-space-3);
+  }
+
+  .vgt-group__head-actions {
+    width: 100%;
+  }
+
+  .vgt-group__search {
+    flex: 1;
+    width: auto;
+  }
+
+  .vgt-group__members {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--vgt-z-modal);
+    width: min(86vw, 300px);
+    border-left-color: var(--vgt-glass-stroke-strong);
+    background: var(--vgt-glass-4);
+    box-shadow: var(--vgt-elevation-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vgt-group__side {
+    transition: none;
+  }
+}

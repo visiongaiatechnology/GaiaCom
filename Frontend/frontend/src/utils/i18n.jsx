@@ -17,6 +17,8 @@ import sq from './locales/sq';
 import tr from './locales/tr';
 import uk from './locales/uk';
 import zh from './locales/zh';
+import landing from './locales/landing';
+import appChrome from './locales/appChrome';
 
 export const languageOptions = [
   { code: 'de', flag: '🇩🇪', label: 'Deutsch' },
@@ -60,6 +62,18 @@ export const translations = {
   zh
 };
 
+// Landing-page copy is maintained as one self-contained dictionary and merged
+// into the main table so every t() consumer sees it (all 18 languages).
+for (const [lang, values] of Object.entries(landing)) {
+  translations[lang] = { ...(translations[lang] || {}), ...values };
+}
+
+// Authenticated UI chrome (navigation, dashboard, channels) follows the same
+// merge so switching language updates the whole workspace, not just landing.
+for (const [lang, values] of Object.entries(appChrome)) {
+  translations[lang] = { ...(translations[lang] || {}), ...values };
+}
+
 const LanguageContext = React.createContext();
 
 export function LanguageProvider({ children }) {
@@ -74,10 +88,20 @@ export function LanguageProvider({ children }) {
     }
   };
 
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === 'ar' || language === 'fa' ? 'rtl' : 'ltr';
+  }, [language]);
+
   const t = (key) => {
     if (!key) return '';
     const langData = translations[language] || translations.de;
     if (langData && langData[key] !== undefined) return langData[key];
+    // Never leak German into another language: fall back to English first.
+    if (language !== 'en' && translations.en && translations.en[key] !== undefined) {
+      return translations.en[key];
+    }
     if (translations.de && translations.de[key] !== undefined) return translations.de[key];
     return undefined;
   };

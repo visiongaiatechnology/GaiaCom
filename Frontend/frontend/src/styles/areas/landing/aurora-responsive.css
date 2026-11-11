@@ -1,0 +1,168 @@
+/* NEON AURORA — responsive, consent banner and header overflow guard. */
+
+/* ---------- Mobile & motion ---------- */
+@media (max-width: 980px) {
+  .vgt-hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 64px;
+    gap: 44px;
+  }
+
+  .vgt-hero__visual { order: -1; }
+
+  .vgt-seal { width: min(380px, 88%); }
+}
+
+@media (max-width: 640px) {
+  .vgt-hero__facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vgt-aurora__image { background-position: center top; }
+  .vgt-aurora { position: absolute; }
+  .vgt-aurora__arch { opacity: 0.55; }
+  .vgt-aurora__glow { filter: blur(52px); opacity: 0.4; }
+  .vgt-landing-header__bar.vgt-glass { border-radius: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vgt-aurora__glow,
+  .vgt-seal__ring {
+    animation: none;
+  }
+
+  .vgt-landing .btn-primary:hover,
+  .vgt-trust__item:hover,
+  .vgt-surfaces__item:hover,
+  .vgt-editions__card:hover,
+  .vgt-flow__step:hover,
+  .vgt-hero__facts > div:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .vgt-aurora__image { opacity: 0.6; }
+  .vgt-hero__lead,
+  .vgt-landing .vgt-body { color: #dcebf1; }
+}
+
+/* ---------- Responsive refinements (aurora) ---------- */
+@media (max-width: 980px) {
+  .vgt-hero__visual { order: 0; }
+  .vgt-hero__copy { order: 0; }
+}
+
+@media (max-width: 720px) {
+  .vgt-landing__main { width: calc(100% - 32px); gap: clamp(52px, 9vw, 76px); }
+  .vgt-landing-header { width: calc(100% - 20px); }
+  .vgt-hero { padding-top: 26px; gap: 34px; }
+  .vgt-hero__title { font-size: clamp(2.15rem, 9vw, 3.1rem); }
+  .vgt-hero__lead { font-size: 0.98rem; }
+  .vgt-seal { width: min(300px, 80vw); }
+  .vgt-seal__legend { padding: 2px 12px; }
+  .vgt-seal__legend-item { font-size: 0.68rem; }
+  .vgt-aurora__image { background-position: center 12%; }
+  .vgt-aurora__arch { right: -42vw; top: -8vw; }
+}
+
+@media (max-width: 560px) {
+  .vgt-landing-header__actions .btn-primary { display: none; }
+  .vgt-landing-header__bar.vgt-glass { padding: 6px 6px 6px 10px; }
+  .vgt-landing-header__burger { display: inline-flex; }
+  .vgt-hero { padding-top: 14px; }
+  .vgt-hero__title { font-size: clamp(1.95rem, 9.4vw, 2.6rem); }
+  .vgt-hero .vgt-eyebrow { font-size: 0.62rem; letter-spacing: 0.2em; }
+  .vgt-hero__facts { gap: 8px; }
+  .vgt-hero__facts > div { padding: 10px 12px; }
+  .vgt-hero__facts dd { font-size: 0.82rem; }
+  .vgt-seal__legend-role { display: none; }
+  .vgt-seal__legend-item { grid-template-columns: 8px 20px minmax(0, 1fr); }
+  .vgt-seal__caption { font-size: 0.68rem; }
+  .vgt-final__inner { padding: 28px 18px; }
+}
+
+/* ---------- Consent banner (aurora) ---------- */
+.vgt-cookie.vgt-glass {
+  border: 1px solid rgba(120, 236, 235, 0.20);
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(92, 242, 226, 0.10), transparent 55%),
+    linear-gradient(165deg, rgba(9, 24, 35, 0.92), rgba(4, 11, 18, 0.94));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(210, 255, 250, 0.12);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  color: #eaf6f8;
+  color-scheme: dark;
+}
+
+.vgt-cookie__copy { color: #b9cdd8; }
+.vgt-cookie__copy strong { color: #eafffb; }
+
+.vgt-cookie .btn-primary {
+  border: 1px solid rgba(180, 255, 248, 0.38);
+  background: linear-gradient(135deg, #86fff0 0%, #4fe6d3 46%, #7cd4ff 100%);
+  color: #03130f;
+  font-weight: 700;
+  border-radius: 11px;
+  box-shadow: 0 8px 22px rgba(72, 240, 220, 0.24);
+}
+
+@media (max-width: 720px) {
+  .vgt-cookie {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+    width: calc(100% - 16px);
+    padding: 12px 14px;
+    bottom: 8px;
+    border-radius: 16px;
+  }
+
+  .vgt-cookie__copy strong { font-size: 0.8rem; }
+
+  .vgt-cookie__copy span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.7rem;
+    line-height: 1.45;
+  }
+
+  .vgt-cookie .btn-primary {
+    width: 100%;
+    min-height: 38px;
+    font-size: 0.82rem;
+  }
+}
+
+/* ---------- Mid-width header: keep the bar on one line ---------- */
+@media (max-width: 1280px) {
+  .vgt-landing-nav { display: none; }
+  .vgt-landing-header__burger { display: inline-flex; }
+  .vgt-landing-header__actions .btn-ghost { display: none; }
+}
+
+@media (max-width: 1050px) {
+  .vgt-landing-header__actions { gap: 6px; }
+  .vgt-landing-header__bar.vgt-glass { padding: 6px 8px 6px 12px; }
+  .vgt-landing-header__actions .btn-primary { padding: 0 14px; font-size: 0.82rem; }
+}
+
+/* ---------- Header width & overflow guard ---------- */
+.vgt-landing-header {
+  width: min(1240px, 100% - 2 * clamp(16px, 4vw, 40px));
+}
+
+@media (max-width: 1600px) {
+  .vgt-landing-header__actions .btn-ghost { display: none; }
+}
+
+@media (max-width: 1280px) {
+  .vgt-landing-nav { display: none; }
+  .vgt-landing-header__burger { display: inline-flex; }
+}
+
+@media (max-width: 1050px) {
+  .vgt-landing-header__actions { gap: 6px; }
+  .vgt-landing-header__bar.vgt-glass { padding: 6px 8px 6px 12px; }
+  .vgt-landing-header__actions .btn-primary { padding: 0 14px; font-size: 0.82rem; }
+}

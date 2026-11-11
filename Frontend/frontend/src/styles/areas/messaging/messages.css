@@ -1,0 +1,314 @@
+/* ============================================================================
+   VGT GLASS 2100 — MESSAGING: TRUST BANNERS & MESSAGE BUBBLES
+   Factual trust notices above the stream and the Z1 message bubble system.
+   Part sheet of areas/messaging.css.
+   ========================================================================== */
+/* ---------- Trust banners ---------- */
+.vgt-chat-banners {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+}
+
+.vgt-chat-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  padding: 9px var(--vgt-space-4);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  border-left: 2px solid var(--vgt-border-strong);
+  background: var(--vgt-bg-2);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-chat-banner--warning {
+  border-left-color: var(--vgt-warning);
+  background: var(--vgt-warning-soft);
+}
+
+.vgt-chat-banner--danger {
+  border-left-color: var(--vgt-danger);
+  background: var(--vgt-danger-soft);
+}
+
+.vgt-chat-banner__icon {
+  flex: none;
+  margin-top: 1px;
+}
+
+.vgt-chat-banner--warning .vgt-chat-banner__icon {
+  color: var(--vgt-warning);
+}
+
+.vgt-chat-banner--danger .vgt-chat-banner__icon {
+  color: var(--vgt-danger);
+}
+
+.vgt-chat-banner__copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vgt-chat-banner__copy strong {
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 620;
+}
+
+.vgt-chat-banner__copy span {
+  color: var(--vgt-text-secondary);
+  line-height: var(--vgt-leading-normal);
+}
+
+.vgt-chat-banner__list {
+  margin: 2px 0 0;
+  padding-left: 16px;
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-chat-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+/* ---------- Message stream ---------- */
+.vgt-chat-stream {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 0;
+  padding: var(--vgt-space-4) clamp(12px, 3vw, 24px) var(--vgt-space-5);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+.vgt-chat-stream__empty {
+  margin: auto;
+  max-width: 52ch;
+  padding: var(--vgt-space-6);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+  text-align: center;
+}
+
+/* ---------- Message bubble ---------- */
+.vgt-msg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-self: flex-start;
+  width: auto;
+  max-width: min(680px, 82%);
+  margin-bottom: 3px;
+  padding: 8px 12px 6px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  border-bottom-left-radius: var(--vgt-radius-xs);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-md);
+  line-height: var(--vgt-leading-normal);
+  overflow-wrap: anywhere;
+  box-shadow: var(--vgt-elevation-1);
+}
+
+.vgt-msg--peer {
+  border-color: var(--vgt-border);
+}
+
+.vgt-msg--own {
+  align-self: flex-end;
+  border-color: var(--vgt-pigment-line);
+  border-bottom-left-radius: var(--vgt-radius-panel);
+  border-bottom-right-radius: var(--vgt-radius-xs);
+  background: var(--vgt-bg-3);
+}
+
+.vgt-msg.is-pinned {
+  border-color: color-mix(in srgb, var(--vgt-accent-bronze) 42%, transparent);
+}
+
+.vgt-msg.is-secret {
+  border-color: color-mix(in srgb, var(--vgt-accent-bronze) 46%, transparent);
+}
+
+.vgt-msg__secret {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  margin: 0;
+  padding: 1px 6px;
+  border: var(--vgt-hairline) solid color-mix(in srgb, var(--vgt-accent-bronze) 40%, transparent);
+  border-radius: var(--vgt-radius-xs);
+  color: var(--vgt-accent-bronze);
+  font-size: 0.625rem;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.vgt-msg__body {
+  min-width: 0;
+}
+
+.vgt-msg__text {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.vgt-msg__text h3 {
+  margin: 2px 0 4px;
+  font-size: var(--vgt-text-lg);
+  font-weight: 620;
+}
+
+.vgt-msg__text code {
+  padding: 1px 4px;
+  border-radius: var(--vgt-radius-xs);
+  background: var(--vgt-bg-4);
+  font-family: var(--vgt-font-mono);
+  font-size: 0.86em;
+}
+
+.vgt-msg__text .gaia-mention {
+  padding: 0 3px;
+  border-radius: var(--vgt-radius-xs);
+  color: var(--vgt-pigment);
+  font-weight: 600;
+}
+
+.vgt-msg__text .gaia-mention-self {
+  background: var(--vgt-pigment-soft);
+}
+
+.vgt-msg__edited {
+  display: block;
+  margin-top: 3px;
+  color: var(--vgt-text-muted);
+  font-size: 0.65rem;
+  font-style: italic;
+}
+
+.vgt-msg__sender {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.vgt-msg__sender-name {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.vgt-msg__sender-name:hover,
+.vgt-msg__sender-name:focus-visible {
+  color: var(--vgt-pigment);
+}
+
+.vgt-msg__edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-msg__edit-input {
+  min-height: 64px;
+  resize: vertical;
+}
+
+.vgt-msg__edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-msg__edit-actions .btn-secondary,
+.vgt-msg__edit-actions .btn-primary {
+  --vgt-control-min-h: 30px;
+  padding: 0 10px;
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-msg__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+  margin-top: 1px;
+  color: var(--vgt-text-muted);
+  font-size: 0.6875rem;
+}
+
+.vgt-msg--own .vgt-msg__meta {
+  justify-content: flex-end;
+}
+
+.vgt-msg__time {
+  color: var(--vgt-text-muted);
+}
+
+.vgt-msg__flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-msg__flag--danger {
+  color: var(--vgt-danger);
+}
+
+.vgt-msg__delivery {
+  display: inline-flex;
+  align-items: center;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-msg__delivery--read {
+  color: var(--vgt-pigment);
+}
+
+.vgt-msg__ticks {
+  display: inline-flex;
+}
+
+.vgt-msg__ticks svg + svg {
+  margin-left: -7px;
+}
+
+.vgt-msg__more {
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+  transition: opacity var(--vgt-dur-micro) ease;
+}
+
+.vgt-msg:hover .vgt-msg__more,
+.vgt-msg:focus-within .vgt-msg__more {
+  opacity: 1;
+}
+
+@media (pointer: coarse) {
+  .vgt-msg__more {
+    width: 40px;
+    height: 40px;
+    opacity: 1;
+  }
+}

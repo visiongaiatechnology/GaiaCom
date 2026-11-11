@@ -1,0 +1,84 @@
+/* ============================================================================
+   NEON AURORA — FINAL READABILITY PASS (auth surfaces)
+   White copy on the night material for access dialog, local vault and wizard.
+   ========================================================================== */
+
+.vgt-overlay.vgt-overlay--auth,
+.vgt-lockpage,
+.vgt-wizard {
+  --aurora-text: #ffffff;
+  --aurora-text-soft: #f4fbfd;
+  --aurora-muted: #e3eef3;
+  --vgt-text-primary: #ffffff;
+  --vgt-text-secondary: #f2fafb;
+  --vgt-text-muted: #dfeef3;
+}
+
+.vgt-overlay--auth .vgt-caption,
+.vgt-overlay--auth .vgt-h3,
+.vgt-overlay--auth .vgt-body,
+.vgt-overlay--auth .vgt-body--sm,
+.vgt-overlay--auth .vgt-label,
+.vgt-overlay--auth .vgt-mono,
+.vgt-overlay--auth .field-hint,
+.vgt-overlay--auth .vgt-consent,
+.vgt-auth-dialog__boundary small,
+.vgt-auth-dialog__status .vgt-caption,
+.vgt-auth-dialog__foot .vgt-caption,
+.vgt-lockpage .vgt-body,
+.vgt-lockpage .vgt-caption,
+.vgt-lockpage .vgt-lockpage__story .vgt-body,
+.vgt-lockcard .vgt-caption,
+.vgt-lockcard__status-text,
+.vgt-wizard .vgt-body,
+.vgt-wizard .vgt-caption,
+.vgt-wizard .vgt-body--sm,
+.vgt-wizard .vgt-step__label {
+  color: #f2fafb;
+}
+
+.vgt-overlay--auth .vgt-caption,
+.vgt-auth-dialog__boundary small,
+.vgt-auth-dialog__foot .vgt-caption,
+.vgt-lockpage .vgt-caption,
+.vgt-lockcard .vgt-caption,
+.vgt-wizard .vgt-caption {
+  color: #dfeef3;
+}
+
+.vgt-overlay--auth .vgt-eyebrow,
+.vgt-lockpage .vgt-eyebrow,
+.vgt-wizard .vgt-eyebrow {
+  color: #9dfff2;
+}
+
+.vgt-overlay--auth .input-label,
+.vgt-lockcard .input-label,
+.vgt-lockfield .input-label,
+.vgt-wizard .input-label {
+  color: #ffffff;
+}
+
+.vgt-overlay--auth .vgt-auth-tabs__btn {
+  color: #e6f2f6;
+}
+
+.vgt-overlay--auth .vgt-auth-tabs__btn.is-active {
+  color: #03130f;
+}
+
+.vgt-overlay--auth .vgt-link {
+  color: #a8fff5;
+}
+
+.vgt-auth-dialog__boundary strong {
+  color: #ffffff;
+}
+
+.vgt-lockpage__facts dt {
+  color: #e3eef3;
+}
+
+.vgt-lockpage__facts dd {
+  color: #ffffff;
+}

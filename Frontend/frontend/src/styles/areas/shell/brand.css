@@ -1,0 +1,70 @@
+/* ============================================================================
+   VGT GLASS 2100 — BRAND
+   The Aegis Seal mark and wordmark. No raster logo, no gradient text, no glow.
+   ========================================================================== */
+
+.vgt-brandmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--vgt-pigment);
+  text-decoration: none;
+}
+
+.vgt-brandmark__seal {
+  flex: none;
+  color: var(--vgt-pigment);
+}
+
+.vgt-brandmark__word {
+  font-family: var(--vgt-font-display);
+  font-size: 1.0625rem;
+  font-weight: 620;
+  letter-spacing: -0.015em;
+  color: var(--vgt-text-primary);
+  line-height: 1;
+}
+
+.vgt-brandmark__word-accent {
+  color: var(--vgt-pigment);
+  font-weight: 560;
+}
+
+.vgt-brandmark--compact .vgt-brandmark__word {
+  font-size: 0.95rem;
+}
+
+/* ---------- Version / consensus badge ---------- */
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 9px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-2);
+  font-family: var(--vgt-font-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--vgt-text-muted);
+  white-space: nowrap;
+}
+
+.version-badge span {
+  color: var(--vgt-text-secondary);
+}
+
+.version-badge strong {
+  color: var(--vgt-pigment);
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .vgt-brandmark__word {
+    font-size: 1rem;
+  }
+
+  .version-badge {
+    display: none;
+  }
+}

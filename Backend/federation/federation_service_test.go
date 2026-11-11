@@ -16,6 +16,7 @@ import (
 
 	"gaiacom/backend/config"
 	"gaiacom/backend/database"
+	"gaiacom/backend/internal/security"
 	"gaiacom/backend/models"
 	"gaiacom/backend/repository"
 )
@@ -685,4 +686,357 @@ func (m *mockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	mockReq.Header = req.Header
 	return http.DefaultTransport.RoundTrip(mockReq)
+}
+
+// P-05 / FIND-005: operator-gated first contact, key continuity and signed
+// capability documents.
+func newTestFederationSecurity(t *testing.T, store repository.Store) *security.SecuritySystem {
+	t.Helper()
+	sec, err := security.NewSecuritySystemWithConfig(store, security.SystemConfig{
+		HMACKey: bytes.Repeat([]byte{0x42}, 32),
+		NodeID:  "local.example",
+	})
+	if err != nil {
+		t.Fatalf("create security system: %v", err)
+	}
+	return sec
+}
+
+func TestGetOrFetchPublicKeyStrictRejectsUnknownPeer(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	peerPub, _, _ := ed25519.GenerateKey(nil)
+	_, priv, _ := ed25519.GenerateKey(nil)
+	svc := NewService(store, "local.example", priv, WithTrustMode(TrustModeStrict), WithKeyCheckInterval(0))
+	svc.remoteKeyFetcher = func(domain string) (ed25519.PublicKey, error) { return peerPub, nil }
+
+	if _, err := svc.getOrFetchPublicKey(context.Background(), "unknown.example"); err == nil {
+		t.Fatal("strict mode accepted an unknown peer without operator acceptance")
+	}
+	if _, err := store.FindFederationServer("unknown.example"); err == nil {
+		t.Fatal("strict mode persisted a federation server for an unaccepted peer")
+	}
+}
+
+func TestGetOrFetchPublicKeyStrictRequiresAcceptedRegistryStatus(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	peerPub, _, _ := ed25519.GenerateKey(nil)
+	_, priv, _ := ed25519.GenerateKey(nil)
+	svc := NewService(store, "local.example", priv, WithTrustMode(TrustModeStrict), WithKeyCheckInterval(0))
+	svc.remoteKeyFetcher = func(domain string) (ed25519.PublicKey, error) { return peerPub, nil }
+
+	entry := &models.NodeRegistryEntry{
+		Domain:     "pending.example",
+		ServerName: "pending.example",
+		PublicKey:  peerPub,
+		Status:     "pending",
+	}
+	if err := store.UpsertNodeRegistryEntry(context.Background(), entry); err != nil {
+		t.Fatalf("upsert registry entry: %v", err)
+	}
+	if _, err := svc.getOrFetchPublicKey(context.Background(), "pending.example"); err == nil {
+		t.Fatal("strict mode accepted a peer whose registry status is not accepted")
+	}
+}
+
+func TestGetOrFetchPublicKeyStrictAcceptsOperatorAcceptedPeer(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	peerPub, _, _ := ed25519.GenerateKey(nil)
+	_, priv, _ := ed25519.GenerateKey(nil)
+	svc := NewService(store, "local.example", priv, WithTrustMode(TrustModeStrict), WithKeyCheckInterval(0))
+	svc.remoteKeyFetcher = func(domain string) (ed25519.PublicKey, error) { return peerPub, nil }
+
+	entry := &models.NodeRegistryEntry{
+		Domain:     "accepted.example",
+		ServerName: "accepted.example",
+		PublicKey:  peerPub,
+		Status:     "accepted",
+	}
+	if err := store.UpsertNodeRegistryEntry(context.Background(), entry); err != nil {
+		t.Fatalf("upsert registry entry: %v", err)
+	}
+
+	key, err := svc.getOrFetchPublicKey(context.Background(), "accepted.example")
+	if err != nil {
+		t.Fatalf("strict mode rejected an operator-accepted peer: %v", err)
+	}
+	if !bytes.Equal(key, peerPub) {
+		t.Fatal("returned key does not match the operator-accepted key")
+	}
+	server, err := store.FindFederationServer("accepted.example")
+	if err != nil {
+		t.Fatalf("accepted peer was not pinned: %v", err)
+	}
+	if !bytes.Equal(server.PublicKey, peerPub) {
+		t.Fatal("pinned federation key does not match the accepted key")
+	}
+}
+
+func TestGetOrFetchPublicKeyStrictRejectsKeyMismatchAndRecordsEvent(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	acceptedKey, _, _ := ed25519.GenerateKey(nil)
+	presentedKey, _, _ := ed25519.GenerateKey(nil)
+	_, priv, _ := ed25519.GenerateKey(nil)
+	sec := newTestFederationSecurity(t, store)
+	svc := NewService(store, "local.example", priv,
+		WithTrustMode(TrustModeStrict),
+		WithSecuritySystem(sec),
+		WithKeyCheckInterval(0),
+	)
+	svc.remoteKeyFetcher = func(domain string) (ed25519.PublicKey, error) { return presentedKey, nil }
+
+	entry := &models.NodeRegistryEntry{
+		Domain:     "mismatch.example",
+		ServerName: "mismatch.example",
+		PublicKey:  acceptedKey,
+		Status:     "accepted",
+	}
+	if err := store.UpsertNodeRegistryEntry(context.Background(), entry); err != nil {
+		t.Fatalf("upsert registry entry: %v", err)
+	}
+
+	if _, err := svc.getOrFetchPublicKey(context.Background(), "mismatch.example"); err == nil {
+		t.Fatal("strict mode accepted a key that differs from the operator-accepted key")
+	}
+	if _, err := store.FindFederationServer("mismatch.example"); err == nil {
+		t.Fatal("mismatching peer key was persisted")
+	}
+
+	events, err := store.GetNodeSecurityEvents(context.Background())
+	if err != nil {
+		t.Fatalf("load security events: %v", err)
+	}
+	found := false
+	for _, event := range events {
+		if event.Category == "federation_key_change" && strings.Contains(event.Summary, "mismatch.example") {
+			if !strings.Contains(event.Summary, keyFingerprint(acceptedKey)) || !strings.Contains(event.Summary, keyFingerprint(presentedKey)) {
+				t.Fatalf("key-change event does not record both fingerprints: %s", event.Summary)
+			}
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Fatal("expected a federation_key_change security event with both fingerprints")
+	}
+}
+
+func TestGetOrFetchPublicKeyTOFUCompatibility(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	peerPub, _, _ := ed25519.GenerateKey(nil)
+	_, priv, _ := ed25519.GenerateKey(nil)
+	svc := NewService(store, "local.example", priv, WithTrustMode(TrustModeTOFU), WithKeyCheckInterval(0))
+	svc.remoteKeyFetcher = func(domain string) (ed25519.PublicKey, error) { return peerPub, nil }
+
+	key, err := svc.getOrFetchPublicKey(context.Background(), "tofu.example")
+	if err != nil {
+		t.Fatalf("TOFU mode rejected a new peer: %v", err)
+	}
+	if !bytes.Equal(key, peerPub) {
+		t.Fatal("TOFU mode returned an unexpected key")
+	}
+	if _, err := store.FindFederationServer("tofu.example"); err != nil {
+		t.Fatalf("TOFU mode did not pin the first-seen key: %v", err)
+	}
+}
+
+func TestKnownPeerKeyContinuityDetectsChange(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	originalKey, _, _ := ed25519.GenerateKey(nil)
+	changedKey, _, _ := ed25519.GenerateKey(nil)
+	_, priv, _ := ed25519.GenerateKey(nil)
+	sec := newTestFederationSecurity(t, store)
+	svc := NewService(store, "local.example", priv,
+		WithTrustMode(TrustModeStrict),
+		WithSecuritySystem(sec),
+		WithKeyCheckInterval(0),
+	)
+
+	if err := store.CreateFederationServer(&models.FederationServer{
+		Domain:      "pinned.example",
+		PublicKey:   originalKey,
+		FirstSeenAt: time.Now().UTC(),
+		LastSeenAt:  time.Now().UTC(),
+	}); err != nil {
+		t.Fatalf("create federation server: %v", err)
+	}
+
+	svc.remoteKeyFetcher = func(domain string) (ed25519.PublicKey, error) { return changedKey, nil }
+	if err := svc.checkKnownPeerKeyContinuity(context.Background(), "pinned.example", originalKey); !errors.Is(err, ErrFederationPeerKeyChanged) {
+		t.Fatalf("expected ErrFederationPeerKeyChanged, got %v", err)
+	}
+
+	stored, err := store.FindFederationServer("pinned.example")
+	if err != nil {
+		t.Fatalf("load pinned server: %v", err)
+	}
+	if !bytes.Equal(stored.PublicKey, originalKey) {
+		t.Fatal("stored key was silently overwritten by a key change")
+	}
+
+	svc.remoteKeyFetcher = func(domain string) (ed25519.PublicKey, error) { return originalKey, nil }
+	if err := svc.checkKnownPeerKeyContinuity(context.Background(), "pinned.example", originalKey); err != nil {
+		t.Fatalf("unchanged key must not raise a continuity error: %v", err)
+	}
+}
+
+func TestEnsureRemoteTopSecretCapabilitySignedStrict(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	peerPub, peerPriv, _ := ed25519.GenerateKey(nil)
+	_, ownPriv, _ := ed25519.GenerateKey(nil)
+	peerDomain := "signed-peer.example"
+
+	suites := []string{federationTopSecretAlgorithmSuite}
+	fingerprint := keyFingerprint(peerPub)
+	canonical := canonicalNodeInfoSignaturePayload(peerDomain, fingerprint, true, suites)
+	signature := base64.StdEncoding.EncodeToString(ed25519.Sign(peerPriv, canonical))
+
+	doc := map[string]interface{}{
+		"server_name":     peerDomain,
+		"key_fingerprint": fingerprint,
+		"signature":       signature,
+		"capabilities": map[string]interface{}{
+			"top_secret":       true,
+			"signature_suites": suites,
+		},
+	}
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(doc)
+	}))
+	defer ts.Close()
+
+	sec := newTestFederationSecurity(t, store)
+	svc := NewService(store, "local.example", ownPriv,
+		WithTrustMode(TrustModeStrict),
+		WithSecuritySystem(sec),
+		WithKeyCheckInterval(0),
+	)
+	svc.httpClient = ts.Client()
+	svc.capabilityDocURL = func(domain string) string { return ts.URL + "/.well-known/gaiacom/nodeinfo" }
+	if err := store.UpsertNodeRegistryEntry(context.Background(), &models.NodeRegistryEntry{
+		Domain:     peerDomain,
+		ServerName: peerDomain,
+		PublicKey:  peerPub,
+		Status:     "accepted",
+	}); err != nil {
+		t.Fatalf("upsert registry entry: %v", err)
+	}
+	svc.remoteKeyFetcher = func(domain string) (ed25519.PublicKey, error) { return peerPub, nil }
+
+	if err := svc.ensureRemoteTopSecretCapability(context.Background(), peerDomain); err != nil {
+		t.Fatalf("strict mode rejected a correctly signed capability document: %v", err)
+	}
+}
+
+func TestEnsureRemoteTopSecretCapabilityRejectsUnsignedInStrictMode(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	peerPub, _, _ := ed25519.GenerateKey(nil)
+	_, ownPriv, _ := ed25519.GenerateKey(nil)
+	peerDomain := "unsigned-peer.example"
+	doc := map[string]interface{}{
+		"server_name": peerDomain,
+		"capabilities": map[string]interface{}{
+			"top_secret":       true,
+			"signature_suites": []string{federationTopSecretAlgorithmSuite},
+		},
+	}
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(doc)
+	}))
+	defer ts.Close()
+
+	sec := newTestFederationSecurity(t, store)
+	svc := NewService(store, "local.example", ownPriv,
+		WithTrustMode(TrustModeStrict),
+		WithSecuritySystem(sec),
+		WithKeyCheckInterval(0),
+	)
+	svc.httpClient = ts.Client()
+	svc.capabilityDocURL = func(domain string) string { return ts.URL + "/.well-known/gaiacom/nodeinfo" }
+	if err := store.UpsertNodeRegistryEntry(context.Background(), &models.NodeRegistryEntry{
+		Domain:     peerDomain,
+		ServerName: peerDomain,
+		PublicKey:  peerPub,
+		Status:     "accepted",
+	}); err != nil {
+		t.Fatalf("upsert registry entry: %v", err)
+	}
+	svc.remoteKeyFetcher = func(domain string) (ed25519.PublicKey, error) { return peerPub, nil }
+
+	if err := svc.ensureRemoteTopSecretCapability(context.Background(), peerDomain); err == nil {
+		t.Fatal("strict mode accepted an unsigned capability document")
+	}
+}
+
+func TestEnsureRemoteTopSecretCapabilityTOFUAllowsUnsigned(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	_, ownPriv, _ := ed25519.GenerateKey(nil)
+	peerDomain := "legacy-peer.example"
+	doc := map[string]interface{}{
+		"server_name": peerDomain,
+		"capabilities": map[string]interface{}{
+			"top_secret":       true,
+			"signature_suites": []string{federationTopSecretAlgorithmSuite},
+		},
+	}
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(doc)
+	}))
+	defer ts.Close()
+
+	svc := NewService(store, "local.example", ownPriv, WithTrustMode(TrustModeTOFU), WithKeyCheckInterval(0))
+	svc.httpClient = ts.Client()
+	svc.capabilityDocURL = func(domain string) string { return ts.URL + "/.well-known/gaiacom/nodeinfo" }
+
+	if err := svc.ensureRemoteTopSecretCapability(context.Background(), peerDomain); err != nil {
+		t.Fatalf("TOFU mode rejected a legacy unsigned capability document: %v", err)
+	}
+}
+
+func TestFetchRemoteServerKeyRejectsFingerprintMismatch(t *testing.T) {
+	store, cleanup := setupTestFedDBAndStore(t)
+	defer cleanup()
+
+	peerPub, _, _ := ed25519.GenerateKey(nil)
+	otherPub, _, _ := ed25519.GenerateKey(nil)
+	_, ownPriv, _ := ed25519.GenerateKey(nil)
+	peerDomain := "discovery-peer.example"
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
+			"server_name":        peerDomain,
+			"ed25519_public_key": base64.StdEncoding.EncodeToString(peerPub),
+			"key_fingerprint":    keyFingerprint(otherPub),
+			"protocols":          []string{"gaiacom.s2s.v1"},
+		})
+	}))
+	defer ts.Close()
+
+	svc := NewService(store, "local.example", ownPriv)
+	svc.httpClient = ts.Client()
+	svc.discoveryURL = func(domain string) string { return ts.URL + "/.well-known/gaiacom/server" }
+	if _, err := svc.fetchRemoteServerKey(peerDomain); err == nil {
+		t.Fatal("discovery document with a mismatching key fingerprint was accepted")
+	}
 }

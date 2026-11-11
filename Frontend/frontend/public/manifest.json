@@ -1,21 +1,29 @@
 {
-  "short_name": "GaiaCOM",
-  "name": "GaiaCOM - Quantum Secure Messenger",
+  "id": "/",
+  "short_name": "GaiaCom 3",
+  "name": "GaiaCom 3 — Souveräner Post-Quanten-Messenger",
+  "description": "Souveräne, föderierte Kommunikation mit Ende-zu-Ende-Verschlüsselung, Post-Quanten-Kryptographie und dezentraler Identität.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": ".",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "categories": ["communication", "security", "productivity"],
   "icons": [
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     }
   ],
-  "start_url": ".",
-  "display": "standalone",
-  "orientation": "any",
-  "theme_color": "#0d0e12",
-  "background_color": "#0d0e12"
+  "theme_color": "#08111c",
+  "background_color": "#050a12"
 }

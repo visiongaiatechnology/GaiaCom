@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package de.gaiacom.platform.api
 
 sealed class GaiaApiException protected constructor(

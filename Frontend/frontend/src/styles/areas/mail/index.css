@@ -1,0 +1,9 @@
+/* ============================================================================
+   VGT GLASS 2100 — AREA: MAIL
+   Entry aggregator only; part sheets stay below the VGT 500-line rule.
+   ========================================================================== */
+
+@import './shared.css';
+@import './reader.css';
+@import './message.css';
+@import './composer.css';

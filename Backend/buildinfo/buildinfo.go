@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package buildinfo
 
 import (
@@ -7,7 +6,7 @@ import (
 )
 
 var (
-	Version = "2.0.0-dev"
+	Version = "3.0.0-dev"
 	Commit  = "unknown"
 	BuiltAt = "unknown"
 )
@@ -28,7 +27,7 @@ func Current() Info {
 		Version:         Version,
 		Commit:          Commit,
 		BuiltAt:         BuiltAt,
-		ProtocolVersion: "gaiacom.v1",
+		ProtocolVersion: "gaiacom.v3",
 	}
 }
 

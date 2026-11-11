@@ -1,0 +1,8 @@
+/* ============================================================================
+   NEON AURORA — LANDING ENTRY
+   Aggregator only; parts stay below the VGT 500-line rule.
+   ========================================================================== */
+
+@import './aurora-core.css';
+@import './aurora-sections.css';
+@import './aurora-responsive.css';

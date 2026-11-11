@@ -1,0 +1,403 @@
+/* ============================================================================
+   VGT GLASS 2100 — TOKENS
+   GaiaCom sovereign communication infrastructure.
+   Material language: mineral graphite environment, polished glass surfaces,
+   sage-teal signature pigment, titan blue secondary, sparse bronze.
+   No purple/blue "nebula", no neon, no decorative grids, no CDN assets.
+   Layer order: primitive -> semantic -> component -> state.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* ---------- Primitive: mineral graphite scale (sRGB fallback) ---------- */
+  --vgt-m-0: #07090c;
+  --vgt-m-1: #0a0e13;
+  --vgt-m-2: #0f141b;
+  --vgt-m-3: #151b23;
+  --vgt-m-4: #1b232c;
+  --vgt-m-5: #222b35;
+  --vgt-m-6: #2b3642;
+  --vgt-m-7: #3a4654;
+
+  /* ---------- Primitive: signature pigment "Aegis Sage" ---------- */
+  --vgt-p-100: #d9f4ec;
+  --vgt-p-200: #b3e7db;
+  --vgt-p-300: #9be3d2;
+  --vgt-p-400: #6fc3b2;
+  --vgt-p-500: #3f9485;
+  --vgt-p-600: #2b6d62;
+  --vgt-p-700: #1f5148;
+
+  /* ---------- Primitive: titan blue (secondary) ---------- */
+  --vgt-t-300: #b6cde4;
+  --vgt-t-400: #84a7c9;
+  --vgt-t-500: #5f83a6;
+  --vgt-t-600: #47647f;
+  --vgt-t-700: #33485c;
+
+  /* ---------- Primitive: bronze (premium / signed / verified) ---------- */
+  --vgt-b-300: #e3cfa6;
+  --vgt-b-400: #c9a877;
+  --vgt-b-500: #a7864f;
+  --vgt-b-600: #7d6337;
+
+  /* ---------- Primitive: status ---------- */
+  --vgt-s-success: #5bbe92;
+  --vgt-s-warning: #d8a84e;
+  --vgt-s-danger: #e4706f;
+  --vgt-s-info: #7fa9d6;
+
+  /* ---------- Semantic: surfaces (Z0..Z4) ---------- */
+  --vgt-bg-0: var(--vgt-m-1);        /* environment */
+  --vgt-bg-1: var(--vgt-m-2);        /* content canvas */
+  --vgt-bg-2: var(--vgt-m-3);        /* raised opaque surface */
+  --vgt-bg-3: var(--vgt-m-4);        /* inspector / dense surface */
+  --vgt-bg-4: var(--vgt-m-5);        /* hover / selected opaque */
+  --vgt-scrim: rgba(4, 6, 9, 0.62);
+
+  /* ---------- Semantic: text ---------- */
+  --vgt-text-primary: #e9eef3;
+  --vgt-text-secondary: #b3bfca;
+  --vgt-text-muted: #8794a1;
+  --vgt-text-disabled: #5c6874;      /* disabled controls ONLY — never informative text (below AA) */
+  --vgt-text-on-pigment: #05100d;
+
+  /* ---------- Semantic: pigment roles ---------- */
+  --vgt-pigment: var(--vgt-p-400);
+  --vgt-pigment-strong: var(--vgt-p-500);
+  --vgt-pigment-deep: var(--vgt-p-600);
+  --vgt-pigment-soft: rgba(111, 195, 178, 0.12);
+  --vgt-pigment-line: rgba(111, 195, 178, 0.28);
+  --vgt-accent-titan: var(--vgt-t-400);
+  --vgt-accent-bronze: var(--vgt-b-400);
+
+  /* ---------- Semantic: status ---------- */
+  --vgt-success: var(--vgt-s-success);
+  --vgt-warning: var(--vgt-s-warning);
+  --vgt-danger: var(--vgt-s-danger);
+  --vgt-info: var(--vgt-s-info);
+  --vgt-success-soft: rgba(91, 190, 146, 0.12);
+  --vgt-warning-soft: rgba(216, 168, 78, 0.12);
+  --vgt-danger-soft: rgba(228, 112, 111, 0.12);
+  --vgt-danger-strong: #9d2f2e;   /* light-mode destructive text/border */
+
+  /* QR codes must stay dark-on-light in both themes for scanner reliability. */
+  --vgt-qr-bg: #f2f5f4;
+  --vgt-qr-ink: #0a0e13;
+  --vgt-hc-text-secondary: #d8e2ea; /* prefers-contrast: more overrides */
+  --vgt-hc-text-muted: #b8c5cf;
+  --vgt-info-soft: rgba(127, 169, 214, 0.12);
+
+  /* ---------- Semantic: glass material ---------- */
+  --vgt-glass-tint: 255, 255, 255;
+  --vgt-glass-1: rgba(20, 27, 35, 0.52);     /* Z2 navigation / toolbar */
+  --vgt-glass-2: rgba(17, 23, 30, 0.66);     /* Z2 raised surface */
+  --vgt-glass-3: rgba(13, 18, 24, 0.82);     /* Z3 floating / popover */
+  --vgt-glass-4: rgba(10, 14, 19, 0.94);     /* Z4 modal / critical */
+  --vgt-glass-stroke: rgba(255, 255, 255, 0.085);
+  --vgt-glass-stroke-strong: rgba(255, 255, 255, 0.16);
+  --vgt-glass-highlight: rgba(255, 255, 255, 0.22);
+  --vgt-glass-edge: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.01));
+
+  /* ---------- Semantic: borders ---------- */
+  --vgt-border: rgba(255, 255, 255, 0.075);
+  --vgt-border-strong: rgba(255, 255, 255, 0.14);
+  --vgt-border-pigment: rgba(111, 195, 178, 0.45);
+  --vgt-divider: rgba(255, 255, 255, 0.06);
+
+  /* ---------- Semantic: focus / selection ---------- */
+  --vgt-focus: var(--vgt-p-300);
+  --vgt-focus-ring: 0 0 0 2px var(--vgt-bg-0), 0 0 0 4px var(--vgt-focus);
+  --vgt-selection: rgba(111, 195, 178, 0.30);
+
+  /* ---------- Elevation (one light model: above, slightly cool) ---------- */
+  --vgt-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.28);
+  --vgt-elevation-2: 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+  --vgt-elevation-3: 0 18px 48px -18px rgba(0, 0, 0, 0.65);
+  --vgt-elevation-4: 0 32px 80px -24px rgba(0, 0, 0, 0.72);
+  --vgt-inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  /* ---------- Geometry ---------- */
+  --vgt-radius-xs: 6px;
+  --vgt-radius-control: 10px;
+  --vgt-radius-panel: 14px;
+  --vgt-radius-floating: 16px;
+  --vgt-radius-modal: 20px;
+  --vgt-radius-pill: 999px;
+  --vgt-hairline: 1px;
+
+  /* ---------- Spacing rhythm (4px base) ---------- */
+  --vgt-space-0: 0;
+  --vgt-space-1: 4px;
+  --vgt-space-2: 8px;
+  --vgt-space-3: 12px;
+  --vgt-space-4: 16px;
+  --vgt-space-5: 20px;
+  --vgt-space-6: 24px;
+  --vgt-space-7: 32px;
+  --vgt-space-8: 40px;
+  --vgt-space-9: 48px;
+  --vgt-space-10: 64px;
+  --vgt-space-11: 88px;
+
+  /* ---------- Typography ---------- */
+  --vgt-font-sans: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system,
+    BlinkMacSystemFont, "SF Pro Text", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --vgt-font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system,
+    BlinkMacSystemFont, "SF Pro Display", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --vgt-font-mono: ui-monospace, "Cascadia Mono", "Cascadia Code", "SF Mono", Menlo,
+    Consolas, "DejaVu Sans Mono", monospace;
+
+  --vgt-text-xs: 0.6875rem;   /* 11px */
+  --vgt-text-sm: 0.8125rem;   /* 13px */
+  --vgt-text-md: 0.9375rem;   /* 15px */
+  --vgt-text-lg: 1.0625rem;   /* 17px */
+  --vgt-text-xl: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --vgt-text-2xl: clamp(1.5rem, 1.2rem + 1.1vw, 2rem);
+  --vgt-text-3xl: clamp(1.875rem, 1.3rem + 2.2vw, 2.875rem);
+  --vgt-text-display: clamp(2.5rem, 1.4rem + 4.6vw, 5rem);
+
+  --vgt-leading-tight: 1.08;
+  --vgt-leading-snug: 1.25;
+  --vgt-leading-normal: 1.55;
+  --vgt-tracking-tight: -0.022em;
+  --vgt-tracking-wide: 0.16em;
+
+  /* ---------- Motion ---------- */
+  --vgt-ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --vgt-ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --vgt-dur-micro: 120ms;
+  --vgt-dur-component: 200ms;
+  --vgt-dur-view: 320ms;
+  --vgt-dur-ambient: 24s;
+
+  /* ---------- Blur budget (adaptive, see materials.css) ---------- */
+  --vgt-blur-1: 8px;
+  --vgt-blur-2: 16px;
+  --vgt-blur-3: 24px;
+  --vgt-backdrop-enabled: 1;
+
+  /* ---------- Z-index scale ---------- */
+  --vgt-z-base: 0;
+  --vgt-z-sticky: 10;
+  --vgt-z-navigation: 20;
+  --vgt-z-floating: 40;
+  --vgt-z-modal: 60;
+  --vgt-z-toast: 80;
+  --vgt-z-critical: 100;
+
+  /* ==========================================================================
+     LEGACY BRIDGE — existing components consume these names. They are mapped
+     onto the new material system so no screen keeps the old nebula palette.
+     New code MUST use --vgt-* tokens only.
+     ========================================================================== */
+  --bg-dark: var(--vgt-bg-0);
+  --bg-darker: var(--vgt-m-0);
+  --bg-panel: var(--vgt-glass-1);
+  --bg-item: rgba(22, 29, 38, 0.72);
+  --bg-elevated: var(--vgt-bg-2);
+  --bg-card: rgba(17, 23, 30, 0.92);
+  --bg-active: var(--vgt-pigment-soft);
+
+  --border-color: var(--vgt-border);
+  --border-glow: rgba(111, 195, 178, 0.20);
+  --border-hover: var(--vgt-border-strong);
+
+  --accent-cyan: var(--vgt-pigment);
+  --accent-violet: var(--vgt-accent-titan);
+  --accent-purple: var(--vgt-pigment);
+  --accent-gradient: linear-gradient(135deg, var(--vgt-pigment-deep) 0%, var(--vgt-pigment) 58%, var(--vgt-accent-titan) 100%);
+  --accent-glow: rgba(111, 195, 178, 0.22);
+
+  --brand-purple: var(--vgt-pigment);
+  --brand-blue: var(--vgt-accent-titan);
+  --brand-green: var(--vgt-success);
+  --brand-orange: var(--vgt-accent-bronze);
+  --brand-pink: var(--vgt-accent-bronze);
+
+  --text-primary: var(--vgt-text-primary);
+  --text-secondary: var(--vgt-text-secondary);
+  --text-muted: var(--vgt-text-muted);
+
+  --danger: var(--vgt-danger);
+  --danger-glow: var(--vgt-danger-soft);
+  --warning: var(--vgt-warning);
+  --warning-glow: var(--vgt-warning-soft);
+  --success: var(--vgt-success);
+  --success-glow: var(--vgt-success-soft);
+
+  --font-sans: var(--vgt-font-sans);
+  --font-display: var(--vgt-font-display);
+  --font-mono: var(--vgt-font-mono);
+
+  --radius-sm: var(--vgt-radius-control);
+  --radius-md: var(--vgt-radius-panel);
+  --radius-lg: var(--vgt-radius-floating);
+
+  --transition-smooth: all var(--vgt-dur-component) var(--vgt-ease-out);
+  --transition-fast: all var(--vgt-dur-micro) ease;
+}
+
+/* Wider-gamut definition where supported. Perceptually even pigment steps. */
+@supports (color: oklch(0.5 0.1 180)) {
+  :root {
+    --vgt-m-0: oklch(0.128 0.010 255);
+    --vgt-m-1: oklch(0.1619 0.0124 254.19);
+    --vgt-m-2: oklch(0.1894 0.0163 256.83);
+    --vgt-m-3: oklch(0.2198 0.0182 255.71);
+    --vgt-m-4: oklch(0.2525 0.0206 251.64);
+    --vgt-m-5: oklch(0.2850 0.0223 251.30);
+    --vgt-m-6: oklch(0.3300 0.0240 251.00);
+    --vgt-m-7: oklch(0.3950 0.0260 250.00);
+
+    --vgt-p-100: oklch(0.9450 0.0320 178.00);
+    --vgt-p-200: oklch(0.8850 0.0550 178.00);
+    --vgt-p-300: oklch(0.8635 0.0758 177.98);
+    --vgt-p-400: oklch(0.7590 0.0862 179.30);
+    --vgt-p-500: oklch(0.6101 0.0854 179.93);
+    --vgt-p-600: oklch(0.4891 0.0693 180.59);
+    --vgt-p-700: oklch(0.3950 0.0550 180.60);
+
+    --vgt-t-300: oklch(0.8600 0.0400 248.00);
+    --vgt-t-400: oklch(0.7147 0.0630 247.98);
+    --vgt-t-500: oklch(0.6000 0.0580 248.00);
+    --vgt-t-600: oklch(0.5000 0.0500 248.00);
+    --vgt-t-700: oklch(0.4000 0.0400 248.00);
+
+    --vgt-b-300: oklch(0.8650 0.0500 78.00);
+    --vgt-b-400: oklch(0.7495 0.0757 77.05);
+    --vgt-b-500: oklch(0.6200 0.0700 77.00);
+    --vgt-b-600: oklch(0.5100 0.0580 77.00);
+
+    --vgt-s-success: oklch(0.7297 0.1145 162.42);
+    --vgt-s-warning: oklch(0.7587 0.1210 80.83);
+    --vgt-s-danger: oklch(0.6809 0.1448 22.14);
+    --vgt-s-info: oklch(0.7213 0.0802 250.69);
+
+    --vgt-text-primary: oklch(0.9468 0.0086 247.92);
+    --vgt-text-secondary: oklch(0.7987 0.0205 245.70);
+    --vgt-text-muted: oklch(0.6604 0.0245 248.20);
+    --vgt-text-disabled: oklch(0.5115 0.0241 248.30);
+  }
+}
+
+/* ---------- Light mode: "daylight porcelain", not an inverted dark theme ---- */
+body.light-mode {
+  color-scheme: light;
+
+  --vgt-bg-0: #f2f5f4;
+  --vgt-bg-1: #ffffff;
+  --vgt-bg-2: #f7faf9;
+  --vgt-bg-3: #eef2f1;
+  --vgt-bg-4: #e6ecea;
+  --vgt-scrim: rgba(18, 30, 34, 0.42);
+
+  --vgt-text-primary: #111a20;
+  --vgt-text-secondary: #43515d;
+  --vgt-text-muted: #5f6b76;
+  --vgt-text-disabled: #95a1aa;
+  --vgt-text-on-pigment: #f5fffc;
+
+  --vgt-pigment: #2b7a6b;
+  --vgt-pigment-strong: #1f5d52;
+  --vgt-pigment-deep: #17453d;
+  --vgt-pigment-soft: rgba(43, 122, 107, 0.10);
+  --vgt-pigment-line: rgba(43, 122, 107, 0.26);
+  --vgt-accent-titan: #47647f;
+  --vgt-accent-bronze: #8a6a3c;
+
+  --vgt-glass-1: rgba(255, 255, 255, 0.62);
+  --vgt-glass-2: rgba(255, 255, 255, 0.78);
+  --vgt-glass-3: rgba(255, 255, 255, 0.88);
+  --vgt-glass-4: rgba(255, 255, 255, 0.97);
+  --vgt-glass-stroke: rgba(16, 32, 38, 0.10);
+  --vgt-glass-stroke-strong: rgba(16, 32, 38, 0.18);
+  --vgt-glass-highlight: rgba(255, 255, 255, 0.85);
+  --vgt-glass-edge: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.35));
+
+  --vgt-border: rgba(16, 32, 38, 0.10);
+  --vgt-border-strong: rgba(16, 32, 38, 0.18);
+  --vgt-border-pigment: rgba(43, 122, 107, 0.45);
+  --vgt-divider: rgba(16, 32, 38, 0.08);
+
+  --vgt-focus: #1f5d52;
+  --vgt-focus-ring: 0 0 0 2px var(--vgt-bg-1), 0 0 0 4px var(--vgt-focus);
+  --vgt-selection: rgba(43, 122, 107, 0.22);
+
+  --vgt-elevation-1: 0 1px 2px rgba(18, 32, 38, 0.08);
+  --vgt-elevation-2: 0 8px 24px -14px rgba(18, 32, 38, 0.24);
+  --vgt-elevation-3: 0 18px 44px -18px rgba(18, 32, 38, 0.28);
+  --vgt-elevation-4: 0 30px 70px -24px rgba(18, 32, 38, 0.32);
+  --vgt-inner-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  --bg-dark: var(--vgt-bg-0);
+  --bg-darker: #e8eeec;
+  --bg-panel: var(--vgt-glass-1);
+  --bg-item: rgba(255, 255, 255, 0.72);
+  --bg-elevated: var(--vgt-bg-1);
+  --bg-card: var(--vgt-bg-1);
+  --bg-active: var(--vgt-pigment-soft);
+
+  --border-color: var(--vgt-border);
+  --border-glow: rgba(43, 122, 107, 0.18);
+  --border-hover: var(--vgt-border-strong);
+
+  --accent-cyan: var(--vgt-pigment);
+  --accent-violet: var(--vgt-accent-titan);
+  --accent-purple: var(--vgt-pigment);
+  --accent-gradient: linear-gradient(135deg, var(--vgt-pigment-deep) 0%, var(--vgt-pigment) 58%, var(--vgt-accent-titan) 100%);
+  --accent-glow: rgba(43, 122, 107, 0.18);
+
+  --brand-purple: var(--vgt-pigment);
+  --brand-blue: var(--vgt-accent-titan);
+  --brand-green: #2f7f60;
+  --brand-orange: var(--vgt-accent-bronze);
+  --brand-pink: var(--vgt-accent-bronze);
+
+  --text-primary: var(--vgt-text-primary);
+  --text-secondary: var(--vgt-text-secondary);
+  --text-muted: var(--vgt-text-muted);
+
+  --danger: #b3403f;
+  --danger-glow: rgba(179, 64, 63, 0.12);
+  --warning: #8a6420;
+  --warning-glow: rgba(138, 100, 32, 0.12);
+  --success: #2f7f60;
+  --success-glow: rgba(47, 127, 96, 0.12);
+}
+
+@supports (color: oklch(0.5 0.1 180)) {
+  body.light-mode {
+    --vgt-bg-0: oklch(0.9676 0.0034 174.48);
+    --vgt-bg-1: oklch(1 0 0);
+    --vgt-bg-2: oklch(0.9820 0.0030 174.00);
+    --vgt-bg-3: oklch(0.9500 0.0045 174.00);
+    --vgt-bg-4: oklch(0.9280 0.0060 174.00);
+    --vgt-text-primary: oklch(0.2118 0.0178 237.88);
+    --vgt-text-secondary: oklch(0.4275 0.0267 244.32);
+    --vgt-text-muted: oklch(0.5400 0.0230 243.70);
+    --vgt-text-disabled: oklch(0.6800 0.0180 244.00);
+    --vgt-pigment: oklch(0.5270 0.0801 178.15);
+    --vgt-pigment-strong: oklch(0.4353 0.0656 179.20);
+    --vgt-pigment-deep: oklch(0.3750 0.0550 179.20);
+    --vgt-accent-titan: oklch(0.5000 0.0500 248.00);
+    --vgt-accent-bronze: oklch(0.5459 0.0750 75.12);
+  }
+}
+
+/* ---------- Manual high-contrast preference (body.high-contrast) ----------
+   Values preserved from the previous product-refresh.css switch, expressed as
+   primitives so the preference overrides only tokens (no raw hex in area CSS). */
+:root {
+  --vgt-hc-bg-0: #030507;
+  --vgt-hc-bg-1: #0b111c;
+  --vgt-hc-bg-2: #101a2a;
+  --vgt-hc-bg-3: #131f32;
+  --vgt-hc-bg-4: #17243a;
+  --vgt-hc-text-primary: #ffffff;
+  --vgt-hc-text-secondary: #e2edf9;
+  --vgt-hc-text-muted: #c0d0e3;
+  --vgt-hc-border: rgba(224, 241, 255, 0.36);
+  --vgt-hc-border-strong: rgba(230, 242, 255, 0.46);
+}

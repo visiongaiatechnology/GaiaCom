@@ -1,0 +1,126 @@
+/* ============================================================================
+   VGT GLASS 2100 — ENVIRONMENT (Z0)
+   One calm, product-derived environment: mineral graphite with a controlled
+   cool light zone and a restrained sage signal wash. No grid, no dot matrix,
+   no orbs, no ambient animation. Light mode is a separate "daylight porcelain"
+   composition, not an inverted dark theme.
+   ========================================================================== */
+
+body {
+  background-color: var(--vgt-bg-0);
+  color: var(--vgt-text-primary);
+  font-family: var(--vgt-font-sans);
+}
+
+/* The legacy aurora pseudo-elements are replaced by a single static light model. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(58rem 42rem at 12% -8%, rgba(111, 195, 178, 0.075), transparent 62%),
+    radial-gradient(52rem 40rem at 96% 104%, rgba(132, 167, 201, 0.065), transparent 60%),
+    linear-gradient(180deg, var(--vgt-m-0) 0%, var(--vgt-bg-0) 42%, var(--vgt-bg-0) 100%);
+  animation: none;
+  will-change: auto;
+}
+
+/* Depth vignette; static, no grain, no grid, no particles. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 42%, transparent 46%, rgba(4, 6, 9, 0.42) 100%);
+  filter: none;
+  opacity: 1;
+  animation: none;
+  will-change: auto;
+}
+
+body.light-mode {
+  background-color: var(--vgt-bg-0);
+}
+
+body.light-mode::before {
+  background:
+    radial-gradient(58rem 42rem at 12% -8%, rgba(43, 122, 107, 0.055), transparent 62%),
+    radial-gradient(52rem 40rem at 96% 104%, rgba(71, 100, 127, 0.05), transparent 60%),
+    linear-gradient(180deg, var(--vgt-bg-1) 0%, var(--vgt-bg-0) 48%, var(--vgt-bg-0) 100%);
+  animation: none;
+}
+
+body.light-mode::after {
+  background:
+    radial-gradient(120% 90% at 50% 42%, transparent 52%, rgba(18, 32, 38, 0.06) 100%);
+  filter: none;
+  opacity: 1;
+  animation: none;
+}
+
+/* Boot sequence: quiet wordmark on the calm environment, no perspective grid. */
+.gaia-boot-overlay {
+  background:
+    radial-gradient(40rem 28rem at 50% 46%, rgba(111, 195, 178, 0.10), transparent 68%),
+    rgba(5, 7, 9, 0.82);
+  backdrop-filter: blur(var(--vgt-blur-2));
+  -webkit-backdrop-filter: blur(var(--vgt-blur-2));
+  animation: bootFadeOut 1.9s var(--vgt-ease-out) forwards;
+}
+
+
+.gaia-boot-wordmark {
+  font-family: var(--vgt-font-display);
+  font-weight: 620;
+  letter-spacing: 0.24em;
+  color: var(--vgt-text-primary);
+  text-shadow: none;
+  animation: bootPulse 1.6s var(--vgt-ease-out) forwards;
+}
+
+.gaia-boot-subline {
+  font-family: var(--vgt-font-mono);
+  letter-spacing: 0.22em;
+  color: var(--vgt-pigment);
+  animation: bootSubline 1.6s var(--vgt-ease-out) forwards;
+}
+
+/* Dashed/bright decorative gradient text is a recognised AI-slop pattern:
+   keep the class (legacy call sites) but render a solid pigment treatment. */
+.text-gradient {
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  -webkit-text-fill-color: currentColor;
+  color: var(--vgt-pigment);
+  display: inline;
+}
+
+/* Utility environment zones for editorial surfaces (landing, auth). */
+.vgt-env-quiet {
+  background:
+    radial-gradient(46rem 30rem at 18% 0%, rgba(111, 195, 178, 0.06), transparent 64%),
+    var(--vgt-bg-0);
+}
+
+.vgt-env-raised {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 42%),
+    var(--vgt-bg-1);
+}
+
+.vgt-vignette {
+  position: relative;
+}
+
+.vgt-vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(100% 80% at 50% 30%, transparent 55%, rgba(4, 6, 9, 0.35) 100%);
+}

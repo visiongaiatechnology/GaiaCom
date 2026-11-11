@@ -1,0 +1,128 @@
+/* Astraea SecureSpace — Design Tokens & Material Foundation for GaiaCom
+ * Deep-Navy/Aurora material language. All authored CSS files strictly <= 500 lines. */
+
+:root {
+  color-scheme: dark;
+
+  /* Space & surfaces */
+  --ss-bg-0: #05080f;
+  --ss-bg-1: #070c16;
+  --ss-bg-2: #0b1422;
+  --ss-bg-3: #101c2e;
+  --ss-panel: rgba(10, 19, 32, 0.76);
+  --ss-panel-strong: rgba(12, 22, 38, 0.92);
+  --ss-panel-soft: rgba(13, 24, 40, 0.58);
+  --ss-stroke: rgba(120, 200, 255, 0.14);
+  --ss-stroke-strong: rgba(140, 220, 255, 0.28);
+  --ss-stroke-soft: rgba(148, 183, 215, 0.09);
+
+  /* Content */
+  --ss-text-1: #ffffff;
+  --ss-text-2: #d4e3ef;
+  --ss-text-3: #8aa4ba;
+  --ss-text-inverse: #050d17;
+
+  /* Brand accents */
+  --ss-cyan: #35e6ff;
+  --ss-cyan-strong: #12c8e6;
+  --ss-cyan-soft: rgba(53, 230, 255, 0.14);
+  --ss-violet: #8b5cf6;
+  --ss-violet-soft: rgba(139, 92, 246, 0.16);
+  --ss-gold: #e8b45e;
+  --ss-gold-soft: rgba(232, 180, 94, 0.14);
+  --ss-green: #34d399;
+  --ss-green-soft: rgba(52, 211, 153, 0.14);
+  --ss-red: #f43f5e;
+  --ss-red-soft: rgba(244, 63, 94, 0.14);
+  --ss-amber: #f59e0b;
+  --ss-amber-soft: rgba(245, 158, 11, 0.14);
+
+  /* Geometry */
+  --ss-radius-xs: 8px;
+  --ss-radius-sm: 10px;
+  --ss-radius-md: 14px;
+  --ss-radius-lg: 18px;
+  --ss-radius-xl: 24px;
+  --ss-titlebar-h: 60px;
+  --ss-sidebar-w: 250px;
+  --ss-rail-w: 320px;
+  --ss-statusbar-h: 30px;
+
+  /* Elevation & light */
+  --ss-shadow-1: 0 10px 28px rgba(2, 6, 14, 0.42);
+  --ss-shadow-2: 0 22px 54px rgba(2, 6, 14, 0.55);
+  --ss-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --ss-focus: #7fe9ff;
+
+  /* Typography */
+  --ss-font-display: 'Sora Variable', 'Sora', Manrope, system-ui, sans-serif;
+  --ss-font-ui: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --ss-font-mono: 'Cascadia Mono', 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Motion */
+  --ss-transition: 160ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Compatibility mappings for GaiaCom */
+  --gc-bg: var(--ss-bg-0);
+  --gc-surface: var(--ss-panel);
+  --gc-border: var(--ss-stroke);
+  --gc-text: var(--ss-text-1);
+  --gc-muted: var(--ss-text-3);
+  --gc-cyan: var(--ss-cyan);
+  --vgt-bg-base: var(--ss-bg-0);
+  --vgt-bg-panel: var(--ss-panel);
+  --vgt-divider: var(--ss-stroke);
+}
+
+/* Base Body Styles */
+body {
+  background: var(--ss-bg-0);
+  color: var(--ss-text-1);
+  font-family: var(--ss-font-ui);
+  font-size: 13.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ss-font-display);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--ss-text-1);
+}
+
+/* Glass Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 183, 215, 0.18);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 183, 215, 0.35);
+  background-clip: padding-box;
+}
+
+/* Brand Media */
+.brand-icon,
+.brand-graphic {
+  display: inline-block;
+  vertical-align: middle;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.brand-icon {
+  filter: drop-shadow(0 2px 6px rgba(2, 8, 18, 0.55));
+}
+.brand-graphic {
+  filter: drop-shadow(0 14px 34px rgba(2, 8, 18, 0.6));
+}

@@ -2,33 +2,58 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="color-scheme" content="dark light" />
     <meta name="referrer" content="no-referrer" />
-    <meta name="theme-color" content="#0d0e12" />
-    <meta name="description" content="GaiaCom — sicherer, föderierter Messenger für AstraeaOS" />
+    <meta name="theme-color" content="#08111c" />
+    <meta name="description" content="GaiaCom 3 — souveräner, föderierter Post-Quanten-Messenger mit Ende-zu-Ende-Verschlüsselung und dezentraler Identität." />
+    <meta name="application-name" content="GaiaCom 3" />
+    <meta name="apple-mobile-web-app-title" content="GaiaCom" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'none'; object-src 'none'; frame-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://beta.gaiacom.de; media-src 'self' blob: https://beta.gaiacom.de; connect-src 'self' https://beta.gaiacom.de wss://beta.gaiacom.de; worker-src 'self' blob:; manifest-src 'self'; font-src 'self' data:" />
-    <link rel="apple-touch-icon" href="/logo192.png" />
-    <link rel="manifest" href="/manifest.json" />
+
+    <!-- GaiaCom brand favicons (original GaiaCom logo) -->
+    <link rel="icon" href="/favicon.ico?v=3" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=3" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=3" />
+    <link rel="manifest" href="/manifest.json?v=3" />
+
+    <!-- Social / link preview metadata (GaiaCom 3) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GaiaCom" />
+    <meta property="og:title" content="GaiaCom 3 — Souveräner Post-Quanten-Messenger" />
+    <meta property="og:description" content="Souveräne, föderierte Kommunikation mit Ende-zu-Ende-Verschlüsselung, Post-Quanten-Kryptographie und dezentraler Identität." />
+    <meta property="og:image" content="https://beta.gaiacom.de/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="GaiaCom 3 Logo" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GaiaCom 3 — Souveräner Post-Quanten-Messenger" />
+    <meta name="twitter:description" content="Souveräne, föderierte Kommunikation mit Ende-zu-Ende-Verschlüsselung und Post-Quanten-Kryptographie." />
+    <meta name="twitter:image" content="https://beta.gaiacom.de/og-image.png" />
+
     <link rel="stylesheet" href="/startup.css" />
-    <title>GaiaCom 2 — Secure Federated Messenger</title>
+    <title>GaiaCom 3 — Souveräner Post-Quanten-Messenger</title>
   </head>
   <body>
-    <div class="ambient-light">
-      <div class="light-orb orb-purple"></div>
-      <div class="light-orb orb-blue"></div>
-    </div>
     <noscript>Sie müssen JavaScript aktivieren, um diese App auszuführen.</noscript>
     <div id="root">
-      <main class="astraea-startup" role="status" aria-live="polite">
-        <div class="astraea-startup__mark"><img src="/astraeaos-logo.svg" alt="AstraeaOS" /></div>
-        <p class="astraea-startup__eyebrow">ASTRAEAOS // GAIA CELL</p>
-        <h1>GaiaCom wird geschützt gestartet</h1>
-        <p class="astraea-startup__copy">Lokale Schlüsselräume und Kommunikationsdienste werden initialisiert.</p>
-        <div class="astraea-startup__track" aria-hidden="true"><span class="astraea-startup__progress"></span></div>
+      <main class="vgt-startup" role="status" aria-live="polite">
+        <div class="vgt-startup__mark" aria-hidden="true">
+          <img
+            class="vgt-startup__logo"
+            src="/brand/gaiacom-mark.webp"
+            width="56"
+            height="56"
+            alt=""
+            draggable="false"
+          />
+        </div>
+        <p class="vgt-startup__eyebrow">GaiaCom 3</p>
+        <h1>GaiaCom 3 wird geschützt gestartet</h1>
+        <p class="vgt-startup__copy">Lokale Schlüsselräume und Kommunikationsdienste werden initialisiert.</p>
       </main>
     </div>
-	<script type="module" src="/src/index.jsx"></script>
+    <script type="module" src="/src/index.jsx"></script>
   </body>
 </html>

@@ -1,0 +1,363 @@
+/* ============================================================================
+   VGT GLASS 2100 — OVERLAYS, AUTH DIALOG, LEGAL
+   Z4 material: stable, high-contrast, keyboard-complete. Focus is trapped in
+   dialogs; scrim is not a security layer, only a visual boundary.
+   ========================================================================== */
+
+.vgt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--vgt-z-modal);
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 32px);
+  background: var(--vgt-scrim);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  overflow-y: auto;
+  animation: vgt-fade var(--vgt-dur-component) var(--vgt-ease-out) both;
+}
+
+.vgt-dialog {
+  width: min(760px, 100%);
+  max-height: min(88dvh, 900px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  padding: clamp(18px, 3vw, 28px);
+  border-radius: var(--vgt-radius-modal);
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke-strong);
+  background: var(--vgt-glass-4);
+  box-shadow: var(--vgt-elevation-4), var(--vgt-inner-highlight);
+  animation: vgt-rise var(--vgt-dur-view) var(--vgt-ease-spring) both;
+}
+
+.vgt-dialog--wide { width: min(880px, 100%); }
+
+.vgt-dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-4);
+}
+
+.vgt-dialog__head .vgt-h3 { margin: 0; }
+
+.vgt-dialog__scroll {
+  overflow-y: auto;
+  padding-right: var(--vgt-space-2);
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-terms {
+  margin: 0;
+  padding: var(--vgt-space-4) 0;
+  font-family: var(--vgt-font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--vgt-text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.vgt-dialog__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--vgt-space-3);
+}
+
+/* ---------- Success dialog ---------- */
+.vgt-dialog--success {
+  width: min(440px, 100%);
+  align-items: center;
+  text-align: center;
+}
+
+.vgt-dialog__seal {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  color: var(--vgt-pigment);
+  background: var(--vgt-pigment-soft);
+  border: var(--vgt-hairline) solid var(--vgt-pigment-line);
+}
+
+.vgt-dialog__key {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--vgt-space-3);
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-2);
+  text-align: left;
+}
+
+.vgt-dialog__key code {
+  color: var(--vgt-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Auth dialog ---------- */
+.vgt-auth-dialog {
+  width: min(540px, 100%);
+  max-height: min(90dvh, 860px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  padding: clamp(16px, 3vw, 24px);
+  border-radius: var(--vgt-radius-modal);
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke-strong);
+  background: var(--vgt-glass-4);
+  box-shadow: var(--vgt-elevation-4), var(--vgt-inner-highlight);
+  animation: vgt-rise var(--vgt-dur-view) var(--vgt-ease-spring) both;
+}
+
+.vgt-auth-dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-auth-dialog__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-auth-dialog__brand .vgt-h3 { margin: 0; }
+.vgt-auth-dialog__brand .vgt-caption { margin: 2px 0 0; }
+
+.vgt-auth-dialog__boundary {
+  list-style: none;
+  margin: 0;
+  padding: var(--vgt-space-3);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-divider);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-auth-dialog__boundary li {
+  display: flex;
+  gap: var(--vgt-space-2);
+  align-items: flex-start;
+}
+
+.vgt-auth-dialog__step {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 50%;
+  border: var(--vgt-hairline) solid var(--vgt-pigment-line);
+  color: var(--vgt-pigment);
+  font-family: var(--vgt-font-mono);
+  font-size: 10px;
+}
+
+.vgt-auth-dialog__boundary strong {
+  display: block;
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-auth-dialog__boundary small {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--vgt-text-xs);
+  line-height: 1.45;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-auth-dialog__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+}
+
+/* ---------- Segmented tabs ---------- */
+.vgt-auth-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-auth-tabs__btn {
+  flex: 1;
+  min-height: 34px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: calc(var(--vgt-radius-control) - 3px);
+  background: transparent;
+  color: var(--vgt-text-muted);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-xs);
+  font-weight: 620;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+.vgt-auth-tabs__btn:hover { color: var(--vgt-text-primary); }
+
+.vgt-auth-tabs__btn.is-active {
+  background: var(--vgt-bg-4);
+  color: var(--vgt-text-primary);
+  box-shadow: var(--vgt-inner-highlight);
+}
+
+.vgt-auth-tabs__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+/* ---------- Panel & form ---------- */
+.vgt-auth-panel { padding-top: var(--vgt-space-1); }
+
+.vgt-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+}
+
+.vgt-auth-form__submit {
+  width: 100%;
+  min-height: 44px;
+  margin-top: var(--vgt-space-1);
+}
+
+.vgt-auth-form__actions {
+  display: flex;
+  gap: var(--vgt-space-2);
+  flex-wrap: wrap;
+}
+
+.vgt-auth-form__alt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  flex-wrap: wrap;
+}
+
+.vgt-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  font-size: var(--vgt-text-xs);
+  line-height: 1.5;
+  color: var(--vgt-text-secondary);
+  cursor: pointer;
+}
+
+.vgt-consent input {
+  margin-top: 2px;
+  accent-color: var(--vgt-pigment-strong);
+  flex: none;
+}
+
+.vgt-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--vgt-pigment);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-xs);
+  font-weight: 620;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease;
+}
+
+.vgt-link:hover {
+  color: var(--vgt-text-primary);
+  text-decoration-color: currentColor;
+}
+
+.vgt-link:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+  border-radius: 3px;
+}
+
+.vgt-auth-dialog__foot {
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+  padding-top: var(--vgt-space-3);
+}
+
+/* ---------- Pairing ---------- */
+.vgt-pair-qr {
+  align-self: center;
+  display: grid;
+  place-items: center;
+  gap: var(--vgt-space-2);
+  width: 220px;
+  height: 220px;
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-qr-bg);
+  padding: var(--vgt-space-2);
+}
+
+.vgt-pair-qr--pending { color: var(--vgt-qr-ink); background: var(--vgt-bg-3); border-style: dashed; }
+
+/* ---------- Cookie banner ---------- */
+.vgt-cookie {
+  position: fixed;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 55;
+  width: min(920px, calc(100% - 24px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-4);
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border-radius: var(--vgt-radius-floating);
+  animation: vgt-rise var(--vgt-dur-view) var(--vgt-ease-spring) both;
+}
+
+.vgt-cookie__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: var(--vgt-text-xs);
+  line-height: 1.5;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-cookie__copy strong {
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .vgt-auth-dialog { max-height: 94dvh; }
+  .vgt-auth-dialog__boundary { grid-template-columns: minmax(0, 1fr); }
+  .vgt-auth-tabs { flex-wrap: wrap; }
+  .vgt-auth-tabs__btn { flex: 1 1 44%; }
+  .vgt-cookie { flex-direction: column; align-items: stretch; }
+  .vgt-cookie .btn-primary { width: 100%; }
+}
+
+@media (max-width: 380px) {
+  .vgt-auth-tabs__btn { flex: 1 1 100%; }
+}

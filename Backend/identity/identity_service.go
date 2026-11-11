@@ -9,9 +9,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"gaiacom/backend/core/uuid"
@@ -23,8 +25,68 @@ import (
 	"github.com/cloudflare/circl/sign/mldsa/mldsa87"
 )
 
+// Remote identity resolution (P-03 / FIND-010) is ephemeral by design: an
+// unauthenticated lookup must never write to the local identity store. Results
+// are kept in a bounded in-memory cache with a short TTL so repeated lookups do
+// not amplify outbound traffic, and one resolution consumes a rate budget.
+const (
+	remoteResolutionCacheTTL       = 60 * time.Second
+	remoteResolutionCacheMax       = 512
+	remoteResolutionWindow         = 5 * time.Minute
+	remoteResolutionDomainLimit    = 30
+	remoteResolutionGlobalLimit    = 120
+	maxRemoteFallbackServers       = 3
+	maxRemoteIdentityResponseBytes = 256 * 1024
+	remoteResolutionUnavailable    = "remote identity resolution temporarily unavailable"
+)
+
+type resolutionCacheEntry struct {
+	expiresAt time.Time
+	seq       uint64
+	result    map[string]interface{}
+}
+
+type resolutionRateWindow struct {
+	windowStart time.Time
+	count       int
+}
+
+// allow consumes one unit of the window budget. It is not safe for concurrent
+// use by itself; callers hold Service.resolutionMu.
+func (w *resolutionRateWindow) allow(now time.Time, limit int) bool {
+	if w.windowStart.IsZero() || now.Sub(w.windowStart) >= remoteResolutionWindow {
+		w.windowStart = now
+		w.count = 0
+	}
+	if w.count >= limit {
+		return false
+	}
+	w.count++
+	return true
+}
+
 type Service struct {
 	Store repository.IdentityStore
+
+	// localDomain is the node domain new identities must belong to (P-02).
+	// Empty means identity creation is denied (fail closed).
+	localDomain string
+
+	// now is overridable for deterministic tests; nil means time.Now.
+	now func() time.Time
+
+	// httpClient is only overridden by tests; production resolution builds a
+	// DNS-revalidating secure client per call.
+	httpClient *http.Client
+	// resolutionEndpoint is only overridden by tests to redirect loopback
+	// fixtures; nil means the production URL builder.
+	resolutionEndpoint func(gaiaID, domain, scheme string) string
+
+	resolutionMu       sync.Mutex
+	resolutionCache    map[string]resolutionCacheEntry
+	resolutionSeq      uint64
+	resolutionByDomain map[string]*resolutionRateWindow
+	resolutionGlobal   resolutionRateWindow
 }
 
 type CreateIdentityInput struct {
@@ -130,8 +192,150 @@ func validateSovereignKeyset(value map[string]interface{}) error {
 	}
 	return nil
 }
-func NewIdentityService(store repository.IdentityStore) *Service {
-	return &Service{Store: store}
+
+// Option configures optional identity-service behavior.
+type Option func(*Service)
+
+// identityDomainAllowed reports whether an identity domain may be minted on
+// this node. The node may host identities for its own host name or for a
+// parent network domain (e.g. node "beta.gaiacom.de" hosts identities for
+// "gaiacom.de"). Bare top-level domains and unrelated domains are rejected so
+// the P-02 binding cannot be bypassed by a public suffix.
+func identityDomainAllowed(identityDomain, localDomain string) bool {
+	identityDomain = strings.TrimPrefix(strings.ToLower(strings.TrimSpace(identityDomain)), ".")
+	localDomain = strings.TrimPrefix(strings.ToLower(strings.TrimSpace(localDomain)), ".")
+	if identityDomain == "" || localDomain == "" {
+		return false
+	}
+	if identityDomain == localDomain {
+		return true
+	}
+	// Only dot-qualified parent domains are accepted ("gaiacom.de" for
+	// "beta.gaiacom.de"), never a bare TLD ("de").
+	if !strings.Contains(identityDomain, ".") {
+		return false
+	}
+	return strings.HasSuffix(localDomain, "."+identityDomain)
+}
+
+// WithLocalDomain binds identity creation to the given node domain. Without
+// this option (or with an empty domain) CreateIdentity fails closed.
+func WithLocalDomain(domain string) Option {
+	normalized := strings.ToLower(strings.TrimSpace(domain))
+	return func(s *Service) { s.localDomain = normalized }
+}
+
+func NewIdentityService(store repository.IdentityStore, options ...Option) *Service {
+	s := &Service{
+		Store:              store,
+		now:                time.Now,
+		resolutionCache:    make(map[string]resolutionCacheEntry),
+		resolutionByDomain: make(map[string]*resolutionRateWindow),
+	}
+	for _, option := range options {
+		if option != nil {
+			option(s)
+		}
+	}
+	return s
+}
+
+func (s *Service) clock() time.Time {
+	if s.now != nil {
+		return s.now()
+	}
+	return time.Now()
+}
+
+// cacheGet returns a copy of a cached resolution result. Cache hits never
+// consume the outbound resolution budget.
+func (s *Service) cacheGet(gaiaID string) (map[string]interface{}, bool) {
+	now := s.clock()
+	s.resolutionMu.Lock()
+	defer s.resolutionMu.Unlock()
+	entry, ok := s.resolutionCache[gaiaID]
+	if !ok || now.After(entry.expiresAt) {
+		if ok {
+			delete(s.resolutionCache, gaiaID)
+		}
+		return nil, false
+	}
+	copied := make(map[string]interface{}, len(entry.result))
+	for key, value := range entry.result {
+		copied[key] = value
+	}
+	return copied, true
+}
+
+func (s *Service) cachePut(gaiaID string, result map[string]interface{}) {
+	now := s.clock()
+	s.resolutionMu.Lock()
+	defer s.resolutionMu.Unlock()
+	if s.resolutionCache == nil {
+		s.resolutionCache = make(map[string]resolutionCacheEntry)
+	}
+	for key, entry := range s.resolutionCache {
+		if now.After(entry.expiresAt) {
+			delete(s.resolutionCache, key)
+		}
+	}
+	if len(s.resolutionCache) >= remoteResolutionCacheMax {
+		var oldestKey string
+		var oldestSeq uint64
+		first := true
+		for key, entry := range s.resolutionCache {
+			if first || entry.seq < oldestSeq {
+				oldestKey, oldestSeq, first = key, entry.seq, false
+			}
+		}
+		if oldestKey != "" {
+			delete(s.resolutionCache, oldestKey)
+		}
+	}
+	s.resolutionSeq++
+	s.resolutionCache[gaiaID] = resolutionCacheEntry{
+		expiresAt: now.Add(remoteResolutionCacheTTL),
+		seq:       s.resolutionSeq,
+		result:    result,
+	}
+}
+
+// allowRemoteResolution enforces the per-domain and global outbound budget.
+func (s *Service) allowRemoteResolution(domain string) bool {
+	now := s.clock()
+	s.resolutionMu.Lock()
+	defer s.resolutionMu.Unlock()
+	if s.resolutionByDomain == nil {
+		s.resolutionByDomain = make(map[string]*resolutionRateWindow)
+	}
+	if !s.resolutionGlobal.allow(now, remoteResolutionGlobalLimit) {
+		return false
+	}
+	window, ok := s.resolutionByDomain[domain]
+	if !ok {
+		window = &resolutionRateWindow{}
+		s.resolutionByDomain[domain] = window
+	}
+	return window.allow(now, remoteResolutionDomainLimit)
+}
+
+func (s *Service) remoteIdentityURL(gaiaID, domain, scheme string) string {
+	if s.resolutionEndpoint != nil {
+		return s.resolutionEndpoint(gaiaID, domain, scheme)
+	}
+	return fmt.Sprintf("%s://%s/api/v1/public/identity/%s", scheme, domain, gaiaID)
+}
+
+func (s *Service) remoteHTTPClient() *http.Client {
+	if s.httpClient != nil {
+		return s.httpClient
+	}
+	// Remote identity resolution is attacker-controlled through the GaiaID
+	// domain. Use the federation client so every initial connection and redirect
+	// is DNS-revalidated and private/reserved networks stay unreachable.
+	client := utils.NewSecureHTTPClient()
+	client.Timeout = 3 * time.Second
+	return client
 }
 
 func (s *Service) CreateIdentity(userID uuid.UUID, input CreateIdentityInput) (*models.Identity, error) {
@@ -140,6 +344,12 @@ func (s *Service) CreateIdentity(userID uuid.UUID, input CreateIdentityInput) (*
 	}
 	if err := validate.GaiaID(input.GaiaID); err != nil {
 		return nil, errors.New("invalid gaiaId")
+	}
+	// P-02: identities are only created for the local node domain. A foreign
+	// domain is rejected explicitly; there is no local-part fallback.
+	domain, ok := validate.GaiaIDDomain(input.GaiaID)
+	if !ok || !identityDomainAllowed(domain, s.localDomain) {
+		return nil, errors.New("identity domain must belong to the local node domain")
 	}
 	if len(input.PublicRecord) == 0 {
 		return nil, errors.New("publicRecord is required")
@@ -218,6 +428,13 @@ func (s *Service) CreateIdentity(userID uuid.UUID, input CreateIdentityInput) (*
 func (s *Service) GetIdentityByGaiaID(gaiaID string) (*models.Identity, error) {
 	identity, err := s.Store.FindIdentityByGaiaID(gaiaID)
 	if err != nil {
+		return nil, errors.New("identity not found")
+	}
+	// Rows without an owning user are legacy remote-resolution stubs from before
+	// P-03. They are never an authoritative local identity: treat them as absent
+	// so the handler resolves the identity ephemerally instead of serving
+	// attacker-controlled persisted data.
+	if identity.UserID == uuid.Nil {
 		return nil, errors.New("identity not found")
 	}
 	return identity, nil
@@ -474,8 +691,18 @@ func (s *Service) ResolveRemoteIdentity(gaiaID string) (map[string]interface{}, 
 	}
 	domain := gaiaID[separator+1:]
 
+	// Cache hits do not consume the outbound budget and never touch the store.
+	if cached, ok := s.cacheGet(gaiaID); ok {
+		return cached, nil
+	}
+
 	if utils.IsPrivateOrLoopbackIP(domain) && !strings.Contains(domain, "localhost") {
 		return nil, errors.New("resolve remote identity aborted: target is on private or local network (SSRF protection)")
+	}
+
+	// Bound outbound traffic before any network request is made.
+	if !s.allowRemoteResolution(domain) {
+		return nil, errors.New(remoteResolutionUnavailable)
 	}
 
 	scheme := "https"
@@ -483,61 +710,95 @@ func (s *Service) ResolveRemoteIdentity(gaiaID string) (map[string]interface{}, 
 		scheme = "http"
 	}
 
-	url := fmt.Sprintf("%s://%s/api/v1/public/identity/%s", scheme, domain, gaiaID)
-	// Remote identity resolution is attacker-controlled through the GaiaID
-	// domain. Use the federation client so every initial connection and redirect
-	// is DNS-revalidated and private/reserved networks stay unreachable.
-	client := utils.NewSecureHTTPClient()
-	client.Timeout = 3 * time.Second
-	resp, err := client.Get(url)
-
-	if err != nil || (resp != nil && resp.StatusCode != http.StatusOK) {
-		if resp != nil {
-			resp.Body.Close()
-			resp = nil
-		}
+	result, primaryErr := s.fetchRemoteIdentity(gaiaID, domain, scheme)
+	if primaryErr != nil {
 		log.Printf("Primary node resolution failed for %s. Attempting decentralized lookup fallback...", gaiaID)
-		if fedStore, ok := s.Store.(repository.FederationStore); ok {
-			servers, errList := fedStore.FindAllFederationServers()
-			if errList == nil {
-				for _, srv := range servers {
-					if srv.IsBlocked || srv.Domain == domain {
-						continue
-					}
-					altScheme := "https"
-					if strings.Contains(srv.Domain, "localhost") || strings.Contains(srv.Domain, "127.0.0.1") || strings.Contains(srv.Domain, "192.168.") {
-						altScheme = "http"
-					}
-					altURL := fmt.Sprintf("%s://%s/api/v1/public/identity/%s", altScheme, srv.Domain, gaiaID)
-					altResp, altErr := client.Get(altURL)
-					if altErr == nil && altResp.StatusCode == http.StatusOK {
-						resp = altResp
-						err = nil
-						log.Printf("Successfully resolved identity %s via alternative federated server: %s", gaiaID, srv.Domain)
-						break
-					}
-					if altResp != nil {
-						altResp.Body.Close()
-					}
-				}
-			}
-		}
+		result, primaryErr = s.resolveViaFederatedFallback(gaiaID, domain)
+	}
+	if primaryErr != nil {
+		return nil, primaryErr
+	}
+	if result == nil {
+		return nil, errors.New("remote server returned empty response")
 	}
 
+	s.cachePut(gaiaID, result)
+	return result, nil
+}
+
+// fetchRemoteIdentity performs one bounded, DNS-revalidated lookup and returns
+// an ephemeral identity document. Nothing here may persist local state.
+func (s *Service) fetchRemoteIdentity(gaiaID, domain, scheme string) (map[string]interface{}, error) {
+	url := s.remoteIdentityURL(gaiaID, domain, scheme)
+	resp, err := s.remoteHTTPClient().Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch remote identity: %w", err)
 	}
-	if resp == nil {
-		return nil, errors.New("remote server returned empty response")
-	}
 	defer resp.Body.Close()
+	return s.decodeRemoteIdentityResponse(resp, gaiaID)
+}
 
+// resolveViaFederatedFallback asks at most maxRemoteFallbackServers known
+// federation peers, so an unauthenticated lookup cannot fan out unboundedly.
+func (s *Service) resolveViaFederatedFallback(gaiaID, primaryDomain string) (map[string]interface{}, error) {
+	fedStore, ok := s.Store.(repository.FederationStore)
+	if !ok {
+		return nil, errors.New("remote identity resolution unavailable")
+	}
+	servers, err := fedStore.FindAllFederationServers()
+	if err != nil {
+		return nil, fmt.Errorf("remote identity resolution unavailable: %w", err)
+	}
+
+	attempts := 0
+	var lastErr error
+	for _, srv := range servers {
+		if attempts >= maxRemoteFallbackServers {
+			break
+		}
+		if srv.IsBlocked || strings.EqualFold(srv.Domain, primaryDomain) {
+			continue
+		}
+		altScheme := "https"
+		if strings.Contains(srv.Domain, "localhost") || strings.Contains(srv.Domain, "127.0.0.1") || strings.Contains(srv.Domain, "192.168.") {
+			altScheme = "http"
+		}
+		attempts++
+		resp, altErr := s.remoteHTTPClient().Get(s.remoteIdentityURL(gaiaID, srv.Domain, altScheme))
+		if altErr != nil {
+			lastErr = altErr
+			continue
+		}
+		result, decodeErr := s.decodeRemoteIdentityResponse(resp, gaiaID)
+		resp.Body.Close()
+		if decodeErr == nil && result != nil {
+			log.Printf("Resolved identity %s via alternative federated server: %s", gaiaID, srv.Domain)
+			return result, nil
+		}
+		lastErr = decodeErr
+	}
+	if lastErr == nil {
+		lastErr = errors.New("failed to fetch remote identity: no federated fallback available")
+	}
+	return nil, lastErr
+}
+
+// decodeRemoteIdentityResponse enforces a response-size cap and builds the
+// explicit ephemeral/unverified document returned to the caller.
+func (s *Service) decodeRemoteIdentityResponse(resp *http.Response, gaiaID string) (map[string]interface{}, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("remote server returned status %d", resp.StatusCode)
 	}
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxRemoteIdentityResponseBytes+1))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read remote response: %w", err)
+	}
+	if len(body) > maxRemoteIdentityResponseBytes {
+		return nil, errors.New("remote identity response exceeds size limit")
+	}
 
 	var result map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, fmt.Errorf("failed to decode remote response: %w", err)
 	}
 
@@ -549,12 +810,13 @@ func (s *Service) ResolveRemoteIdentity(gaiaID string) (map[string]interface{}, 
 		remoteID = uuid.New()
 	}
 
+	separator := strings.LastIndex(gaiaID, ":")
 	displayName := "Remote User"
 	if disp, ok := result["displayName"].(string); ok && disp != "" {
 		displayName = disp
 	} else if disp, ok := result["displayName"]; ok {
 		displayName = fmt.Sprintf("%v", disp)
-	} else {
+	} else if separator > 0 {
 		localPart := gaiaID[1:separator]
 		displayName = strings.Title(localPart)
 	}
@@ -567,28 +829,18 @@ func (s *Service) ResolveRemoteIdentity(gaiaID string) (map[string]interface{}, 
 		pubRecordStr = string(pubRecBytes)
 	}
 
-	existsCount, err := s.Store.CountIdentitiesByGaiaID(gaiaID)
-	if err == nil && existsCount == 0 {
-		now := time.Now().UTC()
-		stub := &models.Identity{
-			ID:           remoteID,
-			UserID:       uuid.Nil,
-			GaiaID:       gaiaID,
-			DisplayName:  displayName,
-			PublicRecord: models.JSONB([]byte(pubRecordStr)),
-			IsActive:     true,
-			CreatedAt:    now,
-			UpdatedAt:    now,
-		}
-		_ = s.Store.CreateIdentity(stub)
-	}
-
+	// Additive provenance fields: the caller can see that this document is an
+	// unauthenticated remote resolution and was not persisted locally.
 	return map[string]interface{}{
-		"id":           remoteID.String(),
-		"gaiaId":       gaiaID,
-		"gaiaID":       gaiaID,
-		"displayName":  displayName,
-		"publicRecord": pubRecordStr,
+		"id":               remoteID.String(),
+		"gaiaId":           gaiaID,
+		"gaiaID":           gaiaID,
+		"displayName":      displayName,
+		"publicRecord":     pubRecordStr,
+		"resolvedRemotely": true,
+		"verified":         false,
+		"profileSource":    "remote-unsigned-resolution",
+		"persisted":        false,
 	}, nil
 }
 

@@ -1,0 +1,453 @@
+/* ============================================================================
+   VGT GLASS 2100 — MAIL MESSAGE
+   Anatomy of one thread message: disclosure row, routing metadata, actions,
+   delivery state, readable body, trust passport, GaiaProof and attachments.
+   Responsive composition for these rules lives in mail-reader.css.
+   Owner: WP-MAIL. Foundation: styles/glass2100/**. Keep <= 500 lines.
+   ========================================================================== */
+
+/* ---------- Message ---------- */
+.vgt-mail-msg {
+  position: relative;
+  padding: var(--vgt-space-1) 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-mail-msg:last-child {
+  border-bottom: 0;
+}
+
+.vgt-mail-msg.is-open::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-pigment-line);
+}
+
+.vgt-mail-msg__heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.vgt-mail-msg__disclosure {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  width: 100%;
+  padding: var(--vgt-space-2) var(--vgt-space-3);
+  border: 0;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  color: var(--vgt-text-primary);
+  font-family: var(--vgt-font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-mail-msg__disclosure:hover {
+  background: var(--vgt-bg-2);
+}
+
+.vgt-mail-msg__disclosure:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-mail-msg__summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vgt-mail-msg__sender {
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-md);
+  font-weight: 620;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-mail-msg__snippet {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-mail-msg__signals {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  flex: none;
+  gap: var(--vgt-space-2);
+  margin-left: auto;
+}
+
+.vgt-mail-msg__chevron {
+  display: inline-flex;
+  color: var(--vgt-text-muted);
+  transition: transform var(--vgt-dur-component) var(--vgt-ease-out);
+}
+
+.vgt-mail-msg.is-open .vgt-mail-msg__chevron {
+  transform: rotate(180deg);
+}
+
+.vgt-mail-msg__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  padding: var(--vgt-space-2) var(--vgt-space-3) var(--vgt-space-6) 46px;
+}
+
+/* ---------- Routing metadata ---------- */
+.vgt-mail-routing {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-top: var(--vgt-space-3);
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-mail-routing__row {
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-mail-routing dt {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vgt-mail-routing dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-width: 0;
+  margin: 0;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+}
+
+.vgt-mail-routing__address {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Actions, delivery state, body ---------- */
+.vgt-mail-msg__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-mail-msg__action {
+  min-height: 36px;
+}
+
+.vgt-mail-msg__delivery {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-2);
+  margin: 0;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
+}
+
+.vgt-mail-msg__delivery .vgt-icon {
+  flex: none;
+  margin-top: 1px;
+  stroke: var(--vgt-pigment);
+}
+
+.vgt-mail-msg__body {
+  max-width: var(--vgt-measure);
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-md);
+  line-height: 1.72;
+  overflow-wrap: anywhere;
+}
+
+.vgt-mail-msg__body h3 {
+  margin: var(--vgt-space-4) 0 var(--vgt-space-2);
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-lg);
+  font-weight: 620;
+  line-height: var(--vgt-leading-snug);
+}
+
+.vgt-mail-msg__body strong {
+  color: var(--vgt-text-primary);
+  font-weight: 650;
+}
+
+.vgt-mail-msg__body code {
+  padding: 1px 5px;
+  border-radius: var(--vgt-radius-xs);
+  background: var(--vgt-bg-3);
+  color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-mono);
+  font-size: 0.9em;
+}
+
+.vgt-mail-msg__body-empty {
+  margin: 0;
+  color: var(--vgt-text-muted);
+}
+
+/* ---------- Trust passport (bronze = claim marker, restrained) ---------- */
+.vgt-mail-passport {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border: var(--vgt-hairline) solid rgba(201, 168, 119, 0.34);
+  border-radius: var(--vgt-radius-control);
+  background: rgba(201, 168, 119, 0.08);
+}
+
+.vgt-mail-passport__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-mail-passport__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vgt-accent-bronze);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vgt-mail-passport__label .vgt-icon {
+  stroke: var(--vgt-accent-bronze);
+}
+
+.vgt-mail-passport__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-5);
+  margin: 0;
+}
+
+.vgt-mail-passport__fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vgt-mail-passport__fact dt {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vgt-mail-passport__fact dd {
+  margin: 0;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+}
+
+.vgt-mail-passport__note {
+  margin: 0;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
+}
+
+/* ---------- GaiaProof audit trail ---------- */
+.vgt-mail-proof {
+  overflow: hidden;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+}
+
+.vgt-mail-proof__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  padding: var(--vgt-space-2) var(--vgt-space-3);
+  list-style: none;
+  cursor: pointer;
+}
+
+.vgt-mail-proof__summary::-webkit-details-marker {
+  display: none;
+}
+
+.vgt-mail-proof__summary:focus-visible {
+  outline: none;
+  border-radius: var(--vgt-radius-control);
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-mail-proof__seal {
+  display: inline-flex;
+  color: var(--vgt-accent-bronze);
+}
+
+.vgt-mail-proof__seal .vgt-icon {
+  stroke: var(--vgt-accent-bronze);
+}
+
+.vgt-mail-proof__title {
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-sm);
+  font-weight: 620;
+}
+
+.vgt-mail-proof__chevron {
+  display: inline-flex;
+  margin-left: auto;
+  color: var(--vgt-text-muted);
+  transition: transform var(--vgt-dur-component) var(--vgt-ease-out);
+}
+
+.vgt-mail-proof[open] .vgt-mail-proof__chevron {
+  transform: rotate(180deg);
+}
+
+.vgt-mail-proof__rows {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: var(--vgt-space-3);
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-mail-proof__row {
+  display: grid;
+  grid-template-columns: minmax(112px, max-content) minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-mail-proof__row dt {
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  font-weight: 620;
+}
+
+.vgt-mail-proof__row dd {
+  margin: 0;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-xs);
+  overflow-wrap: anywhere;
+}
+
+.vgt-mail-proof__note {
+  margin: 0;
+  padding: 0 var(--vgt-space-3);
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+  line-height: var(--vgt-leading-normal);
+}
+
+.vgt-mail-proof__download {
+  margin: var(--vgt-space-3);
+  min-height: 34px;
+}
+
+/* ---------- Attachments ---------- */
+.vgt-mail-attachments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-mail-attachments .vgt-label {
+  margin: 0;
+}
+
+.vgt-mail-attachments__count {
+  color: var(--vgt-text-muted);
+  font-weight: 600;
+}
+
+.vgt-mail-attachments__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vgt-mail-attachment {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  width: 100%;
+  padding: var(--vgt-space-2) var(--vgt-space-3);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-primary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, border-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-mail-attachment:hover {
+  background: var(--vgt-bg-3);
+  border-color: var(--vgt-border-strong);
+}
+
+.vgt-mail-attachment:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-mail-attachment__icon {
+  display: inline-flex;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-mail-attachment__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-mail-attachment__size {
+  flex: none;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-mail-attachment__download {
+  display: inline-flex;
+  color: var(--vgt-pigment);
+}
+

@@ -1,17 +1,29 @@
 import React from 'react';
-import * as api from '../../api';
-import Icons from '../common/Icons';
-import { safeJsonParse, safeStorageJson } from '../../utils/safeJson';
+import ListPaneHeader from './list/ListPaneHeader';
+import MailboxToolbar from './list/MailboxToolbar';
+import EmptyState from './list/EmptyState';
+import MailRow from './list/MailRow';
+import ConversationRow from './list/ConversationRow';
+import ContactRow from './list/ContactRow';
+import ChannelRow from './list/ChannelRow';
+import { VaultRow, DropRow } from './list/RecordRows';
+import ProfileSettingsNav from './list/ProfileSettingsNav';
+import ContextMenu from './list/ContextMenu';
+import { ChatStartToolbar, GroupActions, ChannelsToolbar, DropToolbar } from './list/ListToolbars';
+import { COMPOSE_MENUS, isEmailMenu, resolveListScope, resolveListTitle } from './list/menuConfig';
+import { selectVisibleChats, selectVisibleChannels, selectVisibleRooms } from './list/selectors';
+import usePinnedChats from './list/usePinnedChats';
+import useMailSelection from './list/useMailSelection';
+import useConversationMenu from './list/useConversationMenu';
+import createInboxActions from './list/useInboxActions';
 
-function parseMailboxLabels(labels) {
-  if (Array.isArray(labels)) return labels;
-  if (typeof labels === 'string') {
-    const parsed = safeJsonParse(labels, []);
-    return Array.isArray(parsed) ? parsed : [];
-  }
-  return [];
-}
-
+/**
+ * VGT GLASS 2100 — list rail (second column) orchestrator.
+ *
+ * Owns the pane composition and wires the same props/state/handlers as before.
+ * Presentation lives in ./list/** and the stateful helpers in ./list/use*.js so
+ * this file stays a thin, readable orchestrator.
+ */
 export const ListPane = ({
   activeDraftIdRef,
   setIsSmtpMode,
@@ -87,1283 +99,385 @@ export const ListPane = ({
   saveLabel,
   pollEmails
 }) => {
-  const canComposeMail = currentMenu === 'inbox' || currentMenu === 'sent' || currentMenu === 'contacts' || currentMenu === 'smtp_inbox' || currentMenu === 'starred' || currentMenu === 'important' || currentMenu === 'archive' || currentMenu === 'trash' || currentMenu === 'spam' || currentMenu === 'snoozed';
-  const handleStartCompose = () => {
-    setIsComposing(true);
-    setComposeTo('');
-    setComposeSubject('');
-    setComposeBody('');
-    setComposeReplyTo(null);
-    setSelectedMail(null);
-  };
-
-  const [selectedMailIds, setSelectedMailIds] = React.useState([]);
-
-  // Reset bulk selection on folder or search changes
-  React.useEffect(() => {
-    setSelectedMailIds([]);
-  }, [currentMenu, mailboxSearch, mailboxLabel]);
-
-  const handleToggleSelect = (e, mailId) => {
-    e.stopPropagation();
-    if (selectedMailIds.includes(mailId)) {
-      setSelectedMailIds(selectedMailIds.filter(id => id !== mailId));
-    } else {
-      setSelectedMailIds([...selectedMailIds, mailId]);
-    }
-  };
-
-  const handleBulkAction = async (action) => {
-    if (selectedMailIds.length === 0 || !activeIdentity?.ID) return;
-    const selectedMails = activeMailsList.filter(m => selectedMailIds.includes(m.id));
-    try {
-      const updates = [];
-      for (const item of selectedMails) {
-        // Handle both threads and single emails
-        const mailsToUpdate = item.messages ? item.messages : [item];
-        for (const mail of mailsToUpdate) {
-          const currentBox = mail.mailbox || {};
-          const patch = {};
-          if (action === 'read') patch.isRead = true;
-          else if (action === 'unread') patch.isRead = false;
-          else if (action === 'archive') patch.folder = 'archive';
-          else if (action === 'delete') patch.folder = 'trash';
-          else if (action === 'spam') patch.isSpam = true;
-          else if (action === 'star') patch.isStarred = true;
-          else if (action === 'unstar') patch.isStarred = false;
-
-          updates.push({
-            messageId: mail.id,
-            folder: patch.folder !== undefined ? patch.folder : (currentBox.folder || 'inbox'),
-            isRead: patch.isRead !== undefined ? patch.isRead : mail.isRead,
-            isStarred: patch.isStarred !== undefined ? patch.isStarred : (currentBox.isStarred || false),
-            isImportant: patch.isImportant !== undefined ? patch.isImportant : (currentBox.isImportant || false),
-            isSpam: patch.isSpam !== undefined ? patch.isSpam : (currentBox.isSpam || false),
-            isArchived: patch.isArchived !== undefined ? patch.isArchived : (currentBox.isArchived || false),
-            labels: currentBox.labels || '[]',
-            snoozedUntil: currentBox.snoozedUntil || ''
-          });
-        }
-      }
-
-      await api.updateMailboxStates(activeIdentity.ID, updates);
-      triggerAlert('Aktion ausgeführt', `${selectedMailIds.length} Unterhaltungen wurden aktualisiert.`);
-      setSelectedMailIds([]);
-      if (pollEmails) pollEmails();
-    } catch (err) {
-      triggerAlert('Fehler', err.message, 'danger');
-    }
-  };
-
-  const [pinnedChatIds, setPinnedChatIds] = React.useState(() => {
-    return safeStorageJson(localStorage, 'gaiacom_pinned_chats', []);
-  });
-
-  const [hiddenChatIds, setHiddenChatIds] = React.useState(() => {
-    return safeStorageJson(localStorage, 'gaiacom_hidden_chats', []);
-  });
-
-  const persistHidden = (val) => {
-    setHiddenChatIds(val);
-    localStorage.setItem('gaiacom_hidden_chats', JSON.stringify(val));
-  };
-
-  const persistPinned = (val) => {
-    setPinnedChatIds(val);
-    localStorage.setItem('gaiacom_pinned_chats', JSON.stringify(val));
-  };
-
+  const canComposeMail = COMPOSE_MENUS.includes(currentMenu);
   const [channelSearch, setChannelSearch] = React.useState('');
 
-  const togglePinChat = (id) => {
-    const next = pinnedChatIds.includes(id)
-      ? pinnedChatIds.filter(x => x !== id)
-      : [...pinnedChatIds, id];
-    persistPinned(next);
-  };
+  const { pinnedChatIds, hiddenChatIds, persistPinned, persistHidden, togglePinChat, hasMessages } = usePinnedChats({
+    activeIdentity,
+    chatMessages,
+    contacts,
+    parseToGaiaID
+  });
 
-  const hasMessages = (contact) => {
-    if (!activeIdentity || !chatMessages) return false;
-    const contactGaia = parseToGaiaID(contact.gaiaID);
-    const ownGaia = parseToGaiaID(activeIdentity.GaiaID);
-    return chatMessages.some(msg => {
-      const senderGaia = parseToGaiaID(msg.sender);
-      const recipientGaia = parseToGaiaID(msg.recipient);
-      return (senderGaia === contactGaia && recipientGaia === ownGaia) ||
-             (senderGaia === ownGaia && recipientGaia === contactGaia);
-    });
-  };
+  const { selectedMailIds, handleToggleSelect, handleBulkAction, clearSelection } = useMailSelection({
+    activeIdentity,
+    activeMailsList,
+    pollEmails,
+    triggerAlert,
+    currentMenu,
+    mailboxSearch,
+    mailboxLabel
+  });
 
-  React.useEffect(() => {
-    if (!activeIdentity || !chatMessages || hiddenChatIds.length === 0) return;
-    const ownGaia = parseToGaiaID(activeIdentity.GaiaID);
-    let changed = false;
-    const nextHidden = hiddenChatIds.filter(id => {
-      const contact = contacts.find(c => c.ID === id);
-      if (!contact) return true;
-      const contactGaia = parseToGaiaID(contact.gaiaID);
-      const hasUnreadIncoming = chatMessages.some(msg => 
-        parseToGaiaID(msg.sender) === contactGaia &&
-        parseToGaiaID(msg.recipient) === ownGaia &&
-        !msg.isRead
-      );
-      if (hasUnreadIncoming) {
-        changed = true;
-        return false; 
-      }
-      return true;
-    });
-    if (changed) {
-      persistHidden(nextHidden);
-    }
-  }, [chatMessages, activeIdentity, contacts, hiddenChatIds, parseToGaiaID]);
+  const {
+    contextMenu,
+    handleContextMenu,
+    handleDelete,
+    handleTogglePin,
+    closeContextMenu,
+    pinLabel,
+    deleteLabel
+  } = useConversationMenu({
+    activeIdentity,
+    user,
+    t,
+    showConfirm,
+    triggerAlert,
+    setChatMessages,
+    fetchRooms,
+    activeRoom,
+    setActiveRoom,
+    activeChatContact,
+    setActiveChatContact,
+    pinnedChatIds,
+    persistPinned,
+    hiddenChatIds,
+    persistHidden,
+    togglePinChat,
+    parseToGaiaID
+  });
 
-  const [contextMenu, setContextMenu] = React.useState(null);
+  const actions = createInboxActions({
+    setIsComposing,
+    setComposeTo,
+    setComposeSubject,
+    setComposeBody,
+    setComposeReplyTo,
+    setSelectedMail,
+    setIsSmtpMode,
+    activeDraftIdRef,
+    displayGaiaID,
+    setActiveChatContact,
+    setActiveRoom,
+    setActivePublicChannel,
+    setPublicChannelCreatorOpen,
+    setMobileMenuOpen,
+    setActiveProfileSection,
+    setCurrentMenu,
+    setMailboxLabel,
+    activeIdentity,
+    triggerAlert,
+    t,
+    parseToGaiaID,
+    buildInitialKeyHistory,
+    contacts,
+    setContacts,
+    user
+  });
 
-  React.useEffect(() => {
-    const handleGlobalClick = () => setContextMenu(null);
-    window.addEventListener('click', handleGlobalClick);
-    return () => window.removeEventListener('click', handleGlobalClick);
-  }, []);
+  const emailMenu = isEmailMenu(currentMenu);
+  const title = resolveListTitle(currentMenu, t);
+  const scope = resolveListScope(currentMenu, t);
 
-  const handleContextMenu = (e, item, type) => {
-    e.preventDefault();
-    setContextMenu({
-      mouseX: e.clientX,
-      mouseY: e.clientY,
-      type,
-      target: item
-    });
-  };
+  const visibleChats = currentMenu === 'chat'
+    ? selectVisibleChats(contacts, { pinnedChatIds, activeChatContact, hiddenChatIds, hasMessages })
+    : [];
+  const visibleRooms = currentMenu === 'groups'
+    ? selectVisibleRooms(rooms, { pinnedChatIds, activeRoom, hiddenChatIds, getUnreadRoomCount })
+    : [];
+  const visibleChannels = currentMenu === 'public_channels'
+    ? selectVisibleChannels(publicChannels, channelSearch)
+    : [];
 
-  const handleDeleteDM = (contact) => {
-    if (!activeIdentity) return;
-    showConfirm(
-      t('confirm_clear_chat_title') || 'Chat leeren',
-      t('confirm_delete_chat_desc') || `Möchtest du den Chat mit ${contact.displayName} wirklich löschen und ausblenden?`,
-      () => {
-        api.clearInboxConversation(activeIdentity.ID, { peerGaiaId: contact.gaiaID, forEveryone: false })
-          .then(() => {
-            const contactGaia = parseToGaiaID(contact.gaiaID);
-            const ownGaia = parseToGaiaID(activeIdentity.GaiaID);
-            if (setChatMessages) {
-              setChatMessages(prev => prev.filter(msg => !(
-                (parseToGaiaID(msg.sender) === contactGaia && parseToGaiaID(msg.recipient) === ownGaia) ||
-                (parseToGaiaID(msg.sender) === ownGaia && parseToGaiaID(msg.recipient) === contactGaia)
-              )));
-            }
-            const contactId = contact.ID || contact.id || contact.gaiaID;
-            persistHidden([...hiddenChatIds, contactId]);
-            persistPinned(pinnedChatIds.filter(x => x !== contactId && x !== contact.ID && x !== contact.id && x !== contact.gaiaID));
-            if (activeChatContact?.ID === contact.ID || activeChatContact?.id === contact.id || activeChatContact?.gaiaID === contact.gaiaID) {
-              setActiveChatContact(null);
-            }
-            triggerAlert(t('erfolg') || 'Erfolg', t('chat_deleted_hidden') || 'Chat gelöscht und ausgeblendet.');
-          })
-          .catch(err => {
-            triggerAlert(t('fehler') || 'Fehler', err.message, 'danger');
-          });
-      },
-      null,
-      t('bestaetigen') || 'Bestätigen',
-      t('abbrechen') || 'Abbrechen',
-      true
-    );
-  };
-
-  const handleDeleteGroupRoom = (room) => {
-    const isOwner = room.CreatedBy === activeIdentity?.ID || room.CreatedBy === user?.id;
-    if (isOwner) {
-      showConfirm(
-        t('group_delete_title') || 'Gruppe löschen',
-        t('group_delete_desc') || `Möchtest du die Gruppe "${room.Name}" wirklich löschen? Alle Kanäle und Nachrichten dieser Gruppe werden gelöscht.`,
-        () => {
-          api.deleteRoom(room.ID)
-            .then(() => {
-              if (setChatMessages) {
-                setChatMessages(prev => prev.filter(msg => msg.roomId !== room.ID));
-              }
-              if (activeRoom?.ID === room.ID) {
-                setActiveRoom(null);
-              }
-              persistPinned(pinnedChatIds.filter(x => x !== room.ID));
-              if (fetchRooms) fetchRooms();
-              triggerAlert(t('erfolg') || 'Erfolg', t('group_deleted') || 'Gruppe erfolgreich gelöscht.');
-            })
-            .catch(err => {
-              triggerAlert(t('fehler') || 'Fehler', err.message, 'danger');
-            });
-        },
-        null,
-        t('bestaetigen') || 'Bestätigen',
-        t('abbrechen') || 'Abbrechen',
-        true
-      );
-    } else {
-      showConfirm(
-        t('gruppe_verlassen') || 'Gruppe verlassen',
-        t('confirm_leave_group_desc') || `Möchtest du die Gruppe "${room.Name}" wirklich verlassen?`,
-        () => {
-          api.leaveRoom(room.ID, activeIdentity.ID)
-            .then(() => {
-              if (activeRoom?.ID === room.ID) {
-                setActiveRoom(null);
-              }
-              persistPinned(pinnedChatIds.filter(x => x !== room.ID));
-              if (fetchRooms) fetchRooms();
-              triggerAlert(t('erfolg') || 'Erfolg', t('group_left') || 'Gruppe erfolgreich verlassen.');
-            })
-            .catch(err => {
-              triggerAlert(t('fehler') || 'Fehler', err.message, 'danger');
-            });
-        },
-        null,
-        t('bestaetigen') || 'Bestätigen',
-        t('abbrechen') || 'Abbrechen',
-        true
-      );
-    }
-  };
+  let listCount = null;
+  if (emailMenu) listCount = activeMailsList.length;
+  else if (currentMenu === 'contacts') listCount = contacts.length;
+  else if (currentMenu === 'chat') listCount = visibleChats.length;
+  else if (currentMenu === 'groups') listCount = visibleRooms.length;
+  else if (currentMenu === 'public_channels') listCount = visibleChannels.length;
+  else if (currentMenu === 'vault') listCount = driveUnlocked ? driveRecords.length : null;
+  else if (currentMenu === 'gaiadrop') listCount = gaiaDropInbox.length;
 
   return (
-    <section className="mail-list-pane">
-      <div className="pane-header">
-        <div className="mobile-pane-actions">
-          <button
-            type="button"
-            className="mobile-menu-toggle"
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Menü öffnen"
-          >
-            {t('menu') || 'Menu'}
-          </button>
-          {canComposeMail && (
-            <button
-              type="button"
-              className="btn-primary mobile-compose-btn"
-              onClick={handleStartCompose}
-            >
-              {t('mail_compose') || 'Schreiben'}
-            </button>
-          )}
-        </div>
-        <div className="pane-title-row">
-          <h2>
-            {currentMenu === 'inbox' && t('posteingang')}
-            {currentMenu === 'smtp_inbox' && (t('smtp_inbox_title') || 'SMTP Empfang')}
-            {currentMenu === 'sent' && (t('gesendet') || 'Gesendete Mails')}
-            {currentMenu === 'contacts' && t('adressbuch')}
-            {currentMenu === 'chat' && (t('quanten_chat') || 'Quanten-Chats')}
-            {currentMenu === 'groups' && t('gruppen_chats')}
-            {currentMenu === 'public_channels' && 'Channels'}
-            {currentMenu === 'network_health' && 'Network Health'}
-            {currentMenu === 'profile' && (t('mein_profil') || 'Dein Profil')}
-            {currentMenu === 'gaiadrop' && (t('drop_title') || 'GaiaDrop Inbox')}
-          </h2>
-          <div className="pane-title-actions">
-            {canComposeMail && (
-              <button
-                type="button"
-                className="btn-primary desktop-compose-btn"
-                onClick={handleStartCompose}
-              >
-                <Icons.Plus /> {t('mail_compose') || 'Schreiben'}
-              </button>
-            )}
-            <button 
-              className="btn-action collapse-toggle-btn" 
-              style={{ padding: '6px 10px', fontSize: '0.8rem', background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', cursor: 'pointer' }}
-              onClick={() => setMailListCollapsed(true)}
-              title="Liste einklappen"
-            >
-              &lt;
-            </button>
-          </div>
-        </div>
-      </div>
+    <section className="mail-list-pane vgt-inbox" aria-labelledby="vgt-inbox-title">
+      <ListPaneHeader
+        t={t}
+        title={title}
+        scope={scope}
+        count={listCount}
+        canComposeMail={canComposeMail}
+        onStartCompose={actions.handleStartCompose}
+        onOpenMenu={() => setMobileMenuOpen(true)}
+        onCollapse={() => setMailListCollapsed(true)}
+        titleLevel={emailMenu ? 'h1' : 'h2'}
+      />
 
-      {(() => {
-        const emailMenus = ['inbox', 'smtp_inbox', 'sent', 'smtp_sent', 'archive', 'smtp_archive', 'spam', 'smtp_spam', 'trash', 'smtp_trash', 'starred', 'smtp_starred', 'important', 'smtp_important', 'snoozed', 'smtp_snoozed', 'drafts', 'smtp_drafts'];
-        const isEmailMenu = emailMenus.includes(currentMenu);
-        if (!isEmailMenu) return null;
+      {emailMenu ? (
+        <MailboxToolbar
+          t={t}
+          currentMenu={currentMenu}
+          mailboxSearch={mailboxSearch}
+          setMailboxSearch={setMailboxSearch}
+          onFolderChange={actions.handleFolderChange}
+          labelsList={labelsList}
+          mailboxLabel={mailboxLabel}
+          onLabelToggle={actions.handleLabelToggle}
+          selectedMailIds={selectedMailIds}
+          onBulkAction={handleBulkAction}
+          onClearSelection={clearSelection}
+        />
+      ) : null}
 
-        return (
-          <>
-            {/* Search bar */}
-            <div className="mail-search-bar" style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.02)', display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                type="text"
-                className="input-field"
-                placeholder={t('search_placeholder') || 'Mails nach Betreff, Sender, Text suchen...'}
-                value={mailboxSearch}
-                onChange={(e) => setMailboxSearch(e.target.value)}
-                style={{ flex: 1, fontSize: '0.8rem', padding: '6px 12px', boxSizing: 'border-box' }}
-              />
-              {mailboxSearch && (
-                <button type="button" className="btn-secondary" style={{ padding: '6px 10px', fontSize: '0.75rem', cursor: 'pointer' }} onClick={() => setMailboxSearch('')}>
-                  X
-                </button>
-              )}
-            </div>
+      {currentMenu === 'chat' ? (
+        <ChatStartToolbar t={t} onSubmit={actions.handleNewChatSubmit} />
+      ) : null}
 
-            {/* Folder & Label Pills */}
-            <div className="mail-folders-row">
-              {[
-                { key: 'inbox', label: 'Eingang', icon: '📥' },
-                { key: 'smtp_inbox', label: 'SMTP', icon: '📧' },
-                { key: 'sent', label: 'Ausgang', icon: '📤' },
-                { key: 'starred', label: 'Markiert', icon: '★' },
-                { key: 'important', label: 'Wichtig', icon: '🏷️' },
-                { key: 'snoozed', label: 'Snoozed', icon: '⏱' },
-                { key: 'archive', label: 'Archiv', icon: '📁' },
-                { key: 'spam', label: 'Spam', icon: '⚠️' },
-                { key: 'trash', label: 'Trash', icon: '🗑️' }
-              ].map(f => {
-                const isActive = currentMenu === f.key;
-                return (
-                  <button
-                    key={f.key}
-                    type="button"
-                    className={`btn-action mail-folder-pill ${isActive ? 'active' : ''}`}
-                    onClick={() => {
-                      setCurrentMenu(f.key);
-                      setSelectedMail(null);
-                    }}
-                  >
-                    {f.icon} {f.label}
-                  </button>
-                );
-              })}
+      {currentMenu === 'groups' ? (
+        <GroupActions
+          t={t}
+          onCreate={() => setShowCreateGroupModal(true)}
+          onJoin={() => setShowJoinGroupModal(true)}
+        />
+      ) : null}
 
-              {/* Custom Labels List */}
-              {labelsList && labelsList.map(lbl => {
-                const isActive = mailboxLabel === lbl.name;
-                return (
-                  <button
-                    key={lbl.id || lbl.name}
-                    type="button"
-                    className={`btn-action mail-folder-pill mail-label-pill ${isActive ? 'active' : ''}`}
-                    style={{ '--mail-label-color': lbl.color || 'var(--text-secondary)' }}
-                    onClick={() => {
-                      setMailboxLabel(isActive ? '' : lbl.name);
-                    }}
-                  >
-                    🏷️ {lbl.name}
-                  </button>
-                );
-              })}
-            </div>
+      {currentMenu === 'public_channels' ? (
+        <ChannelsToolbar
+          t={t}
+          onCreate={actions.handleOpenChannelCreator}
+          onRefresh={refreshPublicChannels}
+          refreshing={publicChannelsLoading}
+          channelSearch={channelSearch}
+          onSearchChange={setChannelSearch}
+        />
+      ) : null}
 
-            {/* Bulk actions bar if items are selected */}
-            {selectedMailIds.length > 0 && (
-              <div className="bulk-actions-bar" style={{ padding: '8px 16px', background: 'rgba(0,242,254,0.08)', borderBottom: '1px solid var(--border-color)', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 'bold' }}>{selectedMailIds.length} ausgewählt</span>
-                <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => handleBulkAction('read')}>Gelesen</button>
-                <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => handleBulkAction('unread')}>Ungelesen</button>
-                <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => handleBulkAction('archive')}>Archiv</button>
-                <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => handleBulkAction('star')}>★ Markieren</button>
-                <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => handleBulkAction('unstar')}>☆ Entfernen</button>
-                <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.7rem', cursor: 'pointer', color: 'var(--danger)' }} onClick={() => handleBulkAction('delete')}>Löschen</button>
-                <button type="button" className="btn-secondary" style={{ padding: '4px 8px', fontSize: '0.7rem', cursor: 'pointer' }} onClick={() => setSelectedMailIds([])}>Abbrechen</button>
-              </div>
-            )}
-          </>
-        );
-      })()}
+      {currentMenu === 'gaiadrop' ? (
+        <DropToolbar
+          t={t}
+          activeIdentity={activeIdentity}
+          displayGaiaID={displayGaiaID}
+          onLoad={loadGaiaDropInbox}
+          loading={gaiaDropLoading}
+          onCopy={actions.handleCopyDropAddress}
+        />
+      ) : null}
 
-      {currentMenu === 'groups' && (
-        <div style={{ padding: '12px 24px', borderBottom: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.03)', display: 'flex', gap: '8px' }}>
-          <button 
-            type="button" 
-            className="btn-primary" 
-            style={{ flex: 1, padding: '8px 0', fontSize: '0.8rem', cursor: 'pointer' }}
-            onClick={() => setShowCreateGroupModal(true)}
-          >
-            {t('gruppe_erstellen') || '+ Neue Gruppe'}
-          </button>
-          <button 
-            type="button" 
-            className="btn-secondary" 
-            style={{ flex: 1, padding: '8px 0', fontSize: '0.8rem', cursor: 'pointer' }}
-            onClick={() => setShowJoinGroupModal(true)}
-          >
-            {t('gruppe_beitreten') || 'Gruppe beitreten'}
-          </button>
-        </div>
-      )}
-
-      {currentMenu === 'gaiadrop' && (
-        <div className="gaiadrop-list-tools">
-          <div className="gaiadrop-address-card">
-            <span>{t('drop_own_address') || 'Deine GaiaDrop-Adresse'}</span>
-            <code>{activeIdentity ? displayGaiaID(activeIdentity.GaiaID) : 'deine_adresse'}</code>
-          </div>
-          <div className="gaiadrop-list-actions">
-            <button
-              type="button"
-              className="btn-action"
-              onClick={loadGaiaDropInbox}
-              disabled={gaiaDropLoading}
-            >
-              {gaiaDropLoading ? (t('drop_btn_decrypting') || 'Laden...') : (t('drop_btn_load') || 'Inbox laden')}
-            </button>
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => {
-                if (!activeIdentity) return;
-                navigator.clipboard.writeText(displayGaiaID(activeIdentity.GaiaID));
-                triggerAlert(t('kopiert') || 'Kopiert', t('drop_address_copied') || 'GaiaDrop-Adresse kopiert.');
-              }}
-              disabled={!activeIdentity}
-            >
-              {t('copy') || 'Kopieren'}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {currentMenu === 'public_channels' && (
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px' }}>
-          <button
-            type="button"
-            className="btn-primary"
-            style={{ minHeight: '34px', padding: '0 12px', fontSize: '0.72rem', fontWeight: 800 }}
-            onClick={() => {
-              setActivePublicChannel(null);
-              if (setPublicChannelCreatorOpen) setPublicChannelCreatorOpen(true);
-              setMobileMenuOpen(false);
-            }}
-          >
-            New Channel
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            style={{ minHeight: '34px', padding: '0 12px', fontSize: '0.72rem', fontWeight: 800 }}
-            onClick={refreshPublicChannels}
-            disabled={publicChannelsLoading}
-          >
-            Refresh
-          </button>
-        </div>
-      )}
-
-      {currentMenu === 'public_channels' && (
-        <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.02)' }}>
-          <input
-            type="text"
-            className="input-field"
-            placeholder={t('search_channels') || 'Kanäle suchen...'}
-            value={channelSearch}
-            onChange={(e) => setChannelSearch(e.target.value)}
-            style={{ width: '100%', fontSize: '0.8rem', padding: '6px 12px', boxSizing: 'border-box' }}
-          />
-        </div>
-      )}
-
-      {/* Search input for starting a chat with a new contact */}
-      {currentMenu === 'chat' && (
-        <div style={{ padding: '12px 24px', borderBottom: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.03)' }}>
-          <form onSubmit={async (e) => {
-            e.preventDefault();
-            const inputVal = e.target.elements.newChatGaiaId.value.trim();
-            if (!inputVal) return;
-            const gaiaId = parseToGaiaID(inputVal);
-            try {
-              const res = await api.getPublicIdentity(gaiaId);
-              if (res && res.publicRecord) {
-                const pubRecord = safeJsonParse(res.publicRecord, null);
-                if (!pubRecord?.public_keys?.identity) {
-                  throw new Error('Kontakt besitzt keinen gueltigen Schluesselsatz.');
-                }
-                const newContact = {
-                  ID: res.id,
-                  gaiaID: res.gaiaID,
-                  displayName: res.displayName,
-                  publicKey: pubRecord.public_keys.identity,
-                  abuseScore: res.trustPassport?.abuseScore || res.abuseScore || { score: 0, escalationLevel: 0 },
-                  trustPassport: res.trustPassport,
-                  keyHistory: res.trustPassport?.keyHistory || buildInitialKeyHistory(pubRecord.public_keys.identity, true),
-                  keyConfirmedAt: new Date().toISOString()
-                };
-                
-                const exists = contacts.find(c => c.gaiaID === res.gaiaID);
-                let nextActiveContact = newContact;
-                if (!exists) {
-                  const persisted = await api.saveMailContact({
-                    id: newContact.id || newContact.ID,
-                    gaiaId: newContact.gaiaID,
-                    displayName: newContact.displayName,
-                    publicKey: newContact.publicKey || '',
-                    blocked: !!newContact.blocked
-                  });
-                  const mergedContact = {
-                    ...newContact,
-                    ...persisted,
-                    gaiaID: persisted?.gaiaId || persisted?.gaiaID || newContact.gaiaID
-                  };
-                  const updated = [...contacts, mergedContact];
-                  setContacts(updated);
-                  localStorage.setItem(`contacts_${user.id}`, JSON.stringify(updated));
-                  nextActiveContact = mergedContact;
-                }
-                
-                setActiveChatContact(nextActiveContact);
-                e.target.reset();
-              } else {
-                triggerAlert('Nicht gefunden', 'Diese Gaia-Adresse konnte nicht im föderierten Netz gefunden werden.', 'danger');
-              }
-            } catch (err) {
-              triggerAlert('Fehler', err.message, 'danger');
-            }
-          }}>
-            <input 
-              name="newChatGaiaId" 
-              type="text" 
-              placeholder={t('suchen') || 'Neue Gaia-Adresse suchen...'} 
-              className="input-field" 
-              style={{ padding: '8px 12px', fontSize: '0.8rem', width: '100%' }}
-            />
-          </form>
-        </div>
-      )}
-
-      <div className="list-scroll gaia-scrollbar">
+      <div className="list-scroll gaia-scrollbar vgt-inbox__scroll">
         {currentMenu === 'contacts' ? (
-          contacts.map(c => (
-            <div 
-              key={c.ID} 
-              className="mail-card"
-              onClick={() => {
-                setIsComposing(true);
-                setComposeTo(displayGaiaID(c.gaiaID));
-                setComposeSubject('');
-                setComposeBody('');
-                setComposeReplyTo(null);
-                setSelectedMail(null);
-              }}
-            >
-              <div className="mail-card-header">
-                <div className="mail-sender">{c.displayName}</div>
-                <button
-                  type="button"
-                  className="btn-action"
-                  onClick={event => {
-                    event.stopPropagation();
-                    openContactProfile(c.gaiaID);
-                  }}
-                >
-                  {t('profil') || 'Profil'}
-                </button>
-                {c.abuseScore && c.abuseScore.score > 0 && (
-                  <span className="abuse-badge" style={{ color: 'var(--warning)' }}>Score: {c.abuseScore.score}</span>
-                )}
-              </div>
-              <div className="mail-subject" style={{ color: 'var(--text-secondary)' }}>{displayGaiaID(c.gaiaID)}</div>
-              <div className="mail-preview">{t('click_to_write_mail') || 'Klicken zum Schreiben einer Mail'}</div>
-            </div>
-          ))
+          contacts.length === 0 ? (
+            <EmptyState
+              icon="users"
+              title="Noch keine Kontakte"
+              description="Dein Adressbuch ist leer. Suche im Chat nach einer Gaia-Adresse, um einen Kontakt hinzuzufügen."
+              actions={[{ label: 'Zu den Chats', variant: 'secondary', icon: 'chat', onClick: () => setCurrentMenu('chat') }]}
+            />
+          ) : (
+            <ul className="vgt-inbox__list">
+              {contacts.map(c => (
+                <ContactRow
+                  key={c.ID}
+                  contact={c}
+                  t={t}
+                  displayGaiaID={displayGaiaID}
+                  onCompose={() => actions.handleOpenContact(c)}
+                  onOpenProfile={() => openContactProfile(c.gaiaID)}
+                />
+              ))}
+            </ul>
+          )
         ) : currentMenu === 'chat' ? (
-          (() => {
-            const displayed = contacts.filter(c => 
-              pinnedChatIds.includes(c.ID) || 
-              (activeChatContact && activeChatContact.ID === c.ID) || 
-              (hasMessages(c) && !hiddenChatIds.includes(c.ID))
-            ).sort((a, b) => {
-              const aPinned = pinnedChatIds.includes(a.ID) ? 1 : 0;
-              const bPinned = pinnedChatIds.includes(b.ID) ? 1 : 0;
-              return bPinned - aPinned;
-            });
-            if (displayed.length === 0) {
-              return (
-                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  {t('no_active_chats') || 'Keine aktiven Chats. Suche oben nach Kontakten, um einen Chat zu starten.'}
-                </div>
-              );
-            }
-            return displayed.map(c => {
-              const isActive = activeChatContact && (activeChatContact.gaiaID === c.gaiaID || (activeChatContact.ID && activeChatContact.ID === c.ID) || (activeChatContact.id && activeChatContact.id === c.id));
-              const unreadCount = getUnreadChatCount(c);
-              const isPinned = pinnedChatIds.includes(c.ID) || pinnedChatIds.includes(c.id) || pinnedChatIds.includes(c.gaiaID);
-              return (
-                <div 
-                  key={c.ID || c.id || c.gaiaID} 
-                  className={`mail-card ${isActive ? 'active' : ''} ${isPinned ? 'pinned' : ''}`}
-                  onClick={() => {
-                    setActiveChatContact(c);
-                  }}
-                  onContextMenu={(e) => handleContextMenu(e, c, 'chat')}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="mail-sender" style={{ fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      {c.displayName}
-                      {isPinned && <span className="pin-indicator" title={t('pinned') || 'Angepinnt'} style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)' }}>📌</span>}
-                    </div>
-                    <div className="mail-subject" style={{ color: 'var(--text-secondary)', marginTop: '4px' }}>{displayGaiaID(c.gaiaID)}</div>
-                    <div className="mail-preview" style={{ marginTop: '4px' }}>{t('e2e_chat_room_open') || 'E2E Chat-Raum öffnen'}</div>
-                  </div>
-                  {unreadCount > 0 && (
-                    <span className="card-unread-badge">{formatBadgeCount(unreadCount)}</span>
-                  )}
-                </div>
-              );
-            });
-          })()
+          visibleChats.length === 0 ? (
+            <EmptyState
+              icon="chat"
+              title="Keine aktiven Chats"
+              description={t('no_active_chats') || 'Suche oben nach Kontakten, um einen Chat zu starten.'}
+            />
+          ) : (
+            <ul className="vgt-inbox__list">
+              {visibleChats.map(c => (
+                <ConversationRow
+                  key={c.ID || c.id || c.gaiaID}
+                  kind="chat"
+                  item={c}
+                  isActive={Boolean(activeChatContact && (activeChatContact.gaiaID === c.gaiaID || (activeChatContact.ID && activeChatContact.ID === c.ID) || (activeChatContact.id && activeChatContact.id === c.id)))}
+                  unreadCount={getUnreadChatCount(c)}
+                  isPinned={pinnedChatIds.includes(c.ID) || pinnedChatIds.includes(c.id) || pinnedChatIds.includes(c.gaiaID)}
+                  onSelect={() => actions.handleOpenChat(c)}
+                  onContextMenu={handleContextMenu}
+                  t={t}
+                  displayGaiaID={displayGaiaID}
+                  formatBadgeCount={formatBadgeCount}
+                />
+              ))}
+            </ul>
+          )
         ) : currentMenu === 'groups' ? (
-          (() => {
-            const displayed = rooms.filter(r => 
-              pinnedChatIds.includes(r.ID) || 
-              (activeRoom && activeRoom.ID === r.ID) || 
-              (getUnreadRoomCount(r) > 0) ||
-              !hiddenChatIds.includes(r.ID)
-            ).sort((a, b) => {
-              const aPinned = pinnedChatIds.includes(a.ID) ? 1 : 0;
-              const bPinned = pinnedChatIds.includes(b.ID) ? 1 : 0;
-              return bPinned - aPinned;
-            });
-            if (displayed.length === 0) {
-              return (
-                <div className="empty-action-card">
-                  <strong>{t('groups_empty_title') || 'Noch keine Gruppen-Chats'}</strong>
-                  <span>{t('groups_empty_desc') || 'Erstelle einen sicheren Arbeitsraum fuer Projekt-, Krisen- oder Teamkommunikation.'}</span>
-                  <div>
-                    <button type="button" className="btn-primary" onClick={() => setShowCreateGroupModal(true)}>
-                      {t('gruppe_erstellen') || '+ Neue Gruppe'}
-                    </button>
-                    <button type="button" className="btn-secondary" onClick={() => setShowJoinGroupModal(true)}>
-                      {t('gruppe_beitreten') || 'Gruppe beitreten'}
-                    </button>
-                  </div>
-                </div>
-              );
-            }
-            return displayed.map(r => {
-              const isActive = activeRoom && activeRoom.ID === r.ID;
-              const unreadCount = getUnreadRoomCount(r);
-              const isPinned = pinnedChatIds.includes(r.ID);
-              return (
-                <div 
-                  key={r.ID} 
-                  className={`mail-card ${isActive ? 'active' : ''} ${isPinned ? 'pinned' : ''}`}
-                  onClick={() => {
-                    setActiveRoom(r);
-                    setSelectedMail(null);
-                    setIsComposing(false);
-                  }}
-                  onContextMenu={(e) => handleContextMenu(e, r, 'groups')}
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="mail-card-header" style={{ marginBottom: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '1.2rem' }}>{r.Avatar || 'G'}</span>
-                        <span className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          {r.Name}
-                          {isPinned && <span className="pin-indicator" title={t('pinned') || 'Angepinnt'} style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)' }}>📌</span>}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mail-subject" style={{ color: 'var(--text-secondary)', marginTop: '4px', fontSize: '0.8rem' }}>
-                      {r.Description || t('no_description') || 'Keine Beschreibung'}
-                    </div>
-                    <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem' }}>
-                      {r.Members ? `${r.Members.length} ${t('mitglieder') || 'Mitglieder'}` : `0 ${t('mitglieder') || 'Mitglieder'}`}
-                    </div>
-                  </div>
-                  {unreadCount > 0 && (
-                    <span className="card-unread-badge">{formatBadgeCount(unreadCount)}</span>
-                  )}
-                </div>
-              );
-            });
-          })()
+          visibleRooms.length === 0 ? (
+            <EmptyState
+              icon="users"
+              title={t('groups_empty_title') || 'Noch keine Gruppen-Chats'}
+              description={t('groups_empty_desc') || 'Erstelle einen sicheren Arbeitsraum fuer Projekt-, Krisen- oder Teamkommunikation.'}
+              actions={[
+                { label: t('gruppe_erstellen') || '+ Neue Gruppe', onClick: () => setShowCreateGroupModal(true) },
+                { label: t('gruppe_beitreten') || 'Gruppe beitreten', variant: 'secondary', onClick: () => setShowJoinGroupModal(true) }
+              ]}
+            />
+          ) : (
+            <ul className="vgt-inbox__list">
+              {visibleRooms.map(r => (
+                <ConversationRow
+                  key={r.ID}
+                  kind="group"
+                  item={r}
+                  isActive={Boolean(activeRoom && activeRoom.ID === r.ID)}
+                  unreadCount={getUnreadRoomCount(r)}
+                  isPinned={pinnedChatIds.includes(r.ID)}
+                  onSelect={() => actions.handleOpenRoom(r)}
+                  onContextMenu={handleContextMenu}
+                  t={t}
+                  displayGaiaID={displayGaiaID}
+                  formatBadgeCount={formatBadgeCount}
+                />
+              ))}
+            </ul>
+          )
         ) : currentMenu === 'network_health' ? (
-          <div className="empty-action-card">
-            <strong>Signed public status</strong>
-            <span>Anonymous aggregate metrics, cryptographic transparency, and the node-signed status file.</span>
-            <div>
-              <button type="button" className="btn-secondary" onClick={() => setMobileMenuOpen(false)}>
-                Open Dashboard
-              </button>
-            </div>
-          </div>
+          <EmptyState
+            icon="activity"
+            title="Signierter Netzwerkstatus"
+            description="Anonyme aggregierte Kennzahlen, kryptografische Transparenz und die vom Knoten signierte Statusdatei."
+            actions={[{ label: 'Dashboard öffnen', variant: 'secondary', onClick: () => setMobileMenuOpen(false) }]}
+          />
         ) : currentMenu === 'public_channels' ? (
           publicChannelsLoading ? (
-            <div style={{ padding: '24px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              Loading channels...
-            </div>
+            <p className="vgt-inbox__status" role="status">Kanäle werden geladen …</p>
           ) : publicChannels.length === 0 ? (
-            <div className="empty-action-card">
-              <strong>No public channels yet</strong>
-              <span>Create the first GaiaCom public channel for signed announcements, release notes, or community updates.</span>
-              <div>
-                <button
-                  type="button"
-                  className="btn-primary"
-                  onClick={() => {
-                    setActivePublicChannel(null);
-                    if (setPublicChannelCreatorOpen) setPublicChannelCreatorOpen(true);
-                    setMobileMenuOpen(false);
-                  }}
-                >
-                  Create Channel
-                </button>
-              </div>
-            </div>
-          ) : (() => {
-            const filtered = publicChannels.filter(channel => {
-              if (!channelSearch) return true;
-              const query = channelSearch.toLowerCase();
-              return (
-                (channel.name && channel.name.toLowerCase().includes(query)) ||
-                (channel.description && channel.description.toLowerCase().includes(query))
-              );
-            });
-            if (filtered.length === 0) {
-              return (
-                <div style={{ padding: '24px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                  Keine Kanäle gefunden.
-                </div>
-              );
-            }
-            return filtered.map(channel => (
-              <div
-                key={channel.id}
-                className={`mail-card ${activePublicChannel?.id === channel.id ? 'active' : ''}`}
-                onClick={() => {
-                  setActivePublicChannel(channel);
-                  if (setPublicChannelCreatorOpen) setPublicChannelCreatorOpen(false);
-                  setMobileMenuOpen(false);
-                }}
-              >
-                <div className="mail-card-header">
-                  <div className="mail-sender">{channel.name}</div>
-                  {channel.isAdmin && <span className="abuse-badge" style={{ color: 'var(--accent-cyan)' }}>Admin</span>}
-                </div>
-                <div className="mail-subject">{channel.isSubscribed ? 'Subscribed' : 'Public'}</div>
-                <div className="mail-preview">{channel.description || `${channel.subscriberCount || 0} subscribers`}</div>
-              </div>
-            ));
-          })()
+            <EmptyState
+              icon="megaphone"
+              title="Noch keine öffentlichen Kanäle"
+              description="Erstelle den ersten GaiaCom-Kanal für signierte Ankündigungen, Release Notes oder Community-Updates."
+              actions={[{ label: 'Kanal erstellen', icon: 'plus', onClick: actions.handleOpenChannelCreator }]}
+            />
+          ) : visibleChannels.length === 0 ? (
+            <EmptyState
+              icon="search"
+              title="Keine Kanäle gefunden"
+              description="Passe den Suchbegriff an oder setze die Suche zurück."
+              actions={[{ label: 'Suche zurücksetzen', variant: 'secondary', onClick: () => setChannelSearch('') }]}
+            />
+          ) : (
+            <ul className="vgt-inbox__list">
+              {visibleChannels.map(channel => (
+                <ChannelRow
+                  key={channel.id}
+                  channel={channel}
+                  isActive={activePublicChannel?.id === channel.id}
+                  onSelect={() => actions.handleOpenChannel(channel)}
+                  t={t}
+                />
+              ))}
+            </ul>
+          )
         ) : currentMenu === 'profile' ? (
-          <div className="settings-menu-list" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div 
-              className={`mail-card ${activeProfileSection === 'edit' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('edit');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '1.25rem' }}>👤</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    {t('edit_profile') || 'Profil bearbeiten'}
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {t('edit_profile_desc') || 'Anzeigename, Biografie und Avatar anpassen.'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className={`mail-card ${activeProfileSection === 'mailbox_settings' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('mailbox_settings');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '1.25rem' }}>📬</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    {t('mailbox_settings_title') || 'Mailbox-Einstellungen'}
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {t('mailbox_settings_desc') || 'Signatur, Sprache, Mail-Filter regeln.'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className={`mail-card ${activeProfileSection === 'password' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('password');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '1.25rem' }}>🔒</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    {t('change_password_title') || 'Passwort ändern'}
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {t('change_password_menu_desc') || 'GaiaCOM Login-Passwort aktualisieren.'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className={`mail-card ${activeProfileSection === 'devices' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('devices');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '1.25rem' }}>💻</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    {t('device_sessions_title') || 'Angemeldete Geräte'}
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {t('device_sessions_menu_desc') || 'Aktive Sitzungen verwalten und beenden.'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className={`mail-card ${activeProfileSection === 'keys' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('keys');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '1.25rem' }}>🔑</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    {t('kryptographische_schluessel') || 'Kryptographische Schlüssel'}
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {t('kryptographische_schluessel_desc') || 'Private Schlüssel und Backup Seed Phrase anzeigen.'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className={`mail-card ${activeProfileSection === 'security' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('security');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '1.25rem' }}>⏱</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    {t('crypto_lock_title') || 'Kryptografische Sperre'}
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {t('crypto_lock_menu_desc') || 'Reload- und Inaktivitäts-Timer steuern.'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className={`mail-card ${activeProfileSection === 'privacy' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('privacy');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>NHD</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    Privacy
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    Anonymous statistics opt-in for Network Health.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className={`mail-card ${activeProfileSection === 'accessibility' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('accessibility');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '1.15rem' }}>Aa</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    Barrierefreiheit
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    Textgröße, Kontrast und Bewegungen auf diesem Gerät.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className={`mail-card ${activeProfileSection === 'notifications' ? 'active' : ''}`} onClick={() => { setActiveProfileSection('notifications'); setMobileMenuOpen(false); }} style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}><span style={{ fontSize: '1.15rem' }}>◌</span><div style={{ flex: 1, minWidth: 0 }}><div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Benachrichtigungen</div><div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Vorschauen und Ruhezeiten für dieses Gerät.</div></div></div>
-            </div>
-
-            <div 
-              className={`mail-card ${activeProfileSection === 'legal' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('legal');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '1.25rem' }}>§</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    {t('privacy_imprint_title') || 'Datenschutz & Impressum'}
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {t('privacy_imprint_menu_desc') || 'DSGVO, Datenschutz und Impressum anzeigen.'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div 
-              className={`mail-card danger-menu-card ${activeProfileSection === 'danger' ? 'active' : ''}`}
-              onClick={() => {
-                setActiveProfileSection('danger');
-                setMobileMenuOpen(false);
-              }}
-              style={{ padding: '16px 20px', cursor: 'pointer', borderRadius: '8px', border: '1px solid var(--danger)', display: 'flex', alignItems: 'center', gap: '12px', transition: 'all 0.2s' }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
-                <span style={{ fontSize: '1.25rem' }}>!</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    {t('delete_account_title') || 'Account löschen'}
-                  </div>
-                  <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-                    {t('delete_account_menu_desc') || 'Konto und zuordenbare Daten vernichten.'}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProfileSettingsNav
+            t={t}
+            activeProfileSection={activeProfileSection}
+            onSelect={actions.handleOpenProfileSection}
+          />
         ) : currentMenu === 'vault' ? (
           !driveUnlocked ? (
-            <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '40px', fontSize: '0.85rem' }}>
-              {t('vault_locked_pane_notice') || 'Drive ist gesperrt. Bitte rechts entsperren.'}
-            </div>
+            <EmptyState
+              icon="lock"
+              title="Tresor ist gesperrt"
+              description={t('vault_locked_pane_notice') || 'Bitte entsperre den Tresor im rechten Bereich.'}
+            />
           ) : driveRecords.length === 0 ? (
-            <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '40px', fontSize: '0.85rem' }}>
-              {t('vault_empty') || 'Keine Einträge gespeichert.'}
-            </div>
+            <EmptyState
+              icon="drive"
+              title="Noch keine Einträge"
+              description={t('vault_empty') || 'Im Tresor sind keine Einträge gespeichert.'}
+            />
           ) : (
-            driveRecords.map(rec => (
-              <div 
-                key={rec.id} 
-                className={`mail-card ${selectedDriveRecord?.id === rec.id ? 'active' : ''}`}
-                onClick={() => setSelectedDriveRecord(rec)}
-                style={{ padding: '12px 24px' }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--accent-cyan)', marginBottom: '4px' }}>
-                  <span style={{ fontWeight: 'bold' }}>{rec.type === 'file' ? '📄 DATEI' : (rec.category || 'NOTE').toUpperCase()}</span>
-                  <span>{new Date(rec.createdAt).toLocaleDateString()}</span>
-                </div>
-                <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{rec.title}</div>
-                <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem' }}>
-                  {rec.type === 'file'
-                    ? `${rec.mimeType || 'Datei'} · ${rec.sizeBytes ? (rec.sizeBytes / 1024).toFixed(1) + ' KB' : '—'}${rec.cloudFileId ? ' · ☁️' : ''}`
-                    : (rec.body && rec.body.length > 60 ? rec.body.substring(0, 60) + '...' : rec.body)}
-                </div>
-              </div>
-            ))
+            <ul className="vgt-inbox__list">
+              {driveRecords.map(rec => (
+                <VaultRow
+                  key={rec.id}
+                  record={rec}
+                  isSelected={selectedDriveRecord?.id === rec.id}
+                  onSelect={() => setSelectedDriveRecord(rec)}
+                />
+              ))}
+            </ul>
           )
         ) : currentMenu === 'gaiadrop' ? (
           gaiaDropInbox.length === 0 ? (
-            <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '40px', fontSize: '0.85rem' }}>
-              {t('drop_empty') || 'Keine Drops geladen.'}
-            </div>
+            <EmptyState
+              icon="seal"
+              title="Keine Drops geladen"
+              description={t('drop_empty') || 'Lade deine GaiaDrop-Inbox, um verschlüsselte Drops zu entschlüsseln.'}
+              actions={[{
+                label: gaiaDropLoading
+                  ? (t('drop_btn_decrypting') || 'Laden...')
+                  : (t('drop_btn_load') || 'Inbox laden'),
+                icon: 'refresh',
+                onClick: loadGaiaDropInbox,
+                disabled: Boolean(gaiaDropLoading)
+              }]}
+            />
           ) : (
-            gaiaDropInbox.map(drop => (
-              <div 
-                key={drop.id} 
-                className={`mail-card ${selectedDrop?.id === drop.id ? 'active' : ''} ${drop.status === 'new' ? 'unread' : ''}`}
-                onClick={() => setSelectedDrop(drop)}
-                style={{ padding: '12px 24px', borderLeft: drop.status === 'new' ? '3px solid var(--warning)' : 'none' }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--warning)', marginBottom: '4px' }}>
-                  <span style={{ fontWeight: 'bold' }}>{t('drop_proof') || 'DROP PROOF'}</span>
-                  <span>{drop.created_at ? new Date(drop.created_at).toLocaleDateString() : 'Unbekannt'}</span>
-                </div>
-                <div className="mail-sender" style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
-                  {drop.sender_label || t('anonymous_sender') || 'Anonymer Absender'}
-                </div>
-                <div className="mail-preview" style={{ marginTop: '4px', fontSize: '0.75rem' }}>
-                  {(() => {
-                    const rawText = drop.decrypted ? (typeof drop.decrypted === 'string' ? drop.decrypted : drop.decrypted.body) : (drop.decryptError || 'Entschlüsselung ausstehend...');
-                    return rawText && rawText.length > 60 ? rawText.substring(0, 60) + '...' : rawText;
-                  })()}
-                </div>
-              </div>
-            ))
+            <ul className="vgt-inbox__list">
+              {gaiaDropInbox.map(drop => (
+                <DropRow
+                  key={drop.id}
+                  drop={drop}
+                  t={t}
+                  isSelected={selectedDrop?.id === drop.id}
+                  onSelect={() => setSelectedDrop(drop)}
+                />
+              ))}
+            </ul>
           )
-        ) : (
-          activeMailsList.map(mail => {
-            const isActive = selectedMail && selectedMail.id === mail.id;
-            const isUnread = !mail.isRead;
-            const isChecked = selectedMailIds.includes(mail.id);
-            const isStarred = mail.isStarred;
-            const isImportant = mail.isImportant;
-
-            return (
-              <div 
-                key={mail.id} 
-                className={`mail-card ${isActive ? 'active' : ''} ${mail.untrusted ? 'untrusted' : ''} ${isUnread ? 'unread' : ''} ${mail.isSmtp ? 'smtp-legacy-card' : 'native-gaiacom-card'}`}
-                onClick={() => {
-                  if (mail.isDraft) {
-                    setIsComposing(true);
-                    setComposeTo(mail.recipient || '');
-                    setComposeSubject(mail.subject || '');
-                    setComposeBody(mail.body || '');
-                    setComposeReplyTo(mail.messages?.[0]?.replyTo || null);
-                    if (setIsSmtpMode) {
-                      setIsSmtpMode(!!mail.isSmtp);
-                    }
-                    setSelectedMail(null);
-                    if (activeDraftIdRef) {
-                      activeDraftIdRef.current = mail.id;
-                    }
-                  } else {
-                    setSelectedMail(mail);
-                    setIsComposing(false);
-                  }
-                }}
-                style={{
-                  position: 'relative',
-                  paddingLeft: '44px',
-                  borderLeft: isUnread 
-                    ? (mail.isSmtp ? '3px solid var(--warning)' : '3px solid var(--accent-cyan)')
-                    : (mail.isSmtp ? '3px dashed rgba(241, 196, 15, 0.3)' : '1px solid rgba(255,255,255,0.05)'),
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px'
-                }}
-              >
-                {/* Checkbox for Bulk Actions */}
-                <div 
-                  onClick={(e) => handleToggleSelect(e, mail.id)}
-                  style={{
-                    position: 'absolute',
-                    left: '12px',
-                    top: '16px',
-                    width: '18px',
-                    height: '18px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '4px',
-                    background: isChecked ? 'var(--accent-cyan)' : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    zIndex: 2
-                  }}
-                >
-                  {isChecked && <span style={{ color: '#000000', fontSize: '0.75rem', fontWeight: 'bold' }}>✓</span>}
-                </div>
-
-                <div className="mail-card-header">
-                  <div className="mail-sender" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: isUnread ? 800 : 500 }}>
-                    {mail.senderGaia || displayGaiaID(mail.sender)}
-                    {mail.messages && mail.messages.length > 1 && (
-                      <span style={{ fontSize: '0.8rem', color: 'var(--accent-cyan)', background: 'rgba(0,242,254,0.1)', padding: '1px 6px', borderRadius: '10px' }}>
-                        {mail.messages.length}
-                      </span>
-                    )}
-                    {isUnread && <span className="card-unread-dot" style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-cyan)' }} />}
-                  </div>
-                  <div className="mail-time" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {/* Star toggle */}
-                    <button
-                      type="button"
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: isStarred ? 'var(--warning, #ffcc00)' : 'var(--text-muted)',
-                        fontSize: '1rem',
-                        cursor: 'pointer',
-                        padding: 0
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updateMailboxState(mail.latestMessage || mail, { isStarred: !isStarred });
-                      }}
-                    >
-                      {isStarred ? '★' : '☆'}
-                    </button>
-
-                    {/* Important toggle */}
-                    <button
-                      type="button"
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: isImportant ? 'var(--accent-cyan)' : 'var(--text-muted)',
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                        padding: 0
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updateMailboxState(mail.latestMessage || mail, { isImportant: !isImportant });
-                      }}
-                      title="Wichtig markieren"
-                    >
-                      🏷️
-                    </button>
-                    <span>{new Date(mail.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
-
-                <div className="mail-subject" style={{ fontWeight: isUnread ? 800 : 500, color: isUnread ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
-                  {mail.subject}
-                </div>
-
-                <div className="mail-preview">
-                  {(() => {
-                    const latest = mail.latestMessage || mail;
-                    return latest.body && latest.body.length > 70 ? latest.body.substring(0, 70) + '...' : latest.body;
-                  })()}
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
-                  {/* Encryption / Connection badge */}
-                  {mail.isSmtp ? (
-                    <span style={{ background: 'rgba(255,59,48,0.1)', color: 'var(--danger)', fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px' }}>
-                      ⚠️ Legacy SMTP
-                    </span>
-                  ) : (
-                    <span style={{ background: 'rgba(46,204,113,0.1)', color: 'var(--success)', fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                      🛡️ GaiaSecure
-                    </span>
-                  )}
-                  {mail.untrusted && !mail.isSmtp && (
-                    <span style={{ background: 'rgba(230,126,34,0.1)', color: 'var(--warning)', fontSize: '0.65rem', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px' }}>
-                      Spam-Verdacht
-                    </span>
-                  )}
-                  {/* Labels on the card */}
-                  {(() => {
-                    const currentBox = (mail.latestMessage || mail).mailbox || {};
-                    const labels = parseMailboxLabels(currentBox.labels);
-                    return labels.map(lbl => (
-                      <span key={lbl} style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', fontSize: '0.65rem', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
-                        {lbl}
-                      </span>
-                    ));
-                  })()}
-                </div>
-              </div>
-            );
-          })
-        )}
-
-        {currentMenu !== 'contacts' && currentMenu !== 'chat' && currentMenu !== 'profile' && currentMenu !== 'groups' && currentMenu !== 'vault' && currentMenu !== 'gaiadrop' && activeMailsList.length === 0 && (
-          <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '40px', fontSize: '0.85rem' }}>
-            {t('keine_mails') || 'Keine Mails vorhanden.'}
-          </div>
-        )}
+        ) : emailMenu ? (
+          activeMailsList.length === 0 ? (
+            <EmptyState
+              icon="inbox"
+              title={t('keine_mails') || 'Keine Mails vorhanden.'}
+              description="Dieser Ordner enthält keine Nachrichten."
+              actions={canComposeMail ? [{ label: t('mail_compose') || 'Schreiben', icon: 'plus', onClick: actions.handleStartCompose }] : []}
+            />
+          ) : (
+            <ul className="vgt-inbox__list">
+              {activeMailsList.map(mail => (
+                <MailRow
+                  key={mail.id}
+                  mail={mail}
+                  isActive={Boolean(selectedMail && selectedMail.id === mail.id)}
+                  isChecked={selectedMailIds.includes(mail.id)}
+                  isUnread={!mail.isRead}
+                  isStarred={Boolean(mail.isStarred)}
+                  isImportant={Boolean(mail.isImportant)}
+                  onOpen={() => actions.handleOpenMail(mail)}
+                  onToggleSelect={handleToggleSelect}
+                  onToggleStar={() => updateMailboxState(mail.latestMessage || mail, { isStarred: !mail.isStarred })}
+                  onToggleImportant={() => updateMailboxState(mail.latestMessage || mail, { isImportant: !mail.isImportant })}
+                  t={t}
+                />
+              ))}
+            </ul>
+          )
+        ) : null}
       </div>
-      {contextMenu && (
-        <div 
-          className="custom-context-menu" 
-          style={{
-            position: 'fixed',
-            top: `${contextMenu.mouseY}px`,
-            left: `${contextMenu.mouseX}px`,
-            zIndex: 1000,
-            background: 'var(--card-bg, #1a1a1c)',
-            border: '1px solid var(--border-color, rgba(255,255,255,0.1))',
-            borderRadius: '6px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-            padding: '4px 0',
-            minWidth: '140px'
-          }}
-        >
-          <button 
-            type="button"
-            className="context-menu-item"
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '8px 12px',
-              textAlign: 'left',
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--text-primary, #ffffff)',
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              transition: 'background 0.2s'
-            }}
-            onClick={() => {
-              togglePinChat(contextMenu.target.ID);
-              setContextMenu(null);
-            }}
-            onMouseEnter={e => e.target.style.background = 'rgba(255,255,255,0.08)'}
-            onMouseLeave={e => e.target.style.background = 'transparent'}
-          >
-            {pinnedChatIds.includes(contextMenu.target.ID) 
-              ? (t('entpinnen') || 'Entpinnen') 
-              : (t('anpinnen') || 'Anpinnen')}
-          </button>
-          <button 
-            type="button"
-            className="context-menu-item"
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '8px 12px',
-              textAlign: 'left',
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--warning, #ff3b30)',
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              transition: 'background 0.2s'
-            }}
-            onClick={() => {
-              if (contextMenu.type === 'chat') {
-                handleDeleteDM(contextMenu.target);
-              } else {
-                handleDeleteGroupRoom(contextMenu.target);
-              }
-              setContextMenu(null);
-            }}
-            onMouseEnter={e => e.target.style.background = 'rgba(255,255,255,0.08)'}
-            onMouseLeave={e => e.target.style.background = 'transparent'}
-          >
-            {contextMenu.type === 'chat' 
-              ? (t('chat_loeschen') || 'Chat löschen') 
-              : (contextMenu.target.CreatedBy === activeIdentity?.ID || contextMenu.target.CreatedBy === user?.id
-                  ? (t('gruppe_loeschen') || 'Gruppe löschen')
-                  : (t('gruppe_verlassen') || 'Gruppe verlassen'))}
-          </button>
-        </div>
-      )}
+
+      {contextMenu ? (
+        <ContextMenu
+          menu={contextMenu}
+          toggleLabel={pinLabel}
+          deleteLabel={deleteLabel}
+          onTogglePin={handleTogglePin}
+          onDelete={handleDelete}
+          onClose={closeContextMenu}
+        />
+      ) : null}
     </section>
   );
 };

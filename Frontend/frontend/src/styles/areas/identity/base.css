@@ -1,0 +1,422 @@
+/* ============================================================================
+   VGT GLASS 2100 — PANES UTILITY / IDENTITY BASE
+   Import-only aggregator: panes-utility.css pulls this sheet plus the four
+   module sheets (profile, vault, security, abuse).
+   Shared primitives for identity/vault/security/abuse panes: content-first
+   surfaces, dense opaque rows, honest status text, one light model.
+   ========================================================================== */
+
+/* ---------- Pane roots: full-height scroll surface, no page overflow ---------- */
+.vgt-profile-pane,
+.vgt-vault-pane,
+.vgt-sec-pane,
+.vgt-abuse-pane {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-5);
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(14px, 2.4vw, 28px);
+  background: var(--vgt-bg-0);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-profile-pane :where(h1, h2, h3, h4, p, dl, dd, dt, ul, ol, figure) {
+  margin: 0;
+}
+
+.vgt-vault-pane :where(h1, h2, h3, h4, p, dl, dd, dt, ul, ol, figure) {
+  margin: 0;
+}
+
+.vgt-sec-pane :where(h1, h2, h3, h4, p, dl, dd, dt, ul, ol) {
+  margin: 0;
+}
+
+.vgt-abuse-pane :where(h1, h2, h3, h4, p, dl, dd, dt, ul, ol) {
+  margin: 0;
+}
+
+.vgt-profile-pane--empty {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--vgt-text-muted);
+}
+
+/* ---------- Section / form rhythm ---------- */
+.vgt-profile-stack,
+.vgt-sec-stack,
+.vgt-abuse-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-5);
+  min-width: 0;
+}
+
+.vgt-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+  min-width: 0;
+}
+
+.vgt-profile-form--narrow {
+  max-width: 560px;
+}
+
+.vgt-profile-form__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: var(--vgt-space-4);
+  align-items: start;
+}
+
+.vgt-profile-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-profile-form__actions .btn-primary,
+.vgt-profile-form__actions .btn-secondary,
+.vgt-profile-form__actions .btn-danger,
+.vgt-profile-form__actions .btn-danger-outline {
+  width: auto;
+}
+
+.vgt-profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  min-width: 0;
+}
+
+.vgt-profile-field .input-label {
+  margin-bottom: 0;
+}
+
+.vgt-profile-field__required {
+  color: var(--vgt-text-muted);
+  font-weight: 600;
+}
+
+.vgt-profile-field .input-field {
+  width: 100%;
+}
+
+/* ---------- Records (grouping without card-in-card) ---------- */
+.vgt-profile-record {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  padding-top: var(--vgt-space-4);
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-profile-record:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.vgt-profile-record__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+}
+
+/* ---------- Dense row lists ---------- */
+.vgt-row-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-3) var(--vgt-space-1);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  min-width: 0;
+}
+
+.vgt-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 220px;
+}
+
+.vgt-row__main strong {
+  font-size: var(--vgt-text-sm);
+  font-weight: 620;
+  color: var(--vgt-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.vgt-row__meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--vgt-text-xs);
+  line-height: 1.45;
+  color: var(--vgt-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.vgt-row__select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  width: 100%;
+  padding: var(--vgt-space-3);
+  border: 0;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-row__select:hover {
+  background: var(--vgt-bg-2);
+}
+
+.vgt-row__select:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-row--button {
+  padding: 0;
+}
+
+.vgt-row--button.is-active .vgt-row__select {
+  background: var(--vgt-pigment-soft);
+}
+
+.vgt-row.is-active {
+  background: var(--vgt-pigment-soft);
+}
+
+/* ---------- Toggle rows ---------- */
+.vgt-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-4);
+  min-height: 48px;
+  padding: var(--vgt-space-3) 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  cursor: pointer;
+}
+
+.vgt-toggle-row:last-of-type {
+  border-bottom: 0;
+}
+
+.vgt-toggle-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vgt-toggle-row__text strong {
+  font-size: var(--vgt-text-sm);
+  font-weight: 620;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-toggle-row__text small {
+  font-size: var(--vgt-text-xs);
+  line-height: 1.5;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-toggle-row.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.vgt-toggle-row .vgt-switch {
+  flex: none;
+  cursor: inherit;
+}
+
+/* ---------- Honest states ---------- */
+.vgt-empty-note {
+  padding: var(--vgt-space-4);
+  border: var(--vgt-hairline) dashed var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-1);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+  max-width: 72ch;
+}
+
+.vgt-empty-note p {
+  margin: 0 0 var(--vgt-space-2);
+}
+
+.vgt-inline-status {
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-inline-status.is-error {
+  color: var(--vgt-danger);
+}
+
+.vgt-inline-status.is-success {
+  color: var(--vgt-success);
+}
+
+/* ---------- Notices (security context, not decoration) ---------- */
+.vgt-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-4);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-left: 2px solid var(--vgt-accent-bronze);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-1);
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-notice > .vgt-icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--vgt-accent-bronze);
+}
+
+.vgt-notice--danger {
+  border-left-color: var(--vgt-danger);
+  background: var(--vgt-danger-soft);
+}
+
+.vgt-notice--danger > .vgt-icon {
+  color: var(--vgt-danger);
+}
+
+.vgt-notice .vgt-link {
+  margin-top: var(--vgt-space-2);
+}
+
+/* ---------- Definition grids ---------- */
+.vgt-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  gap: var(--vgt-space-3);
+}
+
+.vgt-proof-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-1);
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-proof-grid dt {
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vgt-pigment);
+}
+
+.vgt-proof-grid dd {
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+  color: var(--vgt-text-secondary);
+}
+
+/* ---------- Dense tables (opaque, never glass) ---------- */
+.vgt-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--vgt-text-sm);
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-table th {
+  padding: var(--vgt-space-3);
+  text-align: left;
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vgt-text-muted);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+  white-space: nowrap;
+}
+
+.vgt-table td {
+  padding: var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.vgt-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.vgt-table tbody tr:hover {
+  background: var(--vgt-bg-2);
+}
+
+.vgt-table .vgt-status {
+  white-space: nowrap;
+}
+
+.vgt-break {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* ---------- Mobile pane actions ---------- */
+.vgt-pane-mobile-actions {
+  display: none;
+}
+
+@media (max-width: 992px) {
+  .vgt-pane-mobile-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--vgt-space-2);
+  }
+}

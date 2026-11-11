@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { existsSync } from 'node:fs';

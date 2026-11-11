@@ -1,0 +1,262 @@
+/* ============================================================================
+   VGT GLASS 2100 — MESSAGING: DIRECT CONVERSATION SURFACE
+   Header (Z2), message stream (Z1), readable bubbles, composer dock above the
+   safe area. Part sheet of areas/messaging.css.
+   ========================================================================== */
+
+/* ---------- Pane root ---------- */
+.vgt-chat {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--vgt-bg-1);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-chat--empty {
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------- Mobile-only bar ---------- */
+.vgt-chat-mobilebar {
+  display: none;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  flex: none;
+  padding: 6px var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-chat-mobilebar .btn-secondary,
+.vgt-chat-mobilebar .btn-ghost {
+  --vgt-control-min-h: 36px;
+}
+
+/* ---------- Header ---------- */
+.vgt-chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  flex: none;
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-glass-1);
+  backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.06);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-1)) saturate(1.06);
+}
+
+.vgt-chat-head__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  min-width: 0;
+  flex: 1;
+}
+
+.vgt-chat-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: 50%;
+  background: var(--vgt-bg-3);
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.vgt-chat-head__peer {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+  padding: 2px 4px;
+  border: 0;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.vgt-chat-head__peer:hover {
+  background: color-mix(in srgb, var(--vgt-bg-4) 60%, transparent);
+}
+
+.vgt-chat-head__name-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.vgt-chat-head__name {
+  overflow: hidden;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-lg);
+  font-weight: 620;
+  letter-spacing: -0.008em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vgt-chat-head__sub {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px var(--vgt-space-2);
+  min-width: 0;
+}
+
+.vgt-chat-presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-chat-presence__dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--vgt-text-disabled);
+}
+
+.vgt-chat-presence.is-online {
+  color: var(--vgt-success);
+}
+
+.vgt-chat-presence.is-online .vgt-chat-presence__dot {
+  background: var(--vgt-success);
+}
+
+.vgt-chat-presence.is-typing {
+  color: var(--vgt-pigment);
+}
+
+.vgt-chat-presence.is-typing .vgt-chat-presence__dot {
+  background: var(--vgt-pigment);
+}
+
+.vgt-chat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  white-space: nowrap;
+}
+
+.vgt-chat-chip--key {
+  color: var(--vgt-accent-titan);
+  border-color: color-mix(in srgb, var(--vgt-accent-titan) 32%, transparent);
+}
+
+.vgt-chat-chip--secret {
+  color: var(--vgt-accent-bronze);
+  border-color: color-mix(in srgb, var(--vgt-accent-bronze) 36%, transparent);
+  background: color-mix(in srgb, var(--vgt-accent-bronze) 10%, transparent);
+}
+
+.vgt-chat-chip__value {
+  max-width: 18ch;
+  overflow: hidden;
+  color: var(--vgt-text-muted);
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+}
+
+.vgt-chat-head__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+/* ---------- Derived message-security state chip (M-13/M-15) ---------- */
+.vgt-chat-secstate {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  min-width: 0;
+  padding: 1px 8px;
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vgt-chat-secstate svg {
+  flex: none;
+}
+
+.vgt-chat-secstate__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vgt-chat-secstate--idle {
+  background: transparent;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-chat-secstate--info {
+  border-color: color-mix(in srgb, var(--vgt-accent-titan) 34%, transparent);
+  background: color-mix(in srgb, var(--vgt-accent-titan) 9%, transparent);
+  color: var(--vgt-accent-titan);
+}
+
+.vgt-chat-secstate--secret {
+  border-color: color-mix(in srgb, var(--vgt-accent-bronze) 40%, transparent);
+  background: color-mix(in srgb, var(--vgt-accent-bronze) 10%, transparent);
+  color: var(--vgt-accent-bronze);
+}
+
+.vgt-chat-secstate--warn {
+  border-color: color-mix(in srgb, var(--vgt-warning) 36%, transparent);
+  background: var(--vgt-warning-soft);
+  color: var(--vgt-warning);
+}
+/* ---------- Search ---------- */
+.vgt-chat-search {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  flex: none;
+  padding: var(--vgt-space-2) var(--vgt-space-4);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-chat-search__icon {
+  flex: none;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-chat-search .input-field {
+  min-height: 36px;
+  flex: 1;
+  font-size: var(--vgt-text-sm);
+}

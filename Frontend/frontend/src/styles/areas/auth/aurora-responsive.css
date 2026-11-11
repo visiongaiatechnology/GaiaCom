@@ -1,0 +1,57 @@
+/* NEON AURORA — auth responsive tweaks and consent banner centering. */
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .vgt-overlay.vgt-overlay--auth {
+    padding: 10px;
+    align-items: start;
+  }
+
+  .vgt-auth-dialog.vgt-glass--modal {
+    width: 100%;
+    max-height: 95dvh;
+    border-radius: 20px;
+    padding: 18px;
+    gap: 15px;
+  }
+
+  .vgt-auth-dialog__boundary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vgt-auth-dialog__brand .vgt-brandmark,
+  .vgt-auth-dialog__brand > :first-child {
+    width: 42px;
+    height: 42px;
+  }
+
+  .vgt-overlay--auth .vgt-auth-tabs {
+    flex-wrap: wrap;
+  }
+
+  .vgt-overlay--auth .vgt-auth-tabs__btn {
+    flex: 1 1 44%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vgt-auth-dialog.vgt-glass--modal {
+    animation: none;
+  }
+}
+
+/* ---------- Consent banner centering (opacity-only animation keeps translate) ---------- */
+.vgt-public > .vgt-cookie {
+  animation: vgt-fade var(--vgt-dur-view) var(--vgt-ease-out) both;
+  color-scheme: dark;
+}
+
+@media (max-width: 720px) {
+  .vgt-public > .vgt-cookie {
+    left: 8px;
+    right: 8px;
+    width: auto;
+    transform: none;
+    bottom: 8px;
+  }
+}

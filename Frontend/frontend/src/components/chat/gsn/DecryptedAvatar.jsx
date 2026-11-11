@@ -2,9 +2,46 @@ import React, { useEffect, useState } from 'react';
 import * as api from '../../../api';
 import * as crypto from '../../../crypto';
 import { safeJsonParse } from '../../../utils/safeJson';
+import {
+  MAX_AVATAR_BYTES,
+  assertImageBlob,
+  exceedsLimit,
+  limitError
+} from '../../../utils/mediaLimits';
+import Icon from '../../ui/Icon';
 
+/**
+ * Bounded object-URL cache (SEC-FE FE-10): at most 64 decrypted avatars stay
+ * alive; the oldest entry is revoked when the cache overflows and a cache hit
+ * refreshes its recency. Without this the module-level map was unbounded across
+ * long sessions and many contacts.
+ */
+const AVATAR_URL_CACHE_LIMIT = 64;
 const avatarUrlCache = new Map();
 
+function takeCachedAvatarUrl(fileId) {
+  if (!avatarUrlCache.has(fileId)) return '';
+  const url = avatarUrlCache.get(fileId);
+  avatarUrlCache.delete(fileId);
+  avatarUrlCache.set(fileId, url);
+  return url;
+}
+
+function rememberAvatarUrl(fileId, url) {
+  if (avatarUrlCache.size >= AVATAR_URL_CACHE_LIMIT) {
+    const oldestKey = avatarUrlCache.keys().next().value;
+    const oldestUrl = avatarUrlCache.get(oldestKey);
+    avatarUrlCache.delete(oldestKey);
+    if (oldestUrl) URL.revokeObjectURL(oldestUrl);
+  }
+  avatarUrlCache.set(fileId, url);
+}
+
+/**
+ * Decrypts a GSN avatar envelope from object storage. The decryption boundary is
+ * unchanged (download -> AES-GCM decrypt -> object URL) but now byte-capped
+ * before decrypt and magic-byte checked after decrypt (SEC-FE FE-03).
+ */
 export default function DecryptedAvatar({ avatarJson, displayName, variant = 'default' }) {
   const [imgUrl, setImgUrl] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,30 +54,37 @@ export default function DecryptedAvatar({ avatarJson, displayName, variant = 'de
     }
 
     let active = true;
-    let createdUrl = "";
     const load = async () => {
       try {
         const att = safeJsonParse(avatarJson, null);
         if (!att) throw new Error('Invalid avatar envelope.');
 
-        if (avatarUrlCache.has(att.fileId)) {
-          setImgUrl(avatarUrlCache.get(att.fileId));
+        const cached = takeCachedAvatarUrl(att.fileId);
+        if (cached) {
+          setImgUrl(cached);
           setLoading(false);
           return;
         }
 
-        const blob = await api.downloadFileAttachment(att.fileId);
+        const blob = await api.downloadFileAttachment(att.fileId, { maxBytes: MAX_AVATAR_BYTES });
+        if (exceedsLimit(blob?.size, MAX_AVATAR_BYTES)) {
+          throw limitError('Der Avatar', MAX_AVATAR_BYTES);
+        }
         const decrypted = await crypto.decryptFileSymmetric(blob, att.keyHex, att.ivHex);
+        if (exceedsLimit(decrypted?.size, MAX_AVATAR_BYTES)) {
+          throw limitError('Der Avatar', MAX_AVATAR_BYTES);
+        }
+        await assertImageBlob(decrypted, 'Der Avatar');
         if (active) {
-          createdUrl = URL.createObjectURL(decrypted);
-          avatarUrlCache.set(att.fileId, createdUrl);
+          const createdUrl = URL.createObjectURL(decrypted);
+          rememberAvatarUrl(att.fileId, createdUrl);
           setImgUrl(createdUrl);
           setLoading(false);
         }
       } catch (err) {
         const message = String(err?.message || err || '');
         if (!message.includes('File expired or deleted')) {
-          console.error("Failed to decrypt GSN avatar:", err);
+          console.error('Failed to decrypt GSN avatar:', err);
         }
         if (active) {
           setError(true);
@@ -61,31 +105,25 @@ export default function DecryptedAvatar({ avatarJson, displayName, variant = 'de
     hash = (displayName || '').charCodeAt(i) + ((hash << 5) - hash);
   }
 
-  const colorBucket = Math.abs(hash) % 12;
-  const variantClass = variant === 'profile' || variant === 'editor' ? ` gsn-avatar-${variant}` : '';
+  const colorBucket = Math.abs(hash) % 6;
+  const variantClass = variant === 'profile' || variant === 'editor' ? ` vgt-gsn-avatar--${variant}` : '';
 
   if (loading) {
     return (
-      <div className={`gsn-avatar gsn-avatar-loading${variantClass}`}>
-        ⏳
-      </div>
+      <span className={`vgt-gsn-avatar vgt-gsn-avatar--loading${variantClass}`} role="status" aria-label="Avatar wird entschlüsselt">
+        <Icon name="spinner" size={14} />
+      </span>
     );
   }
 
   if (error || !imgUrl) {
-    const isEmoji = avatarJson && avatarJson.length <= 4;
+    const isGlyph = avatarJson && avatarJson.length <= 4;
     return (
-      <div className={`gsn-avatar gsn-avatar-color-${colorBucket}${variantClass}`}>
-        {isEmoji ? avatarJson : initial}
-      </div>
+      <span className={`vgt-gsn-avatar vgt-gsn-avatar--${colorBucket}${variantClass}`} aria-hidden="true">
+        {isGlyph ? avatarJson : initial}
+      </span>
     );
   }
 
-  return (
-    <img
-      src={imgUrl}
-      alt={displayName}
-      className={`gsn-avatar gsn-avatar-image${variantClass}`}
-    />
-  );
+  return <img src={imgUrl} alt={displayName || 'Avatar'} className={`vgt-gsn-avatar vgt-gsn-avatar--image${variantClass}`} loading="lazy" />;
 }

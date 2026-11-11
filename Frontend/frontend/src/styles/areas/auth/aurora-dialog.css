@@ -1,0 +1,317 @@
+/* NEON AURORA — access dialog: overlay, glass panel, tabs, forms, pairing. */
+
+/* ============================================================================
+   NEON AURORA — AUTH SURFACES
+   Access dialog, local-vault unlock and setup wizard share the cinematic
+   night-sky material of the landing page: deep alpine dark, aurora glow and
+   high-contrast neon glass. Scoped to the public/auth surfaces; the app shell
+   keeps its GLASS 2100 daylight palette.
+   ========================================================================== */
+
+/* ---------- Access dialog ---------- */
+.vgt-overlay.vgt-overlay--auth {
+  --aurora-night: #04070d;
+  --aurora-stroke: rgba(120, 236, 235, 0.20);
+  --aurora-stroke-strong: rgba(120, 242, 235, 0.40);
+  --aurora-cyan: #5cf2e2;
+  --aurora-text: #eaf6f8;
+  --aurora-text-soft: #c2d5df;
+  --aurora-muted: #93aebd;
+  color-scheme: dark;
+  padding: clamp(14px, 3vw, 40px);
+  background:
+    radial-gradient(90% 70% at 82% 6%, rgba(92, 242, 226, 0.12), transparent 62%),
+    radial-gradient(70% 60% at 8% 92%, rgba(167, 139, 250, 0.12), transparent 62%),
+    linear-gradient(180deg, rgba(4, 8, 14, 0.52), rgba(3, 7, 12, 0.88)),
+    url('/brand/aurora-mountains.jpg') center 34% / cover no-repeat;
+  backdrop-filter: blur(10px) saturate(1.1);
+  -webkit-backdrop-filter: blur(10px) saturate(1.1);
+  color: var(--aurora-text);
+}
+
+.vgt-overlay.vgt-overlay--auth::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 60% at 84% -6%, rgba(120, 246, 235, 0.14), transparent 70%),
+    radial-gradient(50% 50% at 10% 100%, rgba(167, 139, 250, 0.12), transparent 70%);
+}
+
+.vgt-auth-dialog.vgt-glass--modal {
+  position: relative;
+  width: min(580px, 100%);
+  max-height: min(91dvh, 900px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: clamp(20px, 3.2vw, 30px);
+  border-radius: 24px;
+  border: 1px solid rgba(130, 240, 235, 0.26);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(92, 242, 226, 0.10), transparent 55%),
+    linear-gradient(168deg, rgba(11, 26, 38, 0.94) 0%, rgba(6, 14, 23, 0.96) 62%, rgba(4, 10, 17, 0.98) 100%);
+  box-shadow:
+    0 40px 110px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(120, 246, 235, 0.08),
+    inset 0 1px 0 rgba(210, 255, 250, 0.14);
+  backdrop-filter: blur(30px) saturate(1.2);
+  -webkit-backdrop-filter: blur(30px) saturate(1.2);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(92, 242, 226, 0.32) transparent;
+}
+
+.vgt-auth-dialog::-webkit-scrollbar { width: 10px; }
+.vgt-auth-dialog::-webkit-scrollbar-thumb {
+  background: rgba(92, 242, 226, 0.28);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+.vgt-auth-dialog::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(120deg, rgba(120, 246, 235, 0.10), transparent 32%, transparent 68%, rgba(167, 139, 250, 0.08));
+  mix-blend-mode: screen;
+}
+
+.vgt-auth-dialog__head {
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.vgt-auth-dialog__brand {
+  align-items: center;
+  gap: 14px;
+}
+
+.vgt-auth-dialog__brand .vgt-brandmark,
+.vgt-auth-dialog__brand > svg,
+.vgt-auth-dialog__brand > :first-child {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 15px;
+  border: 1px solid rgba(120, 246, 235, 0.28);
+  background: radial-gradient(circle at 32% 22%, rgba(92, 242, 226, 0.22), rgba(5, 16, 26, 0.82));
+  box-shadow: 0 0 26px rgba(72, 240, 220, 0.20), inset 0 1px 0 rgba(220, 255, 250, 0.18);
+}
+
+.vgt-auth-dialog__brand .vgt-brandmark svg,
+.vgt-auth-dialog__brand > :first-child svg {
+  filter: drop-shadow(0 0 8px rgba(92, 242, 226, 0.55));
+}
+
+.vgt-auth-dialog__brand .vgt-h3 {
+  margin: 0;
+  font-size: clamp(1.16rem, 2.2vw, 1.42rem);
+  font-weight: 640;
+  letter-spacing: -0.02em;
+  color: #f2fffc;
+}
+
+.vgt-auth-dialog__brand .vgt-caption {
+  margin: 3px 0 0;
+  color: var(--aurora-muted);
+  line-height: 1.45;
+}
+
+.vgt-auth-dialog__head .btn-icon {
+  color: var(--aurora-text-soft);
+}
+
+.vgt-auth-dialog__head .btn-icon:hover {
+  color: #eafffb;
+  background: rgba(92, 242, 226, 0.10);
+}
+
+.vgt-auth-dialog__boundary {
+  padding: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  border: 1px solid rgba(130, 236, 231, 0.14);
+  border-radius: 16px;
+  background: rgba(4, 13, 21, 0.52);
+}
+
+.vgt-auth-dialog__boundary li {
+  gap: 10px;
+  padding: 6px 4px;
+}
+
+.vgt-auth-dialog__step {
+  border: 1px solid rgba(120, 246, 235, 0.42);
+  color: #7ffff0;
+  background: rgba(92, 242, 226, 0.10);
+  box-shadow: 0 0 16px rgba(72, 240, 220, 0.18);
+}
+
+.vgt-auth-dialog__boundary strong {
+  color: #eafffb;
+  font-size: 0.76rem;
+  letter-spacing: 0.01em;
+}
+
+.vgt-auth-dialog__boundary small {
+  color: var(--aurora-muted);
+}
+
+.vgt-auth-dialog__status {
+  align-items: center;
+  gap: 8px;
+}
+
+.vgt-auth-dialog__status .vgt-caption {
+  color: var(--aurora-muted);
+}
+
+.vgt-overlay--auth .vgt-status {
+  border: 1px solid rgba(120, 246, 235, 0.22);
+  background: rgba(92, 242, 226, 0.08);
+  color: #a8fff5;
+}
+
+/* ---------- Tabs ---------- */
+.vgt-overlay--auth .vgt-auth-tabs {
+  padding: 4px;
+  gap: 3px;
+  border: 1px solid rgba(130, 236, 231, 0.16);
+  border-radius: 14px;
+  background: rgba(4, 12, 20, 0.62);
+}
+
+.vgt-overlay--auth .vgt-auth-tabs__btn {
+  min-height: 38px;
+  border-radius: 11px;
+  color: var(--aurora-muted);
+  font-weight: 620;
+  letter-spacing: 0.01em;
+  transition: background-color 160ms ease, color 160ms ease, box-shadow 200ms ease;
+}
+
+.vgt-overlay--auth .vgt-auth-tabs__btn:hover {
+  color: #eafffb;
+  background: rgba(92, 242, 226, 0.07);
+}
+
+.vgt-overlay--auth .vgt-auth-tabs__btn.is-active {
+  color: #03130f;
+  background: linear-gradient(135deg, #8bfff2, #4fe6d3 58%, #86d9ff);
+  box-shadow: 0 6px 20px rgba(72, 240, 220, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* ---------- Forms ---------- */
+.vgt-overlay--auth .vgt-auth-form {
+  gap: 16px;
+}
+
+.vgt-overlay--auth .vgt-auth-form__submit {
+  min-height: 48px;
+  margin-top: 4px;
+  font-size: 0.95rem;
+}
+
+.vgt-overlay--auth .vgt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.vgt-overlay--auth .input-label {
+  color: #cfe7ea;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.vgt-overlay--auth .input-field {
+  min-height: 46px;
+  padding: 0 14px;
+  background: rgba(3, 11, 19, 0.72);
+  border: 1px solid rgba(130, 236, 231, 0.18);
+  color: #eafffb;
+  border-radius: 12px;
+  font-size: 0.94rem;
+}
+
+.vgt-overlay--auth textarea.input-field {
+  min-height: 96px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+.vgt-overlay--auth .input-field:focus {
+  outline: none;
+  border-color: rgba(92, 242, 226, 0.72);
+  background: rgba(6, 19, 29, 0.9);
+  box-shadow: 0 0 0 4px rgba(92, 242, 226, 0.14);
+}
+
+.vgt-overlay--auth .field__reveal,
+.vgt-overlay--auth .btn-icon {
+  color: var(--aurora-muted);
+}
+
+.vgt-overlay--auth .field__reveal:hover {
+  color: #eafffb;
+}
+
+.vgt-overlay--auth .field-hint {
+  color: var(--aurora-muted);
+  font-size: 0.74rem;
+}
+
+.vgt-overlay--auth .field-error {
+  color: #ffb4ab;
+  font-size: 0.78rem;
+}
+
+.vgt-overlay--auth .vgt-link {
+  color: #7ffff0;
+  font-weight: 620;
+}
+
+.vgt-overlay--auth .vgt-link:hover {
+  color: #d9fffb;
+  text-decoration-color: currentColor;
+}
+
+.vgt-overlay--auth .vgt-consent {
+  color: var(--aurora-text-soft);
+  font-size: 0.76rem;
+}
+
+.vgt-overlay--auth .vgt-consent input {
+  accent-color: #5cf2e2;
+}
+
+.vgt-overlay--auth .vgt-auth-form__alt {
+  border-top: 1px solid rgba(140, 230, 235, 0.10);
+  padding-top: 12px;
+}
+
+.vgt-auth-dialog__foot {
+  border-top: 1px solid rgba(140, 230, 235, 0.12);
+  padding-top: 14px;
+}
+
+.vgt-auth-dialog__foot .vgt-caption {
+  color: var(--aurora-muted);
+  line-height: 1.5;
+}
+
+/* ---------- Pairing QR ---------- */
+.vgt-overlay--auth .vgt-pair-qr {
+  border: 1px solid rgba(130, 236, 231, 0.2);
+  background: rgba(3, 11, 19, 0.7);
+  color: var(--aurora-text-soft);
+}

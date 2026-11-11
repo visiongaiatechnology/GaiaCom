@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 mod sovereign_crypto;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

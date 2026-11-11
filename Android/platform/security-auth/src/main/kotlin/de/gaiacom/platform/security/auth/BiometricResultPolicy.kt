@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package de.gaiacom.platform.security.auth
 
 import androidx.biometric.BiometricManager

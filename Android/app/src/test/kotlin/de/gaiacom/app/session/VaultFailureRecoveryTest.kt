@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package de.gaiacom.app.session
 
 import de.gaiacom.platform.security.VaultKeyInvalidatedException

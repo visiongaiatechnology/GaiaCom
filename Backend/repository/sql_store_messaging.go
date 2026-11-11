@@ -145,6 +145,60 @@ func (s *SQLStore) SaveMessageEnvelopeWithInbox(ctx context.Context, envelope *m
 	return err
 }
 
+// MessageDeliveredToIdentity reports whether the message is currently in the
+// identity's inbox. Additive helper for FIND-009 read-receipt binding.
+func (s *SQLStore) MessageDeliveredToIdentity(ctx context.Context, messageID uuid.UUID, identityID uuid.UUID) (bool, error) {
+	if messageID == uuid.Nil || identityID == uuid.Nil {
+		return false, nil
+	}
+	var count int
+	if err := s.db.QueryRowContext(
+		ctx,
+		`SELECT COUNT(1) FROM inboxes WHERE message_id = ? AND identity_id = ?`,
+		messageID,
+		identityID,
+	).Scan(&count); err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
+// MessageAuthoredByIdentity reports whether the identity authored the message.
+// Additive helper for FIND-009: a sender may bind a read receipt to a message it
+// sent (direct-chat edit self-copy) as well as to one it received. The
+// `message_proofs` row carries the server-recorded sender identity for every
+// stored envelope (message_envelopes only stores the sender GaiaID string).
+func (s *SQLStore) MessageAuthoredByIdentity(ctx context.Context, messageID uuid.UUID, identityID uuid.UUID) (bool, error) {
+	if messageID == uuid.Nil || identityID == uuid.Nil {
+		return false, nil
+	}
+	var count int
+	if err := s.db.QueryRowContext(
+		ctx,
+		`SELECT COUNT(1) FROM message_proofs WHERE message_id = ? AND sender_identity_id = ?`,
+		messageID,
+		identityID,
+	).Scan(&count); err != nil {
+		return false, err
+	}
+	if count > 0 {
+		return true, nil
+	}
+	// Fallback for rows where the proof carries no sender identity (legacy
+	// envelopes): match the stored sender GaiaID against the identity.
+	if err := s.db.QueryRowContext(
+		ctx,
+		`SELECT COUNT(1) FROM message_envelopes me
+		 JOIN identities si ON LOWER(si.gaia_id) = LOWER(me.sender)
+		 WHERE me.id = ? AND si.id = ?`,
+		messageID,
+		identityID,
+	).Scan(&count); err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 func (s *SQLStore) FindInboxEntriesByIdentity(ctx context.Context, identityID uuid.UUID) ([]models.Inbox, error) {
 	rows, err := s.db.QueryContext(
 		ctx,

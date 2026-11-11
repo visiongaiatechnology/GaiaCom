@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00E5FF"/><stop offset=".55" stop-color="#23D9C8"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient>
+      <linearGradient id="gv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8B5CF6"/><stop offset="1" stop-color="#E95CFF"/></linearGradient>
+      <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE18A"/><stop offset="1" stop-color="#FF9D3D"/></linearGradient>
+      <filter id="glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="softglow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="11" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      
+    </defs><g fill="none" stroke="#E95CFF" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"><path d="M65 26h88l42 42v160H65z"/><path d="M153 26v43h42"/><path d="M91 119h78m-78 31h78m-78 31h52"/></g><path d="M100 163v-26m22 45V112m22 70v-48m22 33v-24" stroke="#E95CFF" stroke-width="8"/></svg>

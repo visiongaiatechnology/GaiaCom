@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 use gaiacom_sovereign_core::{open, seal, MAX_PAYLOAD_BYTES, ROOT_SECRET_BYTES};
 use wasm_bindgen::prelude::*;
 use zeroize::{Zeroize, Zeroizing};

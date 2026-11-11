@@ -1,0 +1,358 @@
+/* VGT NEON APP — dashboard and GaiaMail views. */
+
+/* ============================================================================
+   VGT NEON APP — VIEWS
+   Dashboard, GaiaMail, chats, channels, GSN and drive surfaces in the
+   showcase language: navy cards, cyan interaction accents, violet secondary.
+   ========================================================================== */
+
+/* ---------- Dashboard ---------- */
+.vgt-dash > * {
+  flex-shrink: 0;
+}
+
+.vgt-dash {
+  max-width: 1320px;
+  gap: 20px;
+  padding: clamp(16px, 2.4vw, 28px);
+}
+
+.vgt-dash-head {
+  position: relative;
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1.3fr) minmax(240px, 0.7fr);
+  gap: 24px;
+  align-items: center;
+  padding: clamp(22px, 3.4vw, 38px);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-panel);
+  background:
+    linear-gradient(100deg, rgba(5, 10, 20, 0.94) 0%, rgba(5, 10, 20, 0.62) 52%, rgba(5, 10, 20, 0.32)),
+    url('/ui/aurora_mountains.png') center 42% / cover no-repeat;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.vgt-dash-head::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(70% 120% at 82% 0%, rgba(0, 229, 255, 0.16), transparent 64%);
+}
+
+.vgt-dash-head__copy,
+.vgt-dash-head__sidebar {
+  position: relative;
+  z-index: 1;
+}
+
+.vgt-dash-head__copy .vgt-eyebrow {
+  color: #9df6ff;
+}
+
+.vgt-dash-head__copy .vgt-h1 {
+  font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.vgt-dash-head__copy .vgt-h1 .vgt-title-em {
+  background: linear-gradient(100deg, #b9fff7, #00e5ff 55%, #b084ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.vgt-dash-head__identity {
+  border-top-color: rgba(255, 255, 255, 0.16);
+}
+
+.vgt-dash-head__identity .vgt-id,
+.vgt-dash-head__identity .vgt-caption {
+  color: var(--gc-muted);
+}
+
+.vgt-dash-head__actions .btn-primary,
+.vgt-dash-head__actions .btn-secondary {
+  min-height: 38px;
+}
+
+.vgt-dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  border: 0;
+}
+
+.vgt-dash-stats__item {
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-card);
+  background: linear-gradient(160deg, #111d2e, #0b1422);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+}
+
+.vgt-dash-stats__item:last-child {
+  border-right: 1px solid var(--gc-border);
+  padding-right: 16px;
+}
+
+.vgt-dash-stats__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  color: #9df6ff;
+  background: rgba(0, 229, 255, 0.10);
+  border: 1px solid rgba(0, 229, 255, 0.26);
+}
+
+.vgt-dash-stats__item:nth-child(2) .vgt-dash-stats__icon {
+  color: var(--gc-teal);
+  background: rgba(35, 217, 200, 0.10);
+  border-color: rgba(35, 217, 200, 0.26);
+}
+
+.vgt-dash-stats__item:nth-child(3) .vgt-dash-stats__icon {
+  color: #cbb9ff;
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.28);
+}
+
+.vgt-dash-stats__item:nth-child(4) .vgt-dash-stats__icon {
+  color: #ffd28a;
+  background: rgba(255, 200, 87, 0.10);
+  border-color: rgba(255, 200, 87, 0.26);
+}
+
+.vgt-dash-stats__value {
+  font-size: clamp(1.4rem, 1.1rem + 0.8vw, 1.9rem);
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.vgt-dash-stats__item .vgt-caption,
+.vgt-dash-stats__item .vgt-label {
+  color: var(--gc-muted);
+}
+
+.vgt-dash-feeds {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.vgt-dash-feed,
+.vgt-dash-rooms,
+.vgt-dash-start {
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-card);
+  background: linear-gradient(160deg, #111d2e, #0b1422);
+  padding: 16px 18px;
+}
+
+.vgt-dash-feed__head,
+.vgt-dash-rooms__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--vgt-divider);
+}
+
+.vgt-dash-feed__head .vgt-h4,
+.vgt-dash-rooms__head .vgt-h4 {
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.vgt-dash-feed__row {
+  display: flex;
+  gap: 10px;
+  padding: 10px 6px;
+  border-bottom: 1px solid var(--vgt-divider);
+  border-radius: 8px;
+}
+
+.vgt-dash-feed__row:last-child {
+  border-bottom: 0;
+}
+
+.vgt-dash-feed__row:hover {
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.vgt-dash-feed__avatar,
+.vgt-dash-rooms__mark {
+  border-radius: 10px;
+  background: rgba(0, 229, 255, 0.10);
+  border: 1px solid rgba(0, 229, 255, 0.24);
+  color: var(--gc-cyan);
+}
+
+.vgt-dash-feed__top {
+  color: #ffffff;
+}
+
+.vgt-dash-feed__preview,
+.vgt-dash-rooms__meta,
+.vgt-dash-feed__foot {
+  color: var(--gc-muted);
+}
+
+.vgt-dash-feed__foot {
+  padding-top: 10px;
+  border-top: 1px solid var(--vgt-divider);
+}
+
+.vgt-dash-rooms__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 6px;
+  border-radius: 8px;
+}
+
+.vgt-dash-rooms__row:hover {
+  background: rgba(0, 229, 255, 0.05);
+}
+
+.vgt-dash-rooms__name {
+  color: #ffffff;
+}
+
+.vgt-dash__provenance {
+  color: var(--gc-dim);
+  font-size: 0.72rem;
+}
+
+.vgt-dash-install {
+  border: 1px solid rgba(0, 229, 255, 0.24);
+  border-radius: var(--gc-radius-card);
+  background: rgba(0, 229, 255, 0.06);
+  padding: 14px 18px;
+}
+
+/* ---------- GaiaMail ---------- */
+.vgt-mail-reader {
+  background: var(--gc-surface);
+  border: 1px solid var(--gc-border);
+  border-radius: var(--gc-radius-card);
+  margin: 12px;
+  overflow: hidden;
+}
+
+.vgt-mail-reader__head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--vgt-divider);
+  background: linear-gradient(180deg, rgba(23, 38, 58, 0.6), transparent);
+}
+
+.vgt-mail-reader__hero .vgt-h2 {
+  font-size: clamp(1.2rem, 1rem + 0.7vw, 1.6rem);
+  letter-spacing: -0.02em;
+}
+
+.vgt-mail-reader__sender-name {
+  color: #ffffff;
+  font-weight: 650;
+}
+
+.vgt-mail-reader__address,
+.vgt-mail-reader__sender-line,
+.vgt-mail-time {
+  color: var(--gc-muted);
+}
+
+.vgt-mail-reader__chips,
+.vgt-mail-reader__ops {
+  gap: 6px;
+}
+
+.vgt-mail-reader__scroll {
+  padding: 18px 20px;
+}
+
+.vgt-mail-msg {
+  border: 1px solid var(--vgt-divider);
+  border-radius: 12px;
+  background: rgba(11, 20, 34, 0.7);
+  padding: 14px 16px;
+}
+
+.vgt-mail-msg__body,
+.vgt-mail-msg__snippet {
+  color: var(--gc-text);
+}
+
+.vgt-mail-msg__sender {
+  color: #ffffff;
+}
+
+.vgt-mail-msg__delivery,
+.vgt-mail-time {
+  color: var(--gc-dim);
+}
+
+.vgt-mail-passport,
+.vgt-mail-routing,
+.vgt-mail-proof {
+  border: 1px solid var(--vgt-divider);
+  border-radius: 12px;
+  background: rgba(8, 17, 30, 0.7);
+}
+
+.vgt-mail-passport__label,
+.vgt-mail-passport__fact,
+.vgt-mail-routing__row {
+  color: var(--gc-muted);
+}
+
+.vgt-mail-notice {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 229, 255, 0.24);
+  background: rgba(0, 229, 255, 0.06);
+}
+
+.vgt-mail-attachments__list {
+  gap: 8px;
+}
+
+.vgt-mail-attachment {
+  border: 1px solid var(--vgt-divider);
+  border-radius: 10px;
+  background: rgba(23, 38, 58, 0.5);
+  padding: 8px 10px;
+}
+
+.vgt-mail-compose {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: radial-gradient(120% 120% at 50% 0%, rgba(9, 23, 40, 0.95) 0%, rgba(5, 12, 22, 0.98) 100%);
+  overflow: hidden;
+}
+
+.vgt-mail-compose__head {
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(84, 116, 146, 0.2);
+  background: rgba(12, 23, 38, 0.85);
+}
+
+.vgt-mail-compose__title-text {
+  color: #ffffff;
+  font-weight: 750;
+  font-size: 1.05rem;
+  margin: 0;
+}

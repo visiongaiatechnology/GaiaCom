@@ -1,499 +1,457 @@
+[English](README.md) · [Deutsch](README.de.md) · [Русский](README.ru.md) · [Español](README.es.md) · [Français](README.fr.md) · [فارسی](README.fa.md) · [日本語](README.ja.md) · [Português](README.pt.md) · [العربية](README.ar.md) · [简体中文](README.zh.md) · [हिन्दी](README.hi.md) · [Türkçe](README.tr.md) · [Italiano](README.it.md) · [Polski](README.pl.md) · [Українська](README.uk.md) · [한국어](README.ko.md) · [Indonesia](README.id.md) · [Shqip](README.sq.md)
+
 <div align="center">
 
-```
- ██████╗  █████╗ ██╗ █████╗  ██████╗ ██████╗ ███╗   ███╗
-██╔════╝ ██╔══██╗██║██╔══██╗██╔════╝██╔═══██╗████╗ ████║
-██║  ███╗███████║██║███████║██║     ██║   ██║██╔████╔██║
-██║   ██║██╔══██║██║██╔══██║██║     ██║   ██║██║╚██╔╝██║
-╚██████╔╝██║  ██║██║██║  ██║╚██████╗╚██████╔╝██║ ╚═╝ ██║
- ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝
-```
+<img src="assets/brand/gaiacom-logo.png" width="520" alt="GaiaCom — Sovereign Post-Quantum Communication" />
 
 # GaiaCom
-### Post-Quantum Secure Federated Communication Infrastructure
 
-[![License](https://img.shields.io/badge/License-AGPLv3-green?style=for-the-badge)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Sovereign_Beta_v2-yellow?style=for-the-badge)](#)
-[![Go](https://img.shields.io/badge/Go-1.26.5-00ADD8?style=for-the-badge&logo=go)](https://go.dev)
-[![Node](https://img.shields.io/badge/Node-v24.13-339933?style=for-the-badge&logo=node.js)](https://nodejs.org)
-[![React](https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
-[![Tauri](https://img.shields.io/badge/Desktop-Tauri_2-24C8DB?style=for-the-badge&logo=tauri)](https://tauri.app)
-[![Rust](https://img.shields.io/badge/Crypto_Core-Rust-000000?style=for-the-badge&logo=rust)](https://www.rust-lang.org)
-[![Crypto](https://img.shields.io/badge/Dual_PQC-ML--KEM--1024_%2B_HQC--256-orange?style=for-the-badge)](#cryptographic-specification)
-[![TopSecret](https://img.shields.io/badge/Top_Secret-4x_Cipher_Cascade-red?style=for-the-badge)](#sovereign-top-secret)
-[![BrowserHQC](https://img.shields.io/badge/Browser_HQC-WASM_%2B_Worker-654FF0?style=for-the-badge&logo=webassembly)](#browser-and-native-providers)
-[![E2EE](https://img.shields.io/badge/Security-Post--Quantum_E2EE-red?style=for-the-badge)](#)
-[![Federation](https://img.shields.io/badge/Federation-Signed_PDU_S2S-blue?style=for-the-badge)](#)
-[![VGT](https://img.shields.io/badge/VGT-VisionGaiaTechnology-gold?style=for-the-badge)](https://visiongaiatechnology.de)
+### Sovereign post-quantum communication infrastructure
 
-**DUAL-PQC HYBRID E2EE · FEDERATED · ZERO SERVER TRUST · NATIVE + BROWSER CRYPTO**
+[![Version](https://img.shields.io/badge/version-3.0.2_Beta-blue?style=for-the-badge)](CHANGELOG.md)
+[![License](https://img.shields.io/badge/license-AGPL--3.0--or--later-green?style=for-the-badge)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Web_%7C_Windows_%7C_Linux_%7C_macOS_%7C_Android-4b5563?style=for-the-badge)](#technical-information)
+[![Stack](https://img.shields.io/badge/stack-Go_%7C_React_%7C_Tauri_%7C_Rust-00ADD8?style=for-the-badge)](#technical-information)
+[![Cryptography](https://img.shields.io/badge/crypto-X25519_%2B_ML--KEM--1024_%2B_HQC--256-orange?style=for-the-badge)](SOVEREIGN_CRYPTO.md)
+[![Status](https://img.shields.io/badge/status-Beta_V3-yellow?style=for-the-badge)](#beta-v3)
+[![Audit](https://img.shields.io/badge/security-no_independent_crypto_audit_yet-critical?style=for-the-badge)](#security-and-audit-status)
+[![Website](https://img.shields.io/badge/website-gaiacom.de-00c2b2?style=for-the-badge)](https://gaiacom.de)
+
+**A federated, client-encrypted communication platform with a hybrid post-quantum design.**
 
 </div>
 
----
-
-## ⚠️ Technical Beta v2
-
-GaiaCom is currently in **active Sovereign Technical Beta v2**. The current source tree includes the Sovereign v1 dual-PQC message path, the native Tauri 2 client, the browser HQC/WASM provider, the Go federation backend, and the Android/mobile-node architecture.
-
-**GaiaCom is being actively expanded and independently reviewable.** Breaking protocol changes may occur between beta releases. Sovereign v1 has automated interoperability and adversarial tests, but has not yet received an independent cryptographic audit. It is a hybrid per-message envelope, not a Triple Ratchet; the exact boundary is documented in [SOVEREIGN_CRYPTO.md](SOVEREIGN_CRYPTO.md).
-
-Found a vulnerability? See [docs/responsible-disclosure.md](docs/responsible-disclosure.md) or open an issue.
-
-> GaiaCom is a trademark of VisionGaia Technology.
+> **VisionGaiaTechnology — Department of Unnecessary Security™**
+>
+> We build communication infrastructure that does not ask for trust it cannot prove.
+> The department exists because "unnecessary" security is exactly what becomes necessary
+> the moment someone else holds the keys.
 
 ---
 
-<img width="1918" height="986" alt="image" src="https://github.com/user-attachments/assets/66d92ade-271a-405f-8ba4-1b004d4f2226" />
+## Menu
 
+[Overview](#overview) · [Beta V3](#beta-v3) · [Screenshots](#screenshots) · [Features](#features) · [Technical information](#technical-information) · [What makes GaiaCom different](#what-makes-gaiacom-different) · [Build from source](#build-from-source) · [Become a node operator](#become-a-node-operator) · [Security and audit status](#security-and-audit-status) · [Project structure](#project-structure) · [Contributing](#contributing) · [License](#license)
 
-## 🔍 What is GaiaCom?
+---
 
-Today's communication systems are either centralized, server-trusting, not fully end-to-end encrypted — or not prepared for post-quantum threats. Most messengers are one database breach away from total plaintext exposure. Email was never designed for confidentiality.
+<a id="overview"></a>
+## Overview
 
-**GaiaCom redefines secure digital communication as sovereign infrastructure.**
+Today's communication stacks were not designed for a post-quantum world. Messengers centralize
+trust in a single provider, classic email was never confidential by design, and most platforms
+keep a readable copy of everything they transport.
 
-A federated communication platform with native end-to-end encryption and a versioned hybrid post-quantum design. Sovereign v1 combines one classical exchange and two independent PQ KEMs, authenticates the recipient key set, and rejects silent downgrade when a Sovereign profile is selected.
+**GaiaCom redefines secure communication as sovereign infrastructure.**
 
-```
-Standard Communication Systems:
-  Server receives message   → server can read it
-  DB breach                 → all messages compromised
-  Quantum computer arrives  → retroactive decryption of stored traffic
-  Federation                → central chokepoints, metadata exposure
+It combines a federated network, client-side end-to-end encryption, a versioned hybrid
+post-quantum envelope, encrypted social channels, encrypted file storage and a governance layer
+for node operators — in one identity, on web, desktop and mobile.
 
-GaiaCom:
-  Message composed          → encrypted client-side before leaving device
-  Server receives envelope  → ciphertext only — server cannot decrypt
-  DB breach                 → encrypted payloads, worthless to attacker
-  Hybrid KEM (X25519 + ML-KEM-1024 + HQC-256) → three-secret combiner
-  Accelerated Mode          → Twofish-256-EAX + AES-256-GCM
-  Top Secret Mode           → four-cipher cascade + Ed25519/ML-DSA-87
-  Browser provider          → isolated Worker + self-hosted HQC/WASM
-  Native provider           → bounded Tauri commands backed by Rust
-  Federation                → signed PDUs, SSRF protection, replay guards
+The core rule is deliberately small:
+
+```text
+The server may route, store, rate-limit, audit and enforce policy.
+The server must never receive the capability to decrypt native private content.
 ```
 
-GaiaCom is not a messenger. It is a **new communication infrastructure** for sovereign digital communication — connecting native messaging, rooms, digital identities, trust metadata and controlled legacy compatibility via SMTP.
+GaiaCom is **not** a claim of absolute security. It is an attempt to make the trust boundaries
+explicit, testable and — where possible — mathematically enforced.
 
 ---
 
-## 📋 Documentation Index
+<a id="beta-v3"></a>
+## Beta V3
 
-Full protocol design and threat model documentation in [`docs/`](docs/):
+> **GaiaCom 3 is a public technical beta. Treat it accordingly.**
 
-| Document | Content |
+- **Status:** Beta V3, version `3.0.2`.
+- **No independent cryptographic audit has been completed.** The post-quantum design,
+  the protocol implementations and the cryptographic boundaries have **not** been reviewed
+  by an independent third-party cryptography lab.
+- We have performed **deep, AI-assisted security audits** across architecture, authentication,
+  authorization, federation, storage, browser and desktop boundaries. Those audits found and
+  fixed real issues. They are **not proof of security**.
+- **Unknown vulnerabilities may still exist** — in the protocol design, the implementation,
+  the dependencies, the operating environment or the user's own device.
+- Cryptography is easy to get subtly wrong. Broken assumptions are not always visible in tests.
+  Do not treat algorithm names as a security guarantee.
+- **Do not use GaiaCom for life-critical, legally regulated, high-value or irreversible
+  communication** in this beta. Keep independent backups of important seeds and data.
+- Breaking protocol and API changes may occur between beta releases. Data loss is possible.
+- A web client can be replaced by a compromised node before encryption happens. The
+  high-assurance profile therefore requires trusted, independently built native clients.
+- SMTP bridging is a deliberate downgrade boundary. Messages that leave the native GaiaCom
+  security space are protected only as far as the legacy path allows.
+
+If you find a security issue, please report it privately — see
+[SECURITY.md](SECURITY.md). Please do not publish active exploit details.
+
+---
+
+<a id="screenshots"></a>
+## Screenshots
+
+All screenshots are from GaiaCom 3.0.2 at 2560 × 1440. The UI shown is the current VGT Aurora
+design; the screenshots contain only public product surfaces and public federation content.
+
+| Landing page | Identity and access |
 |---|---|
-| [Sovereign Crypto v1](SOVEREIGN_CRYPTO.md) | Dual-PQC suites, provider boundary, downgrade rules, and ratchet limitations |
-| [Architecture](docs/architecture.md) | Backend, frontend, storage, federation, and trust architecture |
-| [Android Node Architecture](docs/android-node-architecture.md) | Mobile embedded-node, vault, transport, and identity boundaries |
-| [Protocol Specification v0.1](docs/protocol-v0.1.md) | Hybrid X25519/ML-KEM combiners, AAD binding, signature serialization |
-| [Threat Model](docs/threat-model.md) | System boundaries, STRIDE categories, mitigations |
-| [Security Invariants](docs/security-invariants.md) | Invariants verified by the test suite |
-| [Deployment Guide](docs/deployment-guide.md) | Linux service, provisioning, reverse proxy, health checks, and updates |
-| [Beta Known Limitations](docs/beta-known-limitations.md) | Beta constraints and sandbox boundaries |
-| [Abuse Consensus](docs/abuse-consensus.md) | TrustMesh score decay and friction policies |
-| [Responsible Disclosure](docs/responsible-disclosure.md) | Guidelines for submitting security reports |
+| ![Landing page](docs/screenshots/landing.png) | ![Auth dialog](docs/screenshots/auth.png) |
+| **Public Channels — discovery** | **Public Channels — channel view** |
+| ![Channels discovery](docs/screenshots/channels-discovery.png) | ![Channel view](docs/screenshots/channel-view.png) |
 
 ---
 
-## 🏛️ Architecture
+<a id="features"></a>
+## Features
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                          GAIACOM PLATFORM                             │
-├──────────────┬──────────────┬─────────────────┬──────────────────────┤
-│   CLIENTS    │   BACKEND    │  CRYPTO ENGINE  │  TRUST & GOVERNANCE  │
-│ React/Tauri  │    (Go)      │  Rust + WASM    │                      │
-│ Android      │              │ X25519          │ TrustMesh            │
-│              │ API/Auth     │ ML-KEM-1024     │ Trust Passport       │
-│ E2EE Chat    │ Room/Msg     │ HQC-256         │ GaiaProof            │
-│ GaiaVault    │ Federation   │ Ed25519         │ Key Change Guard     │
-│ GaiaDrive    │ Object Store │ ML-DSA-87       │ Secure Disclosure    │
-│ GaiaDrop     │ SMTP Bridge  │ HKDF-SHA3-512   │ Node Registry        │
-│ GSN          │ Mobile API   │ 2x / 4x AE      │ Governance Layer     │
-│ Security Ctr │ SQLite       │ Self-tests      │ Reviewer Roles       │
-└──────────────┴──────────────┴─────────────────┴──────────────────────┘
-```
+### Identity and access
 
-### Components
+- **Self-managed Gaia ID identity** — `@name:node.example.org`, derived from a locally generated
+  seed. Private keys stay on the device.
+- **Local key vault** with explicit unlock, session lock and configurable auto-lock.
+- **Multi-device pairing** via QR/one-time pairing flows, plus device listing and revocation.
+- **Key history and change warnings** when a contact's identity key changes.
+- **Recovery flows** with an explicit, written-down recovery seed; no server-side recovery
+  backdoor exists.
+- **18 UI languages** with a live language switcher (landing, authentication, workspace).
 
-| Component | Description |
+### Messaging
+
+- **Quantum Chat** — 1:1 conversations with client-side encryption, replies, reactions,
+  pins, search, attachments, voice notes and encrypted image previews.
+- **Group Chats** — rooms with channels, roles, moderation, member management, slow mode,
+  read-only channels, join requests, invitations, audit events and encrypted export.
+- **Reactions** — heart-first reaction control: hover on desktop or long-press on touch to open
+  the full palette; exactly one reaction is shown as your own.
+- **No fake states** — message, reaction, presence and activity values come from the real
+  backend or are shown as unavailable. GaiaCom does not invent counters.
+
+### GaiaMail
+
+- Mail inside the same cryptographic identity as chat.
+- Native GaiaMail between GaiaCom identities.
+- **SMTP bridge** for legacy contacts — clearly separated from native E2EE and protected only
+  to the extent the legacy path allows.
+- Signatures, folders, filters and labels handled locally.
+
+### GSN Social
+
+GaiaCom's social layer is not a separate platform with a separate account. It reuses your
+sovereign identity:
+
+- **Home feed**, **Discover**, **My Network**, **Messages**, **Notifications**, **Groups**,
+  **Channels** and **GSN Cloud** (GaiaDrive integration).
+- Posts, encrypted images, comments, reactions, reposts and hashtag trends computed from real
+  posts.
+- Followers, follows and recommended contacts derived from actual federation interactions.
+- **Public Channels** for broadcast-style communication with subscriptions, discovery,
+  categories, media, comments and moderation.
+
+### Files, vault and security center
+
+- **GaiaDrive** — encrypted file storage and sharing tied to the same identity.
+- **GaiaDrop** — receive encrypted files from external senders without an account.
+- **GaiaVault** — local sealed storage for secrets and keys.
+- **Security Center** — real device, session, key and security-event state, plus
+  governance and abuse workflows.
+
+### Governance and operations
+
+- Node operator, senior reviewer and trusted reviewer roles.
+- Fail-closed governance bootstrap: a fresh node grants **no** operator role by default.
+- Abuse reporting, moderation, transparency surfaces and append-only audit events.
+- Federation over signed server-to-server PDUs with replay protection and SSRF limits.
+
+### Desktop and mobile
+
+- **Web/PWA** client with a hardened CSP and no CDN-delivered code.
+- **Tauri 2 desktop client** for Windows, Linux and macOS with native window controls and no
+  native command permissions beyond an explicit allowlist.
+- **Android** node/client architecture with a native crypto core and platform bindings.
+
+---
+
+<a id="technical-information"></a>
+## Technical information
+
+### Stack
+
+| Layer | Technology |
 |---|---|
-| **Web Frontend** | React/Vite client with E2EE messaging, Vault, Chat, GSN, Drive, Trust, Proof, responsive UI, and an isolated Sovereign Crypto Worker. |
-| **Native Desktop** | Tauri 2 shell with a packaged React bundle, strict CSP, no local HTTP server, bounded crypto commands, and Rust-native HQC/cascade providers. |
-| **Android** | Modular Kotlin client with secure vault, identity, embedded-node, transport queue, remote API, and biometric authorization layers. Sovereign v1 mobile messaging remains a release boundary. |
-| **Backend** | Go API and transport server for authentication, persistence, rooms, messages, federation, governance, mobile-node transport, security, GSN, storage, SMTP bridge and Node Registry. |
-| **Sovereign Crypto Core** | Shared memory-safe Rust implementation of Accelerated and Top Secret cascades, compiled natively and to WebAssembly. |
-| **Dual-PQC KEM** | Ephemeral X25519, ML-KEM-1024, and HQC-256 secrets combined through HKDF-SHA3-512 with transcript-bound context. |
-| **GaiaVault** | Client-side encrypted vault for recovery phrases and private keys. PBKDF2-derived keys, no server-side decryption possible. |
-| **GaiaDrop** | Secure text-based drop channel for controlled external submissions. Rate-limited, XSS-safe, payload-size controlled. |
-| **GaiaDrive** | File storage layer with optional S3-compatible object store backend. |
-| **GaiaProof** | Cryptographic proof structure for message integrity and authenticity verification without plaintext exposure. |
-| **TrustMesh** | Local proof-based abuse and reputation layer. No content inspection — abuse handled via cryptographically verifiable patterns and receiver reports. |
-| **Federation Layer** | Server-to-server communication via signed PDUs, SSRF protection and replay controls. |
-| **Node Registry MVP** | Controlled node onboarding mechanism. Nodes ping the main registry and are accepted, quarantined or blocked by operators. |
-| **Governance Layer** | Role-based system with Node Operator, Senior Reviewer and Trusted Reviewer roles. Bootstrapped via `governance.json`. |
-| **SMTP Bridge** | Legacy compatibility mode for classical email with explicit downgrade warning. Not an equal security tier. |
-| **Top Secret Chat Mode** | Dual-PQC key establishment, Ed25519/ML-DSA-87 hybrid signatures, a four-cipher authenticated cascade, and fail-closed capability enforcement. |
+| Web client | React 18, Vite 8, plain CSS design layers |
+| Desktop | Tauri 2 (Rust + WebView2/WebKit), custom frameless window |
+| Backend | Go 1.25 (`toolchain go1.26.5`), standard library + SQLite, federation and governance services |
+| Database | SQLite in WAL mode (single-writer beta profile), versioned migrations |
+| Crypto core | Rust (`gaiacore`), WebAssembly provider for browser HQC, native Tauri provider |
+| Mobile | Android app + Go mobile bindings / node kernel architecture |
+| Localization | 18 languages, shared translation tables |
 
----
+### Cryptographic design (Sovereign v1)
 
-<img width="1912" height="985" alt="image" src="https://github.com/user-attachments/assets/050dbb28-2c58-49d4-98dd-d071cfa81b80" />
-
-
-## 🔐 Cryptographic Specification
-
-### Suite Identifiers
-
-```
-Legacy Standard:       GaiaCom/v0.1/hybrid-kem/X25519+ML-KEM-1024/AES-256-GCM
-Legacy Top Secret:     GaiaCom/v0.2/top-secret/X25519+ML-KEM-1024/AES-256-GCM/Ed25519+ML-DSA-87
-Sovereign Accelerated: GaiaCom/v1.0/sovereign-accelerated/X25519+ML-KEM-1024+HQC-256/Twofish-256-EAX+AES-256-GCM/Ed25519
-Sovereign Top Secret:  GaiaCom/v1.0/sovereign-top-secret/X25519+ML-KEM-1024+HQC-256/Serpent-256-CTR-HMAC-SHA3-512+Twofish-256-EAX+XChaCha20-Poly1305+AES-256-GCM-SIV/Ed25519+ML-DSA-87
+```text
+Key establishment:  X25519  +  ML-KEM-1024  +  HQC-256
+Combiner:           length-prefixed secrets → HKDF-SHA3-512
+Accelerated AEAD:   Twofish-256-EAX → AES-256-GCM
+Top Secret AEAD:    Serpent-256-CTR + HMAC-SHA3-512 → Twofish-256-EAX
+                    → XChaCha20-Poly1305 → AES-256-GCM-SIV
+Signatures:         Ed25519 transcript signature
+Top Secret sigs:    Ed25519 + ML-DSA-87
 ```
 
-Legacy v0.1/v0.2 envelopes remain readable during migration. New Sovereign
-desktop sends do not silently downgrade when the selected recipient lacks a
-valid HQC-capable, identity-signed key set.
+The signed transcript binds the protocol version, exact algorithm suite, sender and recipient
+identities, recipient encryption key, ephemeral key, both KEM ciphertexts, message ID, timestamp,
+nonce and encrypted payload. Unknown suites, missing keyset proofs, missing Top Secret
+signatures and malformed HQC ciphertexts are rejected fail-closed.
 
-### Primitives
+**Important boundary:** Sovereign v1 is a hybrid per-message envelope, **not a Triple Ratchet**.
+It does not advertise ratchet-derived post-compromise security. The exact boundary is documented
+in [SOVEREIGN_CRYPTO.md](SOVEREIGN_CRYPTO.md).
 
-| Domain | Algorithm |
+### Network model
+
+- Federated nodes, no mandatory central server.
+- Signed server-to-server PDUs for federation.
+- Server stores routing envelopes, encrypted payloads/chunks, public profile fields and minimal
+  metadata — never native plaintext.
+- Local or S3/MinIO-compatible encrypted object storage.
+- TLS is mandatory outside local development.
+
+### Requirements
+
+| Tool | Version |
 |---|---|
-| Classical ephemeral exchange | X25519 |
-| Post-quantum KEM 1 | ML-KEM-1024 |
-| Post-quantum KEM 2 | HQC-256 |
-| Accelerated signatures | Ed25519 |
-| Top Secret signatures | Ed25519 + ML-DSA-87 |
-| Accelerated encryption | Twofish-256-EAX + AES-256-GCM |
-| Top Secret encryption | Serpent-256-CTR/HMAC-SHA3-512 + Twofish-256-EAX + XChaCha20-Poly1305 + AES-256-GCM-SIV |
-| Root-secret combiner | HKDF-SHA3-512 |
-| Legacy combiner | HKDF-SHA256 |
-| Mnemonic | BIP-39, 12 words |
+| Node.js | 24.13 (minimum 20.19) |
+| npm | lockfile-based install (`npm ci`) |
+| Go | 1.26.5 toolchain (module targets 1.25) |
+| Rust | stable (pinned by CI for the core) |
+| Tauri CLI | 2.x for desktop packaging |
+| Python | 3.10+ (optional repository/security scripts) |
 
-### Dual-PQC Hybrid KEM Principle
+---
 
-Sovereign v1 derives its root secret from three independent sources:
+<a id="what-makes-gaiacom-different"></a>
+## What makes GaiaCom different
 
-1. Ephemeral classical X25519 shared secret
-2. Post-quantum ML-KEM-1024 shared secret
-3. Post-quantum HQC-256 shared secret
+Most "secure" messengers improve one layer. GaiaCom tries to make the whole stack coherent:
 
-The ciphertext transcript and all three shared secrets are length-delimited and
-combined through HKDF-SHA3-512. Temporary shared-secret buffers are explicitly
-zeroed after derivation in the native and browser provider paths.
+- **Sovereign identity instead of platform accounts.** Your identity is a cryptographic
+  identity, not a row in someone else's user table. Nodes federate; they do not own you.
+- **Dual post-quantum key establishment per message.** One classical and two independent
+  post-quantum KEMs are combined, with downgrade rejection when the Sovereign profile is
+  selected.
+- **Encryption before transport, by construction.** The client seals content before it reaches
+  the network; the server routes ciphertext and cannot read it.
+- **Social, mail, files and chat under one identity.** No second account, no second trust model,
+  no separate platform to leak your graph.
+- **Federated by design.** No mandatory central mailbox, no single point of trust, no global
+  reading key.
+- **Honest UI states.** Missing data is shown as missing, not replaced by decorative numbers or
+  invented activity.
+- **Explicit downgrade boundaries.** SMTP, legacy envelopes and browser delivery are documented
+  as boundaries, not hidden behind marketing language.
+- **Open source, AGPL-3.0-or-later.** The network software stays inspectable and contributions
+  stay available to the community.
+- **Built for operators.** Fail-closed governance, audit events, abuse workflows and a documented
+  node-operator path.
 
+---
+
+<a id="build-from-source"></a>
+## Build from source
+
+### 1. Prerequisites
+
+Install Node.js 24.13+, Go 1.26.5+, Rust stable and — for desktop builds — the
+[Tauri 2 prerequisites](https://tauri.app/start/prerequisites/) for your operating system.
+
+```bash
+git clone <YOUR-REPOSITORY-URL> GaiaCom
+cd GaiaCom
 ```
-Ephemeral X25519 Secret ─┐
-ML-KEM-1024 Secret ──────┼─→ length-delimited combiner ─→ HKDF-SHA3-512 ─→ root secret
-HQC-256 Secret ──────────┘                                      │
-                                                                ├─→ Accelerated cascade
-                                                                └─→ Top Secret cascade
+
+### 2. Web client
+
+```bash
+cd Frontend/frontend
+npm ci
+npm test
+npm run build
 ```
 
-### Browser and Native Providers
+The production bundle is written to `Frontend/frontend/dist/`.
 
-| Runtime | Provider |
+For local development:
+
+```bash
+npm start
+# http://127.0.0.1:5173
+```
+
+Set `VITE_API_URL` only to the origin of a running GaiaCom backend, for example:
+
+```bash
+VITE_API_URL=http://127.0.0.1:8080 npm start
+```
+
+### 3. Backend
+
+```bash
+cd Backend
+go build -trimpath \
+  -ldflags="-s -w \
+    -X gaiacom/backend/buildinfo.Version=3.0.2 \
+    -X gaiacom/backend/buildinfo.Commit=$(git rev-parse --short HEAD) \
+    -X gaiacom/backend/buildinfo.BuiltAt=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  -o gaiacom-backend ./cmd/gaiacom
+```
+
+Run a local development node:
+
+```bash
+cp .env.example .env
+# generate independent secrets for development only
+export $(grep -v '^#' .env | xargs)
+./gaiacom-backend
+```
+
+The API listens on `SERVER_PORT` (default `8080`). The SQLite database is created at `DB_PATH`.
+Never use the template secrets in production.
+
+### 4. Desktop client (Tauri 2)
+
+Build the web client first, then:
+
+```bash
+cargo install tauri-cli --version "^2"
+cd DesktopClient/src-tauri
+cargo tauri build
+```
+
+The installers/executables are written below `DesktopClient/src-tauri/target/release/bundle/`.
+For a quick unsigned build without installers:
+
+```bash
+cargo tauri build --no-bundle
+```
+
+### 5. Rust cryptographic core
+
+```bash
+cd Core/rust/gaiacore
+cargo test --locked
+cargo clippy --locked --all-targets -- -D warnings
+```
+
+### 6. Android (optional)
+
+Android builds require JDK 17, the Android SDK/NDK and the pinned toolchain. See
+`Android/` and `docs/` for the current build profile. The Android client is part of the beta
+source tree, not a finished store release.
+
+---
+
+<a id="become-a-node-operator"></a>
+## Become a node operator
+
+A GaiaCom node is the federated backend that serves identities, messages, channels, social
+surfaces and storage for its users. It can run on a normal Linux server.
+
+### Recommended baseline
+
+- Linux x86_64 or arm64, 64-bit
+- 2+ vCPU, 4 GB RAM, 20+ GB SSD for an evaluation node (size for your real load)
+- A dedicated DNS name, e.g. `node.example.org`
+- A valid TLS certificate (Let's Encrypt works)
+- An SMTP relay **only if** you intentionally enable the legacy bridge
+- Backups you actually test
+
+### 1. Build and install
+
+```bash
+cd Backend
+go build -trimpath \
+  -ldflags="-s -w \
+    -X gaiacom/backend/buildinfo.Version=3.0.2 \
+    -X gaiacom/backend/buildinfo.Commit=$(git rev-parse --short HEAD) \
+    -X gaiacom/backend/buildinfo.BuiltAt=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  -o gaiacom-backend ./cmd/gaiacom
+
+sudo install -d -o gaiacom -g gaiacom /opt/gaiacom /var/lib/gaiacom /etc/gaiacom
+sudo install -o gaiacom -g gaiacom -m 0755 gaiacom-backend /opt/gaiacom/gaiacom-backend
+```
+
+Release binaries refuse to start without immutable build metadata; do not strip those `-X`
+values.
+
+### 2. Initialize the node
+
+```bash
+sudo /opt/gaiacom/gaiacom-backend setup \
+  --server-name node.example.org \
+  --config /etc/gaiacom/gaiacom.env \
+  --db-path /var/lib/gaiacom/gaiacom.db \
+  --port 8080
+
+sudo /opt/gaiacom/gaiacom-backend doctor --config /etc/gaiacom/gaiacom.env
+```
+
+`setup` generates independent production secrets, the node signing identity and the
+configuration file. Keep `/etc/gaiacom/gaiacom.env` at mode `0600`, owned by the service user.
+
+Key settings:
+
+| Variable | Purpose |
 |---|---|
-| **Browser** | HQC-256 runs in an isolated Web Worker through the locally vendored `@oqs/liboqs-js` HQC-only runtime. The shared Rust cascade is compiled to WebAssembly. No CDN is required. |
-| **Tauri Desktop** | Five bounded commands expose HQC key generation, encapsulation, decapsulation, seal, and open operations backed by `pqcrypto-hqc` and the shared Rust core. |
+| `GAIACOM_SERVER_NAME` | Canonical FQDN of this node; used in Gaia IDs and federation |
+| `GAIACOM_DEV_MODE=false` | Production mode, strict SSRF and CSP behavior |
+| `GAIACOM_JWT_SECRET`, `GAIACOM_SHIELD_SECRET`, `GAIACOM_METRICS_TOKEN` | Independent 32+ byte secrets |
+| `GAIACOM_SERVER_PRIVATE_KEY` | Stable Ed25519 node signing key — never rotate implicitly |
+| `GAIACOM_TRUSTMESH_EPOCH_SECRET` | Stable TrustMesh epoch derivation secret |
+| `DB_PATH` | Persistent SQLite database path |
+| `GAIACOM_STORAGE_ROOT` | Encrypted attachment storage outside the web root |
+| `GAIACOM_TRUSTED_PROXY_CIDRS` | Only if a reverse proxy supplies client IPs |
 
-Both providers fail closed until HQC and cascade round-trip self-tests pass.
-The release gate `npm run test:hqc-browser` builds the locked production worker
-and executes HQC key generation, encapsulation/decapsulation, and both cascade
-profiles in headless Chrome.
+### 3. Governance bootstrap (required, fail-closed)
 
-### Sovereign Accelerated
+A fresh node deliberately grants **no** operator role. Create the first identity through the
+client, then authorize that exact, fully qualified Gaia ID as node operator:
 
-- Dual-PQC hybrid establishment: X25519 + ML-KEM-1024 + HQC-256
-- Twofish-256-EAX followed by AES-256-GCM
-- Ed25519 message signatures
-- Identity-signed recipient key-set proof
-- Strict algorithm/profile binding
-
-### Sovereign Top Secret
-
-Top Secret uses the same three-secret establishment and adds the complete
-four-stage authenticated cascade plus hybrid signatures. Connections are
-rejected if:
-
-- HQC-256 or ML-DSA-87 recipient capability is missing
-- the identity-signed recipient key-set proof is invalid
-- the suite identifier and Sovereign profile do not match
-- the Ed25519/ML-DSA-87 signature bundle is incomplete or invalid
-- the message attempts to downgrade from the selected Sovereign profile
-
-### Transcript Binding
-
-Every message cryptographically binds security-relevant fields to the ciphertext via AAD:
-
-- Protocol version, algorithm suite
-- Sender identity key, recipient identity key, recipient device key
-- Ephemeral X25519 public key, ML-KEM ciphertext and HQC ciphertext
-- Sovereign profile, message ID, timestamp and recipient key material
-- Payload ciphertext and hybrid signature bundle
-
-Manipulation of any field causes verification or decryption to fail.
-
-### Message Envelope
-
-```json
-{
-  "algorithm_suite": "GaiaCom/v1.0/sovereign-top-secret/...",
-  "sovereign_profile": "top-secret",
-  "ephemeral_x25519_public_key": "<hex>",
-  "kem_ciphertext": "<ML-KEM-1024 hex>",
-  "hqc_ciphertext": "<HQC-256 hex>",
-  "payload_ciphertext": "<cascade ciphertext hex>",
-  "signature_bundle": {
-    "ed25519": "<hex>",
-    "ml_dsa_87": "<hex>",
-    "ml_dsa_87_public": "<hex>"
-  },
-  "client_message_id": "<uuid>",
-  "timestamp": 1788327803000
-}
+```bash
+sudo install -o root -g gaiacom -m 0600 /dev/null /etc/gaiacom/governance.json
 ```
 
-> Sovereign v1 is a hybrid per-message envelope, **not a Triple Ratchet**. It
-> does not claim ratchet-derived forward secrecy or post-compromise security.
-> Signed per-device prekeys and transactional ratchet state are required before
-> such a claim can be made.
-
----
-
-## 🏗️ Architecture Principles
-
-**Zero-Trust Design** — the server handles transport, storage, routing and federation but has no access to plaintext messages, mnemonics, private identity or device keys, symmetric message keys or decrypted vault contents.
-
-**Client-Side Encryption** — encryption and decryption happen in the client. Native GaiaCom messages leave the device as encrypted envelopes only.
-
-**Federation over Centralization** — multi-node operation by design. Different nodes communicate as long as their S2S interactions satisfy the defined security rules.
-
-**Controlled Legacy Compatibility** — SMTP is an explicit legacy/downgrade mode, clearly separated from native GaiaCom messages in the UI. Not an equal security tier.
-
-**No-Backdoor Architecture** — GaiaCom Public has no central decryption capability, no admin-decrypt and no global content control. Abuse is handled via proof-based mechanisms, receiver reports, friction, quarantine and local policy.
-
----
-
-<img width="1917" height="984" alt="image" src="https://github.com/user-attachments/assets/945ecb4d-bf6c-451f-a234-815bf91ca72c" />
-
-
-## 🛡️ Federation (S2S)
-
-```
-Node A (Sender)                         Node B (Receiver)
-       │                                        │
-       │  Encrypt & sign message                │
-       │                                        │
-       │──── HTTP POST /api/v1/federation/pdu ─►│
-       │         (Signed PDU)                   │
-       │                               SSRF & IP firewall check
-       │                               Timestamp window check
-       │                               Signature verification (Ed25519)
-       │                               Replay protection (PDU-ID cache)
-       │                                        │
-       │◄──────────── 200 OK / PDU Accepted ───│
-```
-
-**S2S Authorization Header:**
-```
-Authorization: X-Gaia-S2S-V1 Signature="...",KeyId="node.example.org",Timestamp="..."
-```
-
-**Signature basis:** `timestamp.sha256(body)`
-
-### S2S Security Layers
-
-- **Signed PDUs** — every federated interaction cryptographically signed by the sending node's private key
-- **SSRF & DNS Rebinding Firewall** — `localhost`, RFC 1918 ranges and DNS redirects to local subnets blocked at connection time
-- **Replay Protection** — PDU-ID cache; duplicates within validity window immediately rejected
-- **Timestamp Validation** — PDUs outside the time window are rejected
-
-### Well-Known Routes
-
-```
-GET  /.well-known/gaiacom/server
-GET  /.well-known/gaiacom/nodeinfo
-GET  /.well-known/gaiacom/nodes
-POST /.well-known/gaiacom/s2s/v1/forward
-```
-
-> **Beta:** Open public federation is disabled. Federation is limited to controlled, known technical nodes.
-
----
-
-## 🗂️ Node Registry
-
-The Node Registry is a controlled mechanism for new nodes to become visible and be accepted by the main node or authorized operators.
-
-### Node Status Flow
-
-```
-Node pings main registry
-         ↓
-    [ pending ]
-         ↓
-  Operator decision
-    ↙        ↘        ↘
-[accepted] [quarantined] [blocked]
-```
-
-| Status | Meaning |
-|---|---|
-| `pending` | Node pinged but not yet accepted |
-| `accepted` | Node added to the federation server list |
-| `quarantined` | Node visible but not actively trusted (e.g. core hash mismatch) |
-| `blocked` | Node blocked from federation |
-
-### Public Endpoints
-
-```http
-POST /api/v1/public/node-registry/ping
-GET  /api/v1/public/node-registry/nodes
-GET  /.well-known/gaiacom/nodes
-```
-
-### Operator Endpoints
-
-```http
-GET  /api/v1/node/registry/summary
-POST /api/v1/node/registry/secrets
-POST /api/v1/node/registry/ping-main
-POST /api/v1/node/registry/:domain/status
-```
-
-### Core Hash
-
-The core hash is used for release compatibility detection, update signaling, and fork/mismatch identification. A hash mismatch triggers quarantine — not an immediate network ban. GaiaCom is AGPL and forks must remain technically possible.
-
-```
-Hash mismatch → quarantined/update_required → Operator decision
-```
-
----
-
-<img width="1909" height="983" alt="image" src="https://github.com/user-attachments/assets/5fb31291-c282-4d95-b342-a24b16ba3b6f" />
-
-
-## 🏛️ Governance
-
-GaiaCom uses a role-based governance system bootstrapped via `governance.json`.
-
-### Roles
-
-| Role | Capabilities |
-|---|---|
-| **Node Operator** | Node security summary, security events, abuse/governance actions, transparency snapshots, node registry management, secret generation |
-| **Senior Reviewer** | Extended review and moderation capabilities |
-| **Trusted Reviewer** | Peer review and trust validation |
-
-### governance.json
-
-The governance config is the local bootstrap anchor for Node Operator rights. No operator is assigned without a configured GaiaID.
-
-**Minimal:**
-```json
-{
-  "bootstrap_gaia_id": "@operator:node.example.org"
-}
-```
-
-**Multiple operators:**
 ```json
 {
   "bootstrap_gaia_id": "@operator:node.example.org",
   "operators": [
-    { "gaiaID": "@backup-operator:node.example.org" },
-    { "gaiaID": "@security-admin:node.example.org" }
+    { "gaiaID": "@operator:node.example.org" },
+    { "gaiaID": "@backup-operator:node.example.org" }
   ]
 }
 ```
 
-**Important:**
-- Replace placeholder `EnterYourGaiaComAddressHere` before starting
-- GaiaIDs must exactly match the identity created on the node
-- Set file permissions: `chmod 600 /opt/gaiacom/config/governance.json`
+Point the backend at it and restart:
 
-Node Operator rights require: governance.json bootstrap + active `role_credentials` in DB + no active revocation + valid `valid_from`/`valid_until` window.
-
----
-
-## 🖥️ Node Operator Guide
-
-### Prerequisites
-
-- Domain (e.g. `node.example.org`) pointing to your server
-- HTTPS via reverse proxy
-- Linux server (AMD64)
-
-### Build
-
-**Frontend (production build):**
-```powershell
-cd Frontend\frontend
-npm ci --include=optional --ignore-scripts --no-audit --no-fund
-$env:VITE_API_URL='https://node.example.org'
-npm test
-npm run build
-npm run test:hqc-browser
-# Output: Frontend/frontend/dist/
+```bash
+echo 'GAIACOM_GOVERNANCE_CONFIG=/etc/gaiacom/governance.json' \
+  | sudo tee -a /etc/gaiacom/gaiacom.env
 ```
 
-**Backend (Linux AMD64):**
-```powershell
-cd Backend
-$env:GOOS='linux'
-$env:GOARCH='amd64'
-$env:CGO_ENABLED='0'
-go mod verify
-go test ./...
-$version='2.0.0'
-$commit=(git rev-parse HEAD)
-$builtAt=(Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
-$ldflags="-s -w -X gaiacom/backend/buildinfo.Version=$version -X gaiacom/backend/buildinfo.Commit=$commit -X gaiacom/backend/buildinfo.BuiltAt=$builtAt"
-go build -trimpath -buildvcs=false -ldflags=$ldflags -o gaiacom-backend-linux-amd64 ./cmd/gaiacom
-```
+Use only fully qualified Gaia IDs (`@name:node.example.org`). There is no default administrator
+and no god-mode fallback.
 
-### Deploy
-
-```
-1.  Prepare domain + HTTPS
-2.  Copy gaiacom-backend-linux-amd64 to server
-3.  Deploy Frontend/frontend/dist to web root
-4.  Run `gaiacom-backend setup` to generate the production environment atomically
-5.  Create governance.json with the real operator GaiaID and mode 0600
-6.  Install the hardened unit from deploy/systemd/gaiacom.service
-7.  Run `gaiacom-backend doctor` before enabling the service
-8.  Start backend and verify /livez plus /readyz
-9.  Create a GaiaID matching governance.json
-10. Security Center → Nodesystem → Ping Main Node
-11. Get accepted by the main node operator
-12. Test federation and encrypted message delivery
-```
-
-### Reverse Proxy Requirements
-
-```
-/                         → Frontend build (static)
-/api/v1/...               → Backend :8080
-/.well-known/gaiacom/...  → Backend :8080
-```
-
-- HTTPS termination required
-- Request body for federation: minimum 2 MB
-- File/upload endpoints sized to GaiaDrive usage
-
-### Systemd Service
+### 4. Systemd unit
 
 ```ini
 [Unit]
-Description=GaiaCom Backend
+Description=GaiaCom Node
 After=network-online.target
 Wants=network-online.target
 
 [Service]
+Type=simple
 User=gaiacom
 Group=gaiacom
 WorkingDirectory=/var/lib/gaiacom
@@ -508,621 +466,172 @@ ProtectSystem=strict
 ProtectHome=true
 ProtectKernelTunables=true
 ProtectKernelModules=true
-ProtectKernelLogs=true
 ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+ProtectProc=invisible
+ProcSubset=pid
 RestrictSUIDSGID=true
+RestrictRealtime=true
 LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
 CapabilityBoundingSet=
 AmbientCapabilities=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
 StateDirectory=gaiacom
 StateDirectoryMode=0700
 ConfigurationDirectory=gaiacom
 ConfigurationDirectoryMode=0700
 ReadWritePaths=/var/lib/gaiacom /opt/gaiacom/storage
 UMask=0077
+LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-Generate the production environment with the idempotent provisioning command;
-do not hand-author or commit secret values:
-
 ```bash
-sudo /opt/gaiacom/gaiacom-backend setup \
-  --server-name node.example.org \
-  --config /etc/gaiacom/gaiacom.env \
-  --db-path /var/lib/gaiacom/gaiacom.db \
-  --port 8080
-sudo /opt/gaiacom/gaiacom-backend doctor --config /etc/gaiacom/gaiacom.env
-```
-
----
-
-## ⚙️ Configuration Reference
-
-### Core
-
-| Variable | Default | Description |
-|---|---|---|
-| `SERVER_PORT` | `8080` | HTTP port for the backend |
-| `DB_PATH` | `data/gaiacom.db` | SQLite database path — use absolute path outside source dir in production |
-| `SQLITE_MAX_OPEN_CONNS` | `4` | Max SQLite connections (max `32` under heavy load) |
-| `GAIACOM_DEV_MODE` | `false` | Dev mode — **must be `false` in production** |
-| `SERVER_BIND_ADDRESS` | `127.0.0.1` | Backend bind address behind the reverse proxy |
-| `GAIACOM_ALLOW_PUBLIC_BIND` | `false` | Explicit override required before binding an unspecified address |
-
-### Auth & Security
-
-| Variable | Required | Description |
-|---|---|---|
-| `GAIACOM_JWT_SECRET` | **Yes** | JWT signing secret — minimum 32 bytes random |
-| `GAIACOM_SHIELD_SECRET` | **Yes** | GaiaShield internal security HMACs — minimum 32 bytes |
-| `GAIACOM_METRICS_TOKEN` | **Yes** | Independent token protecting the metrics endpoint — minimum 32 bytes |
-| `GAIACOM_COOKIE_SECURE` | **Yes** | Must be `true` for HTTPS production deployments |
-| `GAIACOM_TRUSTED_PROXY_CIDRS` | Deployment-specific | Explicit proxy CIDR allowlist used before accepting forwarded headers |
-
-### Federation & Node Registry
-
-| Variable | Default | Description |
-|---|---|---|
-| `GAIACOM_SERVER_NAME` | — | Public domain of this node (e.g. `node.example.org`) |
-| `GAIACOM_SERVER_PRIVATE_KEY` | — | Ed25519 private key (hex) for S2S signatures |
-| `GAIACOM_TRUSTMESH_EPOCH_SECRET` | — | 32-byte hex secret for TrustMesh |
-| `GAIACOM_REGISTRY_MAIN_NODE` | `https://beta.gaiacom.de` | Main registry node URL |
-| `GAIACOM_REGISTRY_AUTHORITY_DOMAIN` | `gaiacom.de` | Registry authority domain |
-| `GAIACOM_CORE_HASH` | *(auto)* | Optional release hash for reproducible verification |
-| `GAIACOM_GOVERNANCE_CONFIG` | *(auto-search)* | Path to `governance.json` |
-
-### Storage & GaiaDrive
-
-| Variable | Default | Description |
-|---|---|---|
-| `GAIACOM_STORAGE_ROOT` | `uploads` | Local storage root — use absolute path in production |
-| `GAIACOM_STORAGE_USER_QUOTA_BYTES` | — | Per-user quota (e.g. `10737418240` = 10 GB) |
-| `GAIACOM_STORAGE_PENDING_TTL_HOURS` | — | TTL for pending uploads |
-
-**Optional S3-compatible object store:**
-
-| Variable | Description |
-|---|---|
-| `GAIACOM_OBJECT_STORE` | Set to `s3` to enable |
-| `GAIACOM_S3_ENDPOINT` | S3 endpoint URL |
-| `GAIACOM_S3_BUCKET` | Bucket name |
-| `GAIACOM_S3_REGION` | Region |
-| `GAIACOM_S3_ACCESS_KEY` | Access key |
-| `GAIACOM_S3_SECRET_KEY` | Secret key |
-| `GAIACOM_S3_PREFIX` | Key prefix (e.g. `node-example-org`) |
-| `GAIACOM_S3_PATH_STYLE` | `true` for path-style addressing |
-
-### SMTP Bridge
-
-| Variable | Required | Description |
-|---|---|---|
-| `GAIACOM_SMTP_HOST` | If using SMTP | Outgoing mail server |
-| `GAIACOM_SMTP_FROM` | If using SMTP | Bridge sender address |
-| `GAIACOM_SMTP_PORT` | No | Default: `587` (STARTTLS) |
-| `GAIACOM_SMTP_USERNAME` | No | Auth username |
-| `GAIACOM_SMTP_PASSWORD` | No | Auth password |
-| `GAIACOM_SMTP_INGEST_TOKEN` | No | Token for incoming mail authentication |
-
-### Minimal Production Env Set
-
-```bash
-# Generated by `gaiacom-backend setup`; values intentionally omitted here.
-# Use Backend/.env.example only for local development.
-```
-
----
-
-## ✅ Pre-Launch Security Checklist
-
-- [ ] `gaiacom-backend doctor` succeeds with the production environment
-- [ ] `GAIACOM_DEV_MODE=false`
-- [ ] HTTPS active on all endpoints
-- [ ] `GAIACOM_COOKIE_SECURE=true`
-- [ ] independent JWT, Shield, Metrics, S2S and TrustMesh secrets generated
-- [ ] backend bound to loopback unless public binding is explicitly intended
-- [ ] trusted proxy CIDRs match the actual reverse proxy
-- [ ] `governance.json` contains the real operator GaiaID and mode `0600`
-- [ ] DB and storage paths are outside the source directory
-- [ ] encrypted backups and restore drills are configured
-- [ ] Nginx routes `/api`, health routes and `/.well-known/gaiacom/*` correctly
-- [ ] Security Center shows server name, release/core hash and public key
-- [ ] Main Node ping and encrypted delivery tested successfully
-
----
-
-## 🔄 Update Checklist
-
-```bash
-# 1. Stop service
-systemctl stop gaiacom
-
-# 2. Backup DB
-sqlite3 /var/lib/gaiacom/gaiacom.db ".timeout 10000" ".backup '/var/lib/gaiacom/backups/gaiacom-$(date +%F-%H%M).db'"
-
-# 3. Deploy new binary and frontend build
-
-# 4. Start service
-systemctl start gaiacom
-
-# 5. Verify
-curl https://node.example.org/.well-known/gaiacom/nodeinfo
-curl https://node.example.org/.well-known/gaiacom/nodes
-curl --fail https://node.example.org/livez
-curl --fail https://node.example.org/readyz
-
-# 6. Open Security Center → Nodesystem → Ping Main Node
-```
-
----
-
-## 🔒 Security Architecture
-
-### API Security
-
-- Authentication required before all protected endpoints
-- Authorization from server context — not from client payload
-- `403` on unauthorized object access (BOLA/BFLA)
-- `401` on missing or invalid authentication
-- No stack traces in API responses
-- No internal paths in error responses
-- No `actorId` authorization from JSON body
-- Server-side identity ownership verification
-- BOLA/BFLA regression tests in test suite
-
-### Frontend Security
-
-- No `dangerouslySetInnerHTML` for user content
-- No raw HTML injection — Markdown as safe React nodes
-- XSS payloads rendered inert
-- Sovereign browser cryptography runs in an isolated Worker
-- HQC/WASM and the Rust cascade are self-hosted; no crypto CDN dependency
-- Provider readiness is fail-closed and guarded by round-trip self-tests
-- Tauri exposes only five bounded Sovereign crypto commands
-- CSP forbids `unsafe-eval` and untrusted connection origins
-- SMTP downgrade warning always visible when relevant
-
-### Production Deployment
-
-```
-NGINX (Edge Proxy)
-  → Go Backend local on 127.0.0.1:8080 only
-  → HTTPS only / TLS 1.2 + TLS 1.3
-  → ssl_early_data off / HSTS / CSP
-  → X-Content-Type-Options: nosniff
-  → X-Frame-Options: DENY
-  → Referrer-Policy
-  → No PHP execution in GaiaCom VHost
-  → No public .env / .git / Backend / Frontend / docs
-  → Rate limits: API / Auth / CSP Reports / Federation / SMTP
-```
-
----
-
-## 📦 Feature Overview
-
-### Available in Sovereign Beta v2
-
-| Feature | Status |
-|---|---|
-| Native E2EE Direct Messaging | ✅ Active |
-| Group Rooms + Channels | ✅ Active |
-| GaiaVault (client-side encrypted) | ✅ Active |
-| GaiaDrop (text-only) | ✅ Active |
-| GaiaDrive (file storage) | ✅ Active |
-| GaiaProof | ✅ Active |
-| TrustMesh (local enforcement) | ✅ Active |
-| Trust Passport + Gaia Passport | ✅ Active |
-| Key Change Warning | ✅ Active |
-| Controlled Federation | ✅ Active (known nodes only) |
-| Node Registry MVP | ✅ Active |
-| Governance Layer (Operator/Reviewer roles) | ✅ Active |
-| Security Center (User + Node Operator view) | ✅ Active |
-| Sovereign Accelerated (X25519 + ML-KEM-1024 + HQC-256) | ✅ Active |
-| Sovereign Top Secret (dual PQC + four-cipher cascade + dual signatures) | ✅ Active |
-| Browser HQC provider (isolated Worker + local WASM) | ✅ Active |
-| Native desktop crypto bridge (Tauri 2 + Rust) | ✅ Active |
-| Identity-signed recipient key sets + downgrade rejection | ✅ Active |
-| SMTP Bridge (explicit downgrade) | ✅ Active |
-| Secure Disclosure | ✅ Active |
-| Human Proof | ✅ Active |
-| S3-compatible Object Store | ✅ Optional |
-| Frontend, browser HQC, Rust, Tauri and Go verification gates | ✅ Active |
-| Modular Android client and mobile-node foundation | 🧪 Technical beta |
-
-### Intentionally Disabled in Beta
-
-| Feature | Reason |
-|---|---|
-| File attachments / media / images in chat | Pending separate attachment and parser audit |
-| Open public federation | Controlled rollout only |
-| Open node registrations | Controlled beta access |
-| Global synchronized Abuse Consensus | Local-only in beta |
-| Mobile Sovereign v1 message path | Desktop/browser path is complete; mobile integration remains |
-| Triple Ratchet / ratchet-derived FS and PCS | Requires a separately specified and audited protocol |
-| Identity-signed per-device Sovereign prekeys | Pending protocol integration |
-| Attachment-based GaiaDrop | Pending audit |
-| Automatic update pipeline | Prepared, not yet implemented |
-
----
-
-## 🐧 Linux Installation & Server Setup
-
-This is the primary server deployment path. The Go backend runs as a static AMD64 binary and the Vite frontend is served as static files; Go, Rust and Node.js are build-time dependencies only.
-
-### Requirements
-
-| Dependency | Version | Notes |
-|---|---|---|
-| **OS** | Ubuntu 22.04+ / Debian 12+ / current AMD64 Linux | AMD64 release target |
-| **Go** | 1.26.5 toolchain | Backend build only |
-| **Node.js** | 20.19+ (verified with 24.13) | Frontend build and tests only |
-| **npm** | Bundled with Node | Frontend build |
-| **Rust + Cargo** | Current stable | Shared crypto, WASM and Tauri verification |
-| **wasm-pack** | Current stable | Rebuild browser cascade WASM |
-| **NGINX** | Any current | Reverse proxy + TLS termination |
-| **Certbot** | Any | Let's Encrypt TLS (or bring your own cert) |
-
-### 1. Server Preparation
-
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install NGINX + Certbot
-sudo apt install -y nginx certbot python3-certbot-nginx
-
-# Create service user (no login shell)
-sudo useradd -r -s /bin/false -d /opt/gaiacom gaiacom
-
-# Create the canonical runtime layout
-sudo install -d -o root -g root -m 0755 /opt/gaiacom /var/www/gaiacom
-sudo install -d -o root -g root -m 0700 /etc/gaiacom
-sudo install -d -o gaiacom -g gaiacom -m 0700 /var/lib/gaiacom /opt/gaiacom/storage
-```
-
-### 2. Build on Your Dev Machine
-
-> GaiaCom ships no prebuilt binaries. Build locally and transfer to server.
-
-**Backend (cross-compile for Linux AMD64):**
-
-```bash
-cd Backend
-go mod verify
-go test ./...
-VERSION=2.0.0
-COMMIT="$(git rev-parse HEAD)"
-BUILT_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-  go build -trimpath -buildvcs=false \
-  -ldflags="-s -w -X gaiacom/backend/buildinfo.Version=${VERSION} -X gaiacom/backend/buildinfo.Commit=${COMMIT} -X gaiacom/backend/buildinfo.BuiltAt=${BUILT_AT}" \
-  -o gaiacom-backend-linux-amd64 ./cmd/gaiacom
-```
-
-**Frontend (production build):**
-
-```bash
-cd Frontend/frontend
-npm ci --include=optional --ignore-scripts --no-audit --no-fund
-npm test
-npm run test:hqc-browser
-VITE_API_URL=https://node.example.org npm run build
-# Output: Frontend/frontend/dist/
-```
-
-The production bundle contains the locally built Sovereign cascade WASM and the isolated HQC worker. No cryptographic runtime is fetched from a CDN.
-
-### 3. Transfer to Server
-
-```bash
-# Transfer backend binary
-scp Backend/gaiacom-backend-linux-amd64 user@your-server:/tmp/gaiacom-backend
-
-# Transfer frontend build
-scp -r Frontend/frontend/dist/. user@your-server:/tmp/gaiacom-frontend/
-
-# Transfer reviewed deployment profiles
-scp deploy/systemd/gaiacom.service user@your-server:/tmp/gaiacom.service
-scp deploy/nginx/gaiacom.conf user@your-server:/tmp/gaiacom.nginx.conf
-
-# Set binary permissions
-ssh user@your-server "
-  sudo install -o root -g root -m 0755 /tmp/gaiacom-backend /opt/gaiacom/gaiacom-backend
-  sudo cp -a /tmp/gaiacom-frontend/. /var/www/gaiacom/
-  sudo chown -R root:root /var/www/gaiacom
-"
-```
-
-### 4. Create governance.json
-
-```bash
-sudo nano /etc/gaiacom/governance.json
-```
-
-```json
-{
-  "bootstrap_gaia_id": "@operator:node.example.org"
-}
-```
-
-```bash
-sudo chmod 600 /etc/gaiacom/governance.json
-sudo chown root:root /etc/gaiacom/governance.json
-```
-
-### 5. Initialize and Validate Node Configuration
-
-Do not hand-author cryptographic secrets and never paste them into issues or logs. Use the backend's setup flow, store the generated environment file with mode `0600`, then run the diagnostic gate before starting the service:
-
-```bash
-sudo /opt/gaiacom/gaiacom-backend setup \
-  --config /etc/gaiacom/gaiacom.env \
-  --server-name node.example.org
-sudo chmod 600 /etc/gaiacom/gaiacom.env
-sudo chown root:root /etc/gaiacom/gaiacom.env
-sudo grep -qxF 'GAIACOM_GOVERNANCE_CONFIG=/etc/gaiacom/governance.json' /etc/gaiacom/gaiacom.env || \
-  echo 'GAIACOM_GOVERNANCE_CONFIG=/etc/gaiacom/governance.json' | sudo tee -a /etc/gaiacom/gaiacom.env >/dev/null
-sudo /opt/gaiacom/gaiacom-backend doctor --config /etc/gaiacom/gaiacom.env
-```
-
-The canonical variable set and rotation procedure are documented in [`docs/deployment-guide.md`](docs/deployment-guide.md). Generated secret material must remain outside Git.
-
-### 6. Install systemd Service
-
-```bash
-sudo install -o root -g root -m 0644 /tmp/gaiacom.service /etc/systemd/system/gaiacom.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now gaiacom
 sudo systemctl status gaiacom
 ```
 
-The shipped unit applies a strict filesystem jail, an empty capability set, syscall-architecture restriction, `UMask=0077`, protected kernel controls and a root-owned environment file. Review [`deploy/systemd/gaiacom.service`](deploy/systemd/gaiacom.service) whenever the runtime paths change.
+### 5. TLS reverse proxy and web client
 
-### 7. Configure NGINX
+Serve the built `Frontend/frontend/dist/` behind a TLS reverse proxy and forward the API to the
+backend on `127.0.0.1:8080`. Minimum requirements:
 
-```bash
-sudo install -o root -g root -m 0644 /tmp/gaiacom.nginx.conf /etc/nginx/sites-available/gaiacom
-# Replace app.gaiacom.net with the production hostname and review TLS paths/CSP connect-src.
-sudo ln -s /etc/nginx/sites-available/gaiacom /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo certbot --nginx -d node.example.org
-sudo systemctl reload nginx
+- TLS 1.2+ (TLS 1.3 preferred), HSTS
+- `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`
+- A strict Content-Security-Policy
+- No directory listing, no source maps in production
+- Only reverse proxies listed in `GAIACOM_TRUSTED_PROXY_CIDRS` may supply forwarded client IPs
+
+An example configuration is intentionally **not** shipped with real hostnames or certificates;
+use your own domain and certificate paths.
+
+### 6. Federation and operation
+
+- Announce/publish your canonical `GAIACOM_SERVER_NAME`; peers address you over HTTPS.
+- Federation uses signed server-to-server PDUs with replay guards and SSRF protection.
+- Monitor the service, disk usage, backup integrity and certificate expiry.
+- Test restores of the SQLite database and object storage regularly.
+- Keep the node signing key stable across updates; rotating it breaks federation trust.
+- Do not run multiple backend processes against one SQLite file. Horizontal database scaling
+  (Postgres, active/active replicas) is not part of this beta profile.
+
+### Node operator warnings
+
+- Beta software; no HA claim; maintenance windows and restarts are required.
+- Governed content and abuse workflows are policy-scoped per node in this beta.
+- Desktop automatic updates are disabled until a signed updater exists.
+- SMTP relay requires authenticated TLS plus SPF, DKIM and an enforcing DMARC policy. Messages
+  leaving native GaiaCom are not covered by native E2EE guarantees.
+- You are responsible for backups, secrets, TLS, DNS, abuse handling and local law.
+
+---
+
+<a id="security-and-audit-status"></a>
+## Security and audit status
+
+### What has been done
+
+- Deep, AI-assisted security reviews across backend, frontend, federation, storage,
+  authentication, authorization, desktop and browser boundaries.
+- Static security gates, adversarial test suites, dependency and secret hygiene checks.
+- Explicit security invariants: no server-side plaintext, no private-key export, no
+  impersonation endpoint, no E2EE bypass, no global reading key.
+- Fail-closed defaults for governance, secret validation and protocol negotiation.
+- Real live verification of the product surfaces and UI flows during development.
+
+### What has **not** been done
+
+- **No independent third-party cryptographic audit.**
+- No formal verification of the protocol or the implementations.
+- No guarantee that unknown vulnerabilities do not exist.
+- No government-grade or high-assurance certification.
+- Runtime behavior depends on the node, the browser, the operating system and the user's own
+  device security.
+
+### Reporting
+
+Please report vulnerabilities privately:
+
+- Email: **security@gaiacom.de**
+- Do not open a public issue for an active vulnerability.
+- Include affected component, version/commit, reproduction steps and expected/observed behavior.
+- Please do not test against other people's nodes or data, and do not run destructive attacks.
+
+See [SECURITY.md](SECURITY.md) for the full policy and [docs/BETA_LIMITATIONS.md](docs/BETA_LIMITATIONS.md)
+for the current beta boundaries.
+
+### High-assurance usage
+
+If you need a system that protects life, liberty or regulated data, this beta is **not** that
+system yet. Independent audits, reproducible builds, signed releases, verified update chains,
+operational key management and incident response are still required.
+
+---
+
+<a id="project-structure"></a>
+## Project structure
+
+```text
+GaiaCom/
+├── Backend/                  Go API, federation, governance, storage, security
+├── Frontend/frontend/        React web client and PWA
+├── DesktopClient/src-tauri/  Tauri 2 desktop shell
+├── Android/                  Android node/client architecture
+├── Core/rust/gaiacore/       Rust cryptographic core
+├── SovereignCryptoCore/      Rust crypto library
+├── SovereignCryptoWasm/      Browser WASM crypto provider
+├── docs/                     Architecture, node operation, beta boundaries, screenshots
+├── assets/brand/             GaiaCom logo and brand assets
+├── SECURITY.md               Security policy and disclosure
+├── SOVEREIGN_CRYPTO.md       Cryptographic design and boundaries
+└── LICENSE                   AGPL-3.0-or-later
 ```
 
-The shipped profile denies framing and MIME sniffing, constrains browser capabilities, isolates the worker/WASM bundle with a restrictive CSP, hides `/metrics` at the public proxy and routes only the API, discovery and health endpoints to the backend. Review [`deploy/nginx/gaiacom.conf`](deploy/nginx/gaiacom.conf) before installation.
+---
 
-### 8. First-Run Node Setup
+<a id="contributing"></a>
+## Contributing
 
-After `setup` and `doctor` succeed, start the service, open the public node, create the bootstrap GaiaID declared by governance policy, submit the node to the controlled registry and wait for operator acceptance before enabling federation traffic. Secrets are generated only by the CLI and are never copied from the browser UI.
+Contributions are welcome if they preserve the security invariants and keep claims honest.
 
-### 9. Verify Deployment
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+- Keep the zero-trust boundary: no server-side plaintext, no private-key export, no E2EE bypass.
+- Add tests for security-relevant behavior.
+- Never commit secrets, real user data, private keys, databases or build artifacts.
+- Do not weaken security gates to make a build pass.
+- Report vulnerabilities privately, not in pull requests.
 
-```bash
-# Service running
-sudo systemctl status gaiacom
-
-# Backend responding
-curl --fail --silent https://node.example.org/livez
-curl --fail --silent https://node.example.org/readyz
-curl --fail --silent https://node.example.org/.well-known/gaiacom/nodeinfo | jq .
-
-# Nodes visible
-curl -s https://node.example.org/.well-known/gaiacom/nodes | jq .
-
-# Logs (journald)
-sudo journalctl -u gaiacom -f
-```
-
-### Firewall (UFW)
-
-```bash
-sudo ufw allow 22/tcp      # SSH
-sudo ufw allow 80/tcp      # HTTP (redirect)
-sudo ufw allow 443/tcp     # HTTPS
-sudo ufw enable
-# Backend port 8080 stays local — never expose directly
-```
+By participating, you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ---
 
-## 🚀 Local Development & Build Verification
+<a id="license"></a>
+## License
 
-### Complete Verification Gate
+GaiaCom is licensed under the **GNU Affero General Public License v3.0 or later**
+(AGPL-3.0-or-later). See [LICENSE](LICENSE).
 
-```powershell
-# Backend and persisted storage source
-cd Backend
-go mod verify
-go test ./...
+Network operators who run modified GaiaCom software must make the corresponding source
+available as required by the AGPL. Third-party components and their licenses are listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and in the respective package manifests.
 
-# Frontend unit suite, production bundle and real browser HQC round trip
-cd Frontend/frontend
-npm ci --include=optional --ignore-scripts --no-audit --no-fund
-npm test
-npm run build
-npm run test:hqc-browser
-
-# Shared Sovereign cascade
-cd ../../SovereignCryptoCore
-cargo test --locked
-
-# Browser WASM provider
-cd ../SovereignCryptoWasm
-cargo test --locked
-wasm-pack build --target web --release
-
-# Native Tauri bridge and its security contracts
-cd ../DesktopClient/src-tauri
-cargo test --locked
-
-# Repository artifact and secret hygiene
-cd ../..
-python scripts/repository_hygiene.py
-```
-
-### Verification Matrix
-
-| Check | Expected |
-|---|---|
-| Frontend Vitest suite | 28 tests pass |
-| Headless Chromium HQC keygen / encapsulate / decapsulate | PASS |
-| Accelerated and Top Secret browser cascades | PASS |
-| Frontend Vite production build + bundle budget | PASS |
-| Backend packages, including storage | `go test ./...` passes |
-| Sovereign Rust core | `cargo test --locked` passes |
-| Sovereign WASM release rebuild | PASS |
-| Tauri HQC round trip + security contracts | PASS |
-| Repository artifact and secret hygiene | 653 source files pass |
-
----
-
-## ⚠️ SMTP Bridge
-
-SMTP is not a GaiaCom native security tier. The moment a message is delivered via SMTP, it leaves the native GaiaCom security space.
-
-The UI always displays:
-
-> *"Diese Nachricht verlässt den GaiaCom-Sicherheitsraum. SMTP-Zustellung bietet keine GaiaCom-native Ende-zu-Ende-Garantie, keine TrustMesh-Garantie und keine No-Godmode-Garantie ab dem Gateway."*
-
-No silent native-to-SMTP forwarding. Authentication required. Open relay protection active. CRLF and header injection protection active.
-
----
-
-## 🚧 Known Security Boundaries
-
-- A fully compromised endpoint can capture plaintext at runtime
-- Sovereign v1 is not a Triple Ratchet and does not claim ratchet-derived forward secrecy or post-compromise security
-- The desktop/browser Sovereign path is integrated; mobile Sovereign messaging remains a defined integration boundary
-- SMTP delivery provides no native GaiaCom E2EE guarantee
-- Open public federation is disabled in beta
-- Global synchronized Abuse Consensus is not yet active
-- File and media attachments are disabled pending audit
-- Node Registry trust is operator-controlled, not fully decentralized consensus
-- External audits are pending
-- SQLite is production-stable; Postgres dialect may be added for very large multi-node loads
-- Metadata may remain partially visible depending on communication path
-- No system guarantees absolute anonymity or immunity against operational security errors
-
----
-
-## 🎯 Target Deployments
-
-**Public Network** — private users, communities, activists, journalists, developers and security-conscious communication.
-
-**Enterprise** — organizations, teams, law firms, security departments, research groups and companies requiring sovereign communication infrastructure.
-
-**Defense / Government** — isolated deployments, agency communication and sovereign infrastructure under independent control.
-
-> GaiaCom Defense is not a backdoor into GaiaCom Public. It is a separate deployment line with its own infrastructure, policies and key sovereignty.
-
----
-
-## 📊 Dependency Philosophy
-
-**Backend:** Go standard library first.
-- `github.com/cloudflare/circl` — ML-KEM-1024 and ML-DSA-87
-- `golang.org/x/crypto` — cryptographic extensions
-- `modernc.org/sqlite` — pure-Go SQLite, no CGO required
-
-**Web frontend:** React 18 + Vite with pinned Noble/Scure primitives. HQC runs in an isolated Worker through a locally vendored, HQC-only liboqs runtime; the shared cascade core is compiled to local WASM. No cryptographic CDN dependency.
-
-**Native desktop:** Tauri 2 invokes the same Rust cascade core and a native `pqcrypto-hqc` provider through a narrow five-command bridge: keypair, encapsulate, decapsulate, seal and open.
-
-**Supply-chain rule:** lockfiles are committed, release builds use locked dependencies, and crypto/provider startup fails closed when the required implementation is unavailable.
-
----
-
-## 🔗 VGT Ecosystem
-
-| Tool | Type | Purpose |
-|---|---|---|
-| 🌐 **GaiaCom** | **Communication Infrastructure** | Post-quantum federated E2EE platform — you are here |
-| 🖥️ **[VGT WP-Desk](https://github.com/visiongaiatechnology/vgtdesk)** | **OS-Layer / UX** | Hardened WordPress operator workspace |
-| ⚔️ **[VGT Sentinel](https://github.com/visiongaiatechnology/sentinelcom)** | **WAF / IDS** | Zero-Trust WordPress WAF |
-| ⚡ **[VGT Auto-Punisher](https://github.com/visiongaiatechnology/vgt-auto-punisher)** | **IDS** | L4+L7 Hybrid IDS |
-| 🛡️ **[VGT Myrmidon](https://github.com/visiongaiatechnology/vgtmyrmidon)** | **ZTNA** | Zero Trust device registry |
-| 🔐 **[VGT Omega Vault](https://github.com/visiongaiatechnology/vgt-omega-vault)** | **Encrypted Forms** | AES-256-GCM WordPress form vault |
-| 📊 **[VGT Dattrack](https://github.com/visiongaiatechnology/dattrack)** | **Analytics** | Sovereign local analytics |
-
----
-
-## 💰 Support the Project
-
-[![Donate via PayPal](https://img.shields.io/badge/Donate-PayPal-00457C?style=for-the-badge&logo=paypal)](https://www.paypal.com/paypalme/dergoldenelotus)
-
-| Method | Address |
-|---|---|
-| **PayPal** | [paypal.me/dergoldenelotus](https://www.paypal.com/paypalme/dergoldenelotus) |
-| **Bitcoin** | `bc1q3ue5gq822tddmkdrek79adlkm36fatat3lz0dm` |
-| **ETH / USDT (ERC-20)** | `0xD37DEfb09e07bD775EaaE9ccDaFE3a5b2348Fe85` |
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome. For major changes, open an issue first to discuss the direction.
-
-GaiaCom is security-critical infrastructure. All contributions undergo cryptographic and security review before merge.
-
----
-
-## 🧾 Changelog
-
-### Sovereign Beta v2.1 — 2026-09-04 (Argon2id Cryptographic Hardening)
-
-#### Authentication & Password Security
-- **Bcrypt Deprecation & Argon2id Migration**: Completely upgraded all backend password hashing from Bcrypt to **Argon2id** (RFC 9106 / PHC string format).
-- **OWASP & RFC 9106 Parameters**: Enforced memory-hard parameters ($m=65536\text{ KiB}$ / 64 MiB, $t=3$ iterations, $p=4$ parallelism, 128-bit CSPRNG salt, 256-bit derived key) resistant to GPU/ASIC brute-force attacks.
-- **Timing-Attack & Enumeration Defense**: Introduced constant-time dummy verification with an RFC 9106-compliant precomputed Argon2id dummy hash (`dummyPasswordHash`) for non-existent users, defeating timing-based username enumeration.
-- **Transparent Auto-Rehash**: Legacy accounts using Bcrypt (`$2a$`, `$2b$`, `$2y$`) are seamlessly verified and automatically upgraded to Argon2id in SQLite on their next successful authentication without user disruption.
-- **Dedicated Module**: Added `Backend/auth/password.go` with strict boundary validation (12 to 512 characters) and timing-resistant comparison (`subtle.ConstantTimeCompare`).
-- **Comprehensive Test Suite**: Added `Backend/auth/password_test.go` covering password boundaries, PHC parsing, legacy Bcrypt migration, corrupted input handling, and timing defense.
-
-### Sovereign Beta v2 — 2026-09-02
-
-#### Cryptography
-
-- Introduced Sovereign v1 dual-PQC recipient key establishment: ephemeral X25519 + ML-KEM-1024 + HQC-256, combined through HKDF-SHA3-512.
-- Added **Sovereign Accelerated** with Twofish-256-EAX + AES-256-GCM and Ed25519 authentication.
-- Added **Sovereign Top Secret** with Serpent-256-CTR-HMAC-SHA3-512 + Twofish-256-EAX + XChaCha20-Poly1305 + AES-256-GCM-SIV and Ed25519 + ML-DSA-87 authentication.
-- Added identity-signed recipient key sets, transcript binding, downgrade rejection and legacy v0.1/v0.2 read compatibility for controlled migration.
-
-#### Clients and crypto providers
-
-- Added the shared `SovereignCryptoCore` Rust implementation and `SovereignCryptoWasm` browser package.
-- Added a locally vendored HQC-only WASM runtime inside an isolated browser Worker; no CDN fallback exists.
-- Added the Tauri 2 native bridge with five explicit crypto commands and native HQC operations.
-- Added the modular Android client/mobile-node foundation; the mobile Sovereign v1 message path remains an explicit beta boundary.
-
-#### Backend, storage and release engineering
-
-- Restored the complete backend storage source package to version control by correcting the repository ignore boundary.
-- Added deterministic production metadata, idempotent `setup`, fail-closed `doctor`, hardened systemd/NGINX profiles and repository hygiene checks.
-- Verified 28 frontend tests, a real headless-Chromium HQC/cascade smoke test, locked Rust/Tauri tests, a fresh WASM release build and the complete Go suite including storage.
-
-### Technical Beta v2 baseline
-
-- Added controlled federation, Node Registry MVP, governance roles, TrustMesh enforcement, GaiaVault, GaiaDrop, GaiaDrive, GaiaProof, SMTP downgrade boundaries and the operator Security Center.
-
----
-
-## 📄 License
-
-**AGPLv3 License · © 2026 VisionGaia Technology · Cologne, Germany**
-
-GaiaCom is developed and owned by VisionGaia Technology. GaiaCom is a trademark of VisionGaia Technology. Anyone using and modifying GaiaCom must publish changes under AGPLv3.
+GaiaCom and the GaiaCom logo are trademarks of VisionGaiaTechnology. The AGPL license does not
+grant trademark rights.
 
 ---
 
 <div align="center">
 
-**VISIONGAIATECHNOLOGY – WE ARCHITECT THE FUTURE OF SECURITY.**
+**VisionGaiaTechnology — Department of Unnecessary Security™**
 
-[![VGT](https://img.shields.io/badge/VisionGaia-Technology-gold?style=for-the-badge)](https://visiongaiatechnology.de)
+*Sovereign communication, built in the open.*
 
-*GaiaCom Sovereign Beta v2 — Dual-PQC E2EE // X25519 + ML-KEM-1024 + HQC-256 // Sovereign Accelerated + Top Secret // Ed25519 + ML-DSA-87 // Rust + WASM + Tauri 2 // Federated S2S // Node Registry MVP // Governance Layer // Zero Server Trust // GaiaVault // GaiaDrop // GaiaDrive // GaiaProof // TrustMesh // SMTP Bridge // AGPLv3 // VisionGaia Technology*
+[Website](https://gaiacom.de) · [Security](SECURITY.md) · [Architecture](docs/ARCHITECTURE.md)
 
 </div>

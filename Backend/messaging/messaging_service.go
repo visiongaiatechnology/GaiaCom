@@ -70,6 +70,8 @@ func (s *MessagingService) SaveAndDistributeMessage(ctx context.Context, userID 
 	}
 
 	var meta struct {
+		// RecipientGaia is a legacy client display hint. It is decoded for wire
+		// compatibility only and must never be persisted (FIND-009).
 		RecipientGaia            string `json:"recipient_gaia"`
 		ReadReceiptSourceID      string `json:"read_receipt_source_id"`
 		RoomID                   string `json:"room_id"`
@@ -229,6 +231,33 @@ func (s *MessagingService) SaveAndDistributeMessage(ctx context.Context, userID 
 			return uuid.Nil, errors.New("recipient device key unavailable")
 		}
 	}
+	// FIND-009 / SEC-FIX-C: a client-supplied read-receipt source is accepted
+	// only when the referenced message actually belongs to the sender identity
+	// (present in its inbox or authored by it). Validated before any write/fan-out
+	// so a forged receipt source cannot leave federation side effects behind.
+	readReceiptSourceID := uuid.Nil
+	if raw := strings.TrimSpace(meta.ReadReceiptSourceID); raw != "" {
+		parsed, err := uuid.Parse(raw)
+		if err != nil {
+			return uuid.Nil, errors.New("invalid read receipt source")
+		}
+		delivered, err := s.Messages.MessageDeliveredToIdentity(ctx, parsed, senderID)
+		if err != nil {
+			return uuid.Nil, err
+		}
+		authored := false
+		if !delivered {
+			authored, err = s.Messages.MessageAuthoredByIdentity(ctx, parsed, senderID)
+			if err != nil {
+				return uuid.Nil, err
+			}
+		}
+		if !delivered && !authored {
+			return uuid.Nil, errors.New("invalid read receipt source")
+		}
+		readReceiptSourceID = parsed
+	}
+
 	var firstRecipientGaia string
 	var activeRecipients []uuid.UUID
 
@@ -299,16 +328,13 @@ func (s *MessagingService) SaveAndDistributeMessage(ctx context.Context, userID 
 		}
 	}
 
+	// FIND-009 / SEC-FIX-C: the stored recipient and the GaiaProof row are bound
+	// to the validated recipient identities above. The client-controlled
+	// envelope field recipient_gaia is accepted on the wire for backwards
+	// compatibility but is never used for persistence, so it cannot misattribute
+	// a delivery proof (direct/device sends already enforce exactly one
+	// recipient above).
 	recipientGaia := firstRecipientGaia
-	readReceiptSourceID := uuid.Nil
-	if meta.RecipientGaia != "" {
-		recipientGaia = meta.RecipientGaia
-	}
-	if strings.TrimSpace(meta.ReadReceiptSourceID) != "" {
-		if parsed, err := uuid.Parse(meta.ReadReceiptSourceID); err == nil {
-			readReceiptSourceID = parsed
-		}
-	}
 
 	envelope := &models.MessageEnvelope{
 		ID:                  uuid.New(),

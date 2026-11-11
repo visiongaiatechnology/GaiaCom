@@ -1,0 +1,176 @@
+/* ============================================================================
+   VGT GLASS 2100 — PANES MEDIA: SHARED SUPPORT
+   State blocks, notices, progress, popovers, breadcrumb, zoom layer and the
+   dialog avatar grid. Kept separate so both sheets stay under 500 lines.
+
+   .vgt-empty / .vgt-state now live in glass2100/layout.css (shared across
+   areas); this sheet only keeps media-specific helpers.
+   ========================================================================== */
+
+/* ---------- Notices ---------- */
+.vgt-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-3) var(--vgt-space-4);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-left-width: 3px;
+  border-radius: var(--vgt-radius-control);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+}
+
+.vgt-notice > div { display: flex; flex-direction: column; gap: 2px; }
+.vgt-notice strong { color: var(--vgt-text-primary); }
+.vgt-notice--warn { border-left-color: var(--vgt-warning); background: var(--vgt-warning-soft); }
+.vgt-notice--danger { border-left-color: var(--vgt-danger); background: var(--vgt-danger-soft); }
+.vgt-notice--info { border-left-color: var(--vgt-info); background: var(--vgt-info-soft); }
+
+/* ---------- Progress (only rendered while a real upload runs) ---------- */
+.vgt-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vgt-progress__label {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--vgt-space-2);
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-progress__track {
+  height: 4px;
+  border-radius: var(--vgt-radius-pill);
+  background: var(--vgt-bg-4);
+  overflow: hidden;
+}
+
+.vgt-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--vgt-pigment);
+  transition: width var(--vgt-dur-component) var(--vgt-ease-out);
+}
+
+/* ---------- Popover ---------- */
+.vgt-popover-anchor { position: relative; }
+
+.vgt-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: var(--vgt-z-floating);
+  padding: var(--vgt-space-2);
+  border-radius: var(--vgt-radius-floating);
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke);
+  background: var(--vgt-glass-3);
+  box-shadow: var(--vgt-elevation-3);
+  backdrop-filter: blur(var(--vgt-blur-2));
+  -webkit-backdrop-filter: blur(var(--vgt-blur-2));
+}
+
+/* ---------- Breadcrumb ---------- */
+.vgt-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: var(--vgt-text-sm);
+  color: var(--vgt-text-muted);
+}
+
+.vgt-breadcrumb__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--vgt-radius-xs);
+}
+
+.vgt-breadcrumb__item:hover { color: var(--vgt-text-primary); }
+.vgt-breadcrumb__item:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+.vgt-breadcrumb__sep { color: var(--vgt-text-disabled); }
+.vgt-breadcrumb__current {
+  color: var(--vgt-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40ch;
+}
+
+/* ---------- Media zoom overlay ---------- */
+.vgt-media-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: var(--vgt-z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--vgt-space-6);
+  background: var(--vgt-scrim);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: zoom-out;
+}
+
+.vgt-media-zoom img {
+  max-width: min(92vw, 1200px);
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: var(--vgt-radius-panel);
+  box-shadow: var(--vgt-elevation-4);
+}
+
+.vgt-media-zoom__close {
+  position: absolute;
+  top: var(--vgt-space-4);
+  right: var(--vgt-space-4);
+  background: var(--vgt-glass-3);
+}
+
+/* ---------- Avatar grid (dialogs) ---------- */
+.vgt-avatar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-avatar-choice {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-2);
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.vgt-avatar-choice:hover { border-color: var(--vgt-border-strong); }
+.vgt-avatar-choice.is-active {
+  border-color: var(--vgt-pigment);
+  background: var(--vgt-pigment-soft);
+}
+.vgt-avatar-choice:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+
+/* ---------- Responsive: dense panes collapse to single column ---------- */
+@media (max-width: 1180px) {
+  .vgt-gsn__layout,
+  .vgt-ch-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vgt-gsn-rail {
+    display: none;
+  }
+}

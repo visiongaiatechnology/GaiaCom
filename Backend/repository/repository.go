@@ -82,6 +82,14 @@ type MessageStore interface {
 	FindMessageReactionsForUser(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, messageIDs []uuid.UUID) (map[uuid.UUID]models.MessageReactionState, error)
 	ToggleMessageReactionForUser(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, messageID uuid.UUID, emoji string) (*models.MessageReactionState, error)
 	FindMessageProofForUser(ctx context.Context, userID uuid.UUID, messageID uuid.UUID) (*models.MessageProof, error)
+	// MessageDeliveredToIdentity reports whether the message has an inbox row for
+	// the given identity (FIND-009 read-receipt source binding).
+	MessageDeliveredToIdentity(ctx context.Context, messageID uuid.UUID, identityID uuid.UUID) (bool, error)
+	// MessageAuthoredByIdentity reports whether the identity authored the message
+	// (server-recorded sender identity, with a sender-GaiaID fallback for legacy
+	// rows). Used together with MessageDeliveredToIdentity so a sender may only
+	// bind a read receipt to a message it is actually a party to (FIND-009).
+	MessageAuthoredByIdentity(ctx context.Context, messageID uuid.UUID, identityID uuid.UUID) (bool, error)
 	MarkInboxMessagesReadForUser(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, messageIDs []uuid.UUID) error
 	EditDirectMessageForUser(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, originalMessageID uuid.UUID, peerEnvelopeData []byte, selfEnvelopeData []byte) (uuid.UUID, error)
 	DeleteInboxMessageForUser(ctx context.Context, userID uuid.UUID, identityID uuid.UUID, messageID uuid.UUID, forEveryone bool) error
@@ -127,6 +135,7 @@ type MailboxQuery struct {
 
 type StorageStore interface {
 	CreateFileMetadata(metadata *models.FileMetadata) error
+	CreateFileMetadataWithQuota(ctx context.Context, metadata *models.FileMetadata, quotaBytes int64) (bool, error)
 	FindPendingFileForUser(fileID uuid.UUID, userID uuid.UUID) (*models.FileMetadata, error)
 	CreateFileChunk(chunk *models.FileChunk) error
 	FinalizePendingUpload(fileID uuid.UUID, userID uuid.UUID) (bool, error)
@@ -322,4 +331,12 @@ type GsnStore interface {
 	UpdateGsnProfile(ctx context.Context, profile *models.GsnProfile) error
 	CountGsnPostsCommentsInDuration(ctx context.Context, gaiaID string, duration time.Duration) (int, error)
 	CountGsnFollowsInDuration(ctx context.Context, followerGaiaID string, duration time.Duration) (int, error)
+	CreateGsnNotification(ctx context.Context, notification *models.GsnNotification) (bool, error)
+	ListGsnNotifications(ctx context.Context, recipientGaiaID string, limit int) ([]models.GsnNotification, error)
+	UnreadGsnNotificationCount(ctx context.Context, recipientGaiaID string) (int, error)
+	MarkGsnNotificationsRead(ctx context.Context, recipientGaiaID string) (int, error)
+	ListGsnPostBodiesSince(ctx context.Context, since string, limit int) ([]models.GsnPostBody, error)
+	ListGsnSuggestionCandidates(ctx context.Context, requesterGaiaID string, since string, limit int) ([]models.GsnSuggestion, error)
+	ListGsnFollowerIDs(ctx context.Context, gaiaID string, limit int) ([]string, error)
+	ListGsnFollowingIDs(ctx context.Context, gaiaID string, limit int) ([]string, error)
 }

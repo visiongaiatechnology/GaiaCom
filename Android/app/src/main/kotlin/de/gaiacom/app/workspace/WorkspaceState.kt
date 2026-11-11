@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package de.gaiacom.app.workspace
 
 import de.gaiacom.platform.api.GaiaIdentity

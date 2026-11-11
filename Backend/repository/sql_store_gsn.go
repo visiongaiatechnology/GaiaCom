@@ -300,6 +300,12 @@ func (s *SQLStore) GetGsnProfile(ctx context.Context, gaiaID string) (*models.Gs
 		return nil, err
 	}
 
+	err = s.db.QueryRowContext(ctx,
+		`SELECT COUNT(1) FROM gsn_posts WHERE gaia_id = ?`, gaiaID).Scan(&profile.PostsCount)
+	if err != nil {
+		return nil, err
+	}
+
 	return &profile, nil
 }
 

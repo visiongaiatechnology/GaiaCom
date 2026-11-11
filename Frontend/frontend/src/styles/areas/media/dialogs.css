@@ -1,0 +1,141 @@
+/* ============================================================================
+   VGT GLASS 2100 — PANES MEDIA: DIALOGS
+   One Z4 dialog material for every modal in this work package (contact profile,
+   contact discovery, room/channel creation, group settings, key-change warning,
+   quantum shield, GSN report, channel report/actions/category sheets).
+   ========================================================================== */
+
+.vgt-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--vgt-z-modal);
+  display: grid;
+  place-items: center;
+  padding: clamp(12px, 3vw, 32px);
+  background: var(--vgt-scrim);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  overflow-y: auto;
+}
+
+.vgt-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: min(88vh, 900px);
+  border-radius: var(--vgt-radius-modal);
+  border: var(--vgt-hairline) solid var(--vgt-glass-stroke-strong);
+  background: var(--vgt-glass-4);
+  box-shadow: var(--vgt-elevation-4);
+  color: var(--vgt-text-primary);
+  backdrop-filter: blur(var(--vgt-blur-3)) saturate(1.08);
+  -webkit-backdrop-filter: blur(var(--vgt-blur-3)) saturate(1.08);
+  outline: none;
+}
+
+.vgt-dialog--sm { max-width: 480px; }
+.vgt-dialog--md { max-width: 640px; }
+.vgt-dialog--lg { max-width: 820px; }
+
+.vgt-dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-5) var(--vgt-space-5) var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border);
+}
+
+.vgt-dialog__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-1);
+  min-width: 0;
+}
+
+.vgt-dialog__title {
+  margin: 0;
+  font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-xl);
+  font-weight: 620;
+  line-height: var(--vgt-leading-snug);
+  letter-spacing: -0.01em;
+  color: var(--vgt-text-primary);
+  overflow-wrap: break-word;
+}
+
+.vgt-dialog__description {
+  margin: 0;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+  max-width: 62ch;
+}
+
+.vgt-dialog__close { flex: none; }
+
+.vgt-dialog__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--vgt-space-4) var(--vgt-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+}
+
+.vgt-dialog__footer {
+  padding: var(--vgt-space-3) var(--vgt-space-5) var(--vgt-space-5);
+  border-top: var(--vgt-hairline) solid var(--vgt-border);
+}
+
+.vgt-dialog__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--vgt-space-2);
+  flex-wrap: wrap;
+}
+
+.vgt-dialog__actions--split {
+  justify-content: space-between;
+  width: 100%;
+}
+
+.vgt-dialog__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-4);
+}
+
+.vgt-dialog__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vgt-dialog__list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--vgt-space-2) var(--vgt-space-3);
+  border: var(--vgt-hairline) solid transparent;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  color: var(--vgt-text-primary);
+  font-size: var(--vgt-text-md);
+  text-align: left;
+  cursor: pointer;
+}
+
+.vgt-dialog__list-item:hover { background: var(--vgt-bg-4); }
+.vgt-dialog__list-item:focus-visible { outline: none; box-shadow: var(--vgt-focus-ring); }
+.vgt-dialog__list-item.is-active { background: var(--vgt-pigment-soft); }
+.vgt-dialog__list-item:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.vgt-dialog--critical { border-color: rgba(228, 112, 111, 0.42); }
+

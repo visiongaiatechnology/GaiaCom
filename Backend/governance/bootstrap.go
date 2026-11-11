@@ -6,11 +6,16 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"gaiacom/backend/core/validate"
 )
 
 type BootstrapConfig struct {
 	BootstrapGaiaID string `json:"bootstrap_gaia_id"`
-	Operators       []struct {
+	// BootstrapGaiaIDs is an optional additive list for fleets. Every entry is
+	// validated with the same fail-closed rule as bootstrap_gaia_id.
+	BootstrapGaiaIDs []string `json:"bootstrap_gaia_ids"`
+	Operators        []struct {
 		GaiaID string `json:"gaiaID"`
 	} `json:"operators"`
 }
@@ -20,6 +25,10 @@ var (
 	BootstrapGaiaIDs = []string{}
 )
 
+// LoadBootstrapConfig loads the bootstrap operator identities. Fail-closed:
+// every entry must be a fully-qualified GaiaID (local part AND domain). Entries
+// without a domain are rejected at load time with a loud SECURITY log and never
+// grant a role; the node still boots, so the operator can repair the config.
 func LoadBootstrapConfig() {
 	path := resolveBootstrapConfigPath()
 
@@ -60,14 +69,30 @@ func LoadBootstrapConfig() {
 		return
 	}
 
-	bootstrapIDs := make([]string, 0, 1+len(config.Operators))
+	rawIDs := make([]string, 0, 2+len(config.BootstrapGaiaIDs)+len(config.Operators))
 	if gaiaID := strings.TrimSpace(config.BootstrapGaiaID); gaiaID != "" && gaiaID != "EnterYourGaiaComAddressHere" {
-		bootstrapIDs = append(bootstrapIDs, gaiaID)
+		rawIDs = append(rawIDs, gaiaID)
+	}
+	for _, gaiaID := range config.BootstrapGaiaIDs {
+		if gaiaID = strings.TrimSpace(gaiaID); gaiaID != "" && gaiaID != "EnterYourGaiaComAddressHere" {
+			rawIDs = append(rawIDs, gaiaID)
+		}
 	}
 	for _, operator := range config.Operators {
 		if gaiaID := strings.TrimSpace(operator.GaiaID); gaiaID != "" && gaiaID != "EnterYourGaiaComAddressHere" {
-			bootstrapIDs = append(bootstrapIDs, gaiaID)
+			rawIDs = append(rawIDs, gaiaID)
 		}
+	}
+
+	bootstrapIDs := make([]string, 0, len(rawIDs))
+	for _, gaiaID := range rawIDs {
+		normalized, ok := validate.NormalizeGaiaID(gaiaID)
+		if !ok {
+			// Fail closed: never grant a role for a domain-less/malformed entry.
+			log.Printf("[Governance] SECURITY: ignoring bootstrap identity without an explicit domain: %q (fix governance.json; no role was granted)", gaiaID)
+			continue
+		}
+		bootstrapIDs = append(bootstrapIDs, normalized)
 	}
 
 	if len(bootstrapIDs) > 0 {
@@ -75,6 +100,8 @@ func LoadBootstrapConfig() {
 		BootstrapGaiaID = BootstrapGaiaIDs[0]
 		log.Printf("[Governance] Bootstrapping node with Admin/Node Operator(s): (%s)", strings.Join(BootstrapGaiaIDs, ", "))
 	} else {
+		BootstrapGaiaID = ""
+		BootstrapGaiaIDs = nil
 		log.Printf("[Governance] No bootstrap user configured in governance.json. Node operator role will not be auto-assigned.")
 	}
 }
@@ -116,15 +143,30 @@ func bootstrapConfigIsConfigured(path string) bool {
 	if err := json.Unmarshal(data, &config); err != nil {
 		return false
 	}
-	if gaiaID := strings.TrimSpace(config.BootstrapGaiaID); gaiaID != "" && gaiaID != "EnterYourGaiaComAddressHere" {
-		return true
-	}
+	values := make([]string, 0, 2+len(config.BootstrapGaiaIDs)+len(config.Operators))
+	values = append(values, config.BootstrapGaiaID)
+	values = append(values, config.BootstrapGaiaIDs...)
 	for _, operator := range config.Operators {
-		if gaiaID := strings.TrimSpace(operator.GaiaID); gaiaID != "" && gaiaID != "EnterYourGaiaComAddressHere" {
+		values = append(values, operator.GaiaID)
+	}
+	for _, value := range values {
+		if _, ok := validate.NormalizeGaiaID(value); ok {
 			return true
 		}
 	}
 	return false
+}
+
+// bootstrapIdentityRefs returns the normalized bootstrap identity list used by
+// role checks. Only fully-qualified entries can be present (loader rejects the
+// rest and the helper itself fails closed for malformed candidates).
+func bootstrapIdentityRefs() []string {
+	refs := make([]string, 0, 1+len(BootstrapGaiaIDs))
+	if BootstrapGaiaID != "" {
+		refs = append(refs, BootstrapGaiaID)
+	}
+	refs = append(refs, BootstrapGaiaIDs...)
+	return refs
 }
 
 func uniqueBootstrapIDs(values []string) []string {

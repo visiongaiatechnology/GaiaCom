@@ -1,10 +1,10 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "GaiaCom",
-  "version": "2.0.0",
+  "version": "3.0.2",
   "identifier": "net.gaiacom.desktop",
   "build": {
-	"frontendDist": "../../Frontend/frontend/dist",
+    "frontendDist": "../../Frontend/frontend/dist",
     "devUrl": "http://127.0.0.1:3000",
     "beforeDevCommand": "",
     "beforeBuildCommand": ""
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "GaiaCom - AstraeaOS",
+        "title": "GaiaCom 3 – Souveräner Post-Quanten-Messenger",
         "width": 1440,
         "height": 900,
         "minWidth": 1024,
@@ -21,16 +21,20 @@
         "center": true,
         "resizable": true,
         "fullscreen": false,
-        "backgroundColor": "#080a10"
+        "backgroundColor": "#080a10",
+        "decorations": false,
+        "transparent": false
       }
     ],
     "security": {
-      "capabilities": ["default"],
+      "capabilities": [
+        "default"
+      ],
       "csp": "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' asset: data: blob: https://beta.gaiacom.de; font-src 'self' data:; connect-src 'self' https://beta.gaiacom.de wss://beta.gaiacom.de; media-src 'self' blob: https://beta.gaiacom.de; worker-src 'self' blob:; manifest-src 'self'",
       "headers": {
         "Cross-Origin-Opener-Policy": "same-origin",
         "Cross-Origin-Resource-Policy": "same-origin",
-		"Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+        "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
         "X-Content-Type-Options": "nosniff"
       }
     }
@@ -39,6 +43,11 @@
     "active": true,
     "targets": "all",
     "createUpdaterArtifacts": false,
+    "publisher": "VisionGaiaTechnology",
+    "copyright": "© VisionGaiaTechnology",
+    "shortDescription": "GaiaCom 3 – Sovereign Post-Quantum Messenger",
+    "longDescription": "GaiaCom 3 is a sovereign, federated communication client with end-to-end encryption, post-quantum cryptography and decentralised identity.",
+    "category": "SocialNetworking",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

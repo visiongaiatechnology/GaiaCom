@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"gaiacom/backend/auth"
@@ -148,6 +149,49 @@ func (h *Handler) GetMyReports(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]interface{}{"cases": allCases})
 }
 
+// abuseProofVerdict derives a server-side proof verdict from data that is
+// actually stored on the case. The current data model stores only the
+// hash-binding proof (commentHash/targetHash) plus the disclosure payload; it
+// stores no signed cryptographic envelope. Therefore:
+//   - proofVerified is a bool only when the hash-binding can be recomputed,
+//   - proofSuite is only set when the stored proof carries an explicit suite,
+//   - proofScope names what was checked ("integrity-hash") so the UI never
+//     implies a signature verification that did not happen,
+//   - nil (JSON null) is returned when the stored data cannot support a verdict.
+func abuseProofVerdict(c *models.AbuseCase) (*bool, *string, string) {
+	if c == nil || len(c.GaiaProof) == 0 {
+		return nil, nil, "none"
+	}
+	var proof map[string]interface{}
+	if err := json.Unmarshal(c.GaiaProof, &proof); err != nil || len(proof) == 0 {
+		return nil, nil, "unparseable"
+	}
+
+	var suitePtr *string
+	for _, key := range []string{"signatureSuite", "suite"} {
+		if value, ok := proof[key].(string); ok && strings.TrimSpace(value) != "" {
+			suite := strings.TrimSpace(value)
+			suitePtr = &suite
+			break
+		}
+	}
+
+	commentHash, _ := proof["commentHash"].(string)
+	if strings.TrimSpace(commentHash) == "" {
+		return nil, suitePtr, "none"
+	}
+	if len(c.Disclosure) == 0 {
+		return nil, suitePtr, "unparseable"
+	}
+	var disclosure map[string]interface{}
+	if err := json.Unmarshal(c.Disclosure, &disclosure); err != nil {
+		return nil, suitePtr, "unparseable"
+	}
+	storedComment, _ := disclosure["comment"].(string)
+	verified := stableTextHash(storedComment) == commentHash
+	return &verified, suitePtr, "integrity-hash"
+}
+
 // Fetch case details (restricted access)
 func (h *Handler) GetReportDetail(w http.ResponseWriter, r *http.Request) {
 	userID, ok := auth.UserIDFromContext(r.Context())
@@ -198,6 +242,8 @@ func (h *Handler) GetReportDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	proofVerified, proofSuite, proofScope := abuseProofVerdict(caseObj)
+
 	// For normal users, return minimized view
 	if !isStaff {
 		disclosures, _ := h.Service.store.GetAbuseDisclosurePackages(r.Context(), caseID)
@@ -214,6 +260,10 @@ func (h *Handler) GetReportDetail(w http.ResponseWriter, r *http.Request) {
 			"disclosure":         caseObj.Disclosure,
 			"disclosures":        disclosures,
 			"disclosureRequests": disclosureRequests,
+			// Server-derived proof verdict (additive; nil = no verdict possible).
+			"proofVerified": proofVerified,
+			"proofSuite":    proofSuite,
+			"proofScope":    proofScope,
 		}
 		httpx.WriteJSON(w, http.StatusOK, minimized)
 		return
@@ -233,6 +283,10 @@ func (h *Handler) GetReportDetail(w http.ResponseWriter, r *http.Request) {
 		"appeal":             appeal,
 		"disclosures":        disclosures,
 		"disclosureRequests": disclosureRequests,
+		// Server-derived proof verdict (additive; nil = no verdict possible).
+		"proofVerified": proofVerified,
+		"proofSuite":    proofSuite,
+		"proofScope":    proofScope,
 	})
 }
 

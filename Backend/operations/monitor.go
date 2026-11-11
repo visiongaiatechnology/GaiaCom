@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package operations
 
 import (
@@ -35,6 +34,16 @@ type readinessSnapshot struct {
 	healthy   bool
 }
 
+// Status is a point-in-time operational snapshot derived from real runtime
+// state. It deliberately carries only facts the process actually knows, so
+// status projections built from it cannot claim more than the node measured.
+type Status struct {
+	Ready         bool
+	DatabaseReady bool
+	UptimeSeconds int64
+	StartedAt     time.Time
+}
+
 // Monitor owns process-level operational state and lock-free request counters.
 type Monitor struct {
 	startedAt    time.Time
@@ -64,6 +73,34 @@ func NewMonitor(probe DatabaseProbe, metricsToken string) *Monitor {
 		monitor.metricsOn = true
 	}
 	return monitor
+}
+
+// Status returns the current operational snapshot using the same cached
+// database probe as readiness and the real process uptime. It is nil-safe so
+// optional callers do not need to guard a missing monitor: a nil monitor yields
+// the zero Status (not ready, no database evidence).
+func (m *Monitor) Status(ctx context.Context) Status {
+	if m == nil {
+		return Status{}
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	var uptimeSeconds int64
+	if !m.startedAt.IsZero() {
+		uptimeSeconds = int64(time.Since(m.startedAt).Seconds())
+		if uptimeSeconds < 0 {
+			uptimeSeconds = 0
+		}
+	}
+
+	return Status{
+		Ready:         m.ready.Load(),
+		DatabaseReady: m.databaseReady(ctx),
+		UptimeSeconds: uptimeSeconds,
+		StartedAt:     m.startedAt,
+	}
 }
 
 func (m *Monitor) SetReady(ready bool) {

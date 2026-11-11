@@ -15,6 +15,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -24,12 +25,48 @@ import (
 	"encoding/hex"
 	"gaiacom/backend/core/uuid"
 	"gaiacom/backend/core/validate"
+	"gaiacom/backend/internal/security"
 	"gaiacom/backend/models"
 	"gaiacom/backend/repository"
 	"gaiacom/backend/utils"
 )
 
 const federationTopSecretAlgorithmSuite = "GaiaCom/v1.0/sovereign-top-secret/X25519+ML-KEM-1024+HQC-256/Serpent-256-CTR-HMAC-SHA3-512+Twofish-256-EAX+XChaCha20-Poly1305+AES-256-GCM-SIV/Ed25519+ML-DSA-87"
+
+// TrustMode controls how an unknown federation peer is admitted (P-05 / FIND-005).
+type TrustMode string
+
+const (
+	// TrustModeStrict requires an operator-accepted node-registry entry whose key
+	// matches the discovered key before a new peer is trusted. Production default.
+	TrustModeStrict TrustMode = "strict"
+	// TrustModeTOFU keeps the historical trust-on-first-use behaviour. It is the
+	// default only in development and can be enabled explicitly for migrations.
+	TrustModeTOFU TrustMode = "tofu"
+
+	federationTrustModeEnv  = "GAIACOM_FEDERATION_TRUST_MODE"
+	federationAllowlistEnv  = "GAIACOM_FEDERATION_ALLOWLIST"
+	nodeRegistryStatusOK    = "accepted"
+	defaultKeyCheckInterval = 10 * time.Minute
+)
+
+// TrustModeFromEnv resolves the federation trust policy. An explicit, valid
+// value wins; an unknown non-empty value fails closed to strict mode.
+func TrustModeFromEnv(raw string) TrustMode {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case string(TrustModeTOFU):
+		return TrustModeTOFU
+	case string(TrustModeStrict):
+		return TrustModeStrict
+	case "":
+		if strings.EqualFold(strings.TrimSpace(os.Getenv("GAIACOM_DEV_MODE")), "true") {
+			return TrustModeTOFU
+		}
+		return TrustModeStrict
+	default:
+		return TrustModeStrict
+	}
+}
 
 type Service struct {
 	store          repository.FederationStore
@@ -39,7 +76,81 @@ type Service struct {
 	processedPDUs  map[string]time.Time
 	processingPDUs map[string]struct{}
 	pduMutex       sync.RWMutex
+
+	trustMode        TrustMode
+	security         *security.SecuritySystem
+	allowlist        map[string]struct{}
+	keyCheckAt       map[string]time.Time
+	keyCheckMu       sync.Mutex
+	keyCheckInterval time.Duration
+	now              func() time.Time
+	// remoteKeyFetcher and discoveryURL are test seams; production uses the
+	// DNS-revalidated discovery fetch.
+	remoteKeyFetcher func(domain string) (ed25519.PublicKey, error)
+	discoveryURL     func(domain string) string
+	capabilityDocURL func(domain string) string
 }
+
+// Option customises the federation service without changing the constructor
+// signature used by existing call sites.
+type Option func(*Service)
+
+func WithTrustMode(mode TrustMode) Option {
+	return func(s *Service) { s.trustMode = mode }
+}
+
+func WithSecuritySystem(sec *security.SecuritySystem) Option {
+	return func(s *Service) { s.security = sec }
+}
+
+func WithFederationAllowlist(domains []string) Option {
+	return func(s *Service) { s.allowlist = parseFederationAllowlist(strings.Join(domains, ",")) }
+}
+
+func WithKeyCheckInterval(interval time.Duration) Option {
+	return func(s *Service) { s.keyCheckInterval = interval }
+}
+
+func parseFederationAllowlist(raw string) map[string]struct{} {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" {
+		return nil
+	}
+	allowlist := make(map[string]struct{})
+	for _, part := range strings.Split(trimmed, ",") {
+		domain := strings.ToLower(strings.TrimSpace(part))
+		if domain == "" {
+			continue
+		}
+		allowlist[domain] = struct{}{}
+	}
+	if len(allowlist) == 0 {
+		return nil
+	}
+	return allowlist
+}
+
+func (s *Service) clock() time.Time {
+	if s.now != nil {
+		return s.now()
+	}
+	return time.Now()
+}
+
+func (s *Service) peerAllowed(domain string) bool {
+	if len(s.allowlist) == 0 {
+		return true
+	}
+	_, ok := s.allowlist[strings.ToLower(strings.TrimSpace(domain))]
+	return ok
+}
+
+func keyFingerprint(key ed25519.PublicKey) string {
+	sum := sha256.Sum256([]byte(key))
+	return hex.EncodeToString(sum[:])
+}
+
+var ErrFederationPeerKeyChanged = errors.New("federation peer key changed; stored key kept (update rejected)")
 
 var ErrPDUAlreadyProcessed = errors.New("federation PDU already processed")
 
@@ -49,23 +160,35 @@ type AuthenticatedPeer struct {
 }
 
 type serverDiscoveryDocument struct {
-	ServerName string                 `json:"server_name"`
-	PublicKey  string                 `json:"ed25519_public_key"`
-	Protocols  []string               `json:"protocols,omitempty"`
-	Endpoints  map[string]string      `json:"endpoints,omitempty"`
-	Software   map[string]string      `json:"software,omitempty"`
-	Policy     map[string]interface{} `json:"policy,omitempty"`
+	ServerName     string                 `json:"server_name"`
+	PublicKey      string                 `json:"ed25519_public_key"`
+	KeyFingerprint string                 `json:"key_fingerprint,omitempty"`
+	Protocols      []string               `json:"protocols,omitempty"`
+	Endpoints      map[string]string      `json:"endpoints,omitempty"`
+	Software       map[string]string      `json:"software,omitempty"`
+	Policy         map[string]interface{} `json:"policy,omitempty"`
 }
 
-func NewService(store repository.FederationStore, serverName string, serverPrivKey ed25519.PrivateKey) *Service {
-	return &Service{
-		store:          store,
-		httpClient:     utils.NewSecureHTTPClient(),
-		serverName:     serverName,
-		privateKey:     serverPrivKey,
-		processedPDUs:  make(map[string]time.Time),
-		processingPDUs: make(map[string]struct{}),
+func NewService(store repository.FederationStore, serverName string, serverPrivKey ed25519.PrivateKey, opts ...Option) *Service {
+	service := &Service{
+		store:            store,
+		httpClient:       utils.NewSecureHTTPClient(),
+		serverName:       serverName,
+		privateKey:       serverPrivKey,
+		processedPDUs:    make(map[string]time.Time),
+		processingPDUs:   make(map[string]struct{}),
+		trustMode:        TrustModeFromEnv(os.Getenv(federationTrustModeEnv)),
+		allowlist:        parseFederationAllowlist(os.Getenv(federationAllowlistEnv)),
+		keyCheckAt:       make(map[string]time.Time),
+		keyCheckInterval: defaultKeyCheckInterval,
+		now:              time.Now,
 	}
+	for _, opt := range opts {
+		if opt != nil {
+			opt(service)
+		}
+	}
+	return service
 }
 
 func (s *Service) QueueOutgoingPDU(pdu models.PDU, destinationServer string) error {
@@ -119,7 +242,7 @@ func (s *Service) VerifyReceivedRequest(r *http.Request, body []byte) (*Authenti
 		return nil, errors.New("request expired or time skew too large")
 	}
 
-	originPubKey, err := s.getOrFetchPublicKey(keyID)
+	originPubKey, err := s.getOrFetchPublicKey(r.Context(), keyID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get public key for %s: %w", keyID, err)
 	}
@@ -253,6 +376,9 @@ func (s *Service) sendToTarget(ctx context.Context, pdu models.PDU, targetDomain
 	if !validate.Domain(targetDomain) {
 		return errors.New("delivery aborted: invalid target domain")
 	}
+	if !s.peerAllowed(targetDomain) {
+		return fmt.Errorf("delivery aborted: target domain %s is not in the configured allowlist", targetDomain)
+	}
 	if utils.IsPrivateOrLoopbackIP(targetDomain) && !isExactDevelopmentHost(targetDomain) {
 		return errors.New("delivery aborted: target domain is private or loopback (SSRF protection)")
 	}
@@ -302,9 +428,16 @@ func (s *Service) sendToTarget(ctx context.Context, pdu models.PDU, targetDomain
 }
 
 func (s *Service) ensureRemoteTopSecretCapability(ctx context.Context, targetDomain string) error {
-	scheme := federationScheme(strings.ToLower(strings.TrimSpace(targetDomain)))
+	targetDomain = strings.ToLower(strings.TrimSpace(targetDomain))
+	if !s.peerAllowed(targetDomain) {
+		return fmt.Errorf("federation peer %s is not in the configured allowlist", targetDomain)
+	}
+	scheme := federationScheme(targetDomain)
 
 	targetURL := fmt.Sprintf("%s://%s/.well-known/gaiacom/nodeinfo", scheme, targetDomain)
+	if s.capabilityDocURL != nil {
+		targetURL = s.capabilityDocURL(targetDomain)
+	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, targetURL, nil)
 	if err != nil {
 		return err
@@ -319,7 +452,10 @@ func (s *Service) ensureRemoteTopSecretCapability(ctx context.Context, targetDom
 	}
 
 	var doc struct {
-		Capabilities struct {
+		ServerName     string `json:"server_name"`
+		KeyFingerprint string `json:"key_fingerprint"`
+		Signature      string `json:"signature"`
+		Capabilities   struct {
 			TopSecret       bool     `json:"top_secret"`
 			SignatureSuites []string `json:"signature_suites"`
 		} `json:"capabilities"`
@@ -334,7 +470,61 @@ func (s *Service) ensureRemoteTopSecretCapability(ctx context.Context, targetDom
 	if !doc.Capabilities.TopSecret || !containsProtocol(doc.Capabilities.SignatureSuites, federationTopSecretAlgorithmSuite) {
 		return errors.New("remote federation node lacks top secret ML-DSA-87 capability")
 	}
+
+	// Unsigned capability documents are only tolerated in explicit TOFU mode;
+	// strict mode requires the document to be signed by the pinned peer key.
+	if strings.TrimSpace(doc.Signature) == "" && strings.TrimSpace(doc.KeyFingerprint) == "" {
+		if s.trustMode != TrustModeTOFU {
+			return errors.New("strict federation trust: capability document is unsigned")
+		}
+		return nil
+	}
+
+	trustedKey, err := s.getOrFetchPublicKey(ctx, targetDomain)
+	if err != nil {
+		return fmt.Errorf("top secret capability trust check failed: %w", err)
+	}
+	if strings.TrimSpace(doc.ServerName) != "" && !strings.EqualFold(strings.TrimSpace(doc.ServerName), targetDomain) {
+		return errors.New("capability document server name mismatch")
+	}
+	if strings.TrimSpace(doc.KeyFingerprint) != "" && !strings.EqualFold(strings.TrimSpace(doc.KeyFingerprint), keyFingerprint(trustedKey)) {
+		return errors.New("capability document key fingerprint mismatch")
+	}
+	canonical := canonicalNodeInfoSignaturePayload(doc.ServerName, doc.KeyFingerprint, doc.Capabilities.TopSecret, doc.Capabilities.SignatureSuites)
+	if strings.TrimSpace(doc.Signature) != "" {
+		signature, err := base64.StdEncoding.DecodeString(strings.TrimSpace(doc.Signature))
+		if err != nil || len(signature) != ed25519.SignatureSize {
+			return errors.New("capability document signature is malformed")
+		}
+		if !ed25519.Verify(trustedKey, canonical, signature) {
+			return errors.New("capability document signature verification failed")
+		}
+	} else if s.trustMode != TrustModeTOFU {
+		return errors.New("strict federation trust: capability document is unsigned")
+	}
 	return nil
+}
+
+// canonicalNodeInfoSignaturePayload defines the deterministic bytes signed by the
+// node key for the capability document. Both signer and verifier use this helper.
+func canonicalNodeInfoSignaturePayload(serverName, keyFingerprintValue string, topSecret bool, suites []string) []byte {
+	normalized := append([]string(nil), suites...)
+	for i := range normalized {
+		normalized[i] = strings.ToLower(strings.TrimSpace(normalized[i]))
+	}
+	sort.Strings(normalized)
+	return []byte(strings.Join([]string{
+		"gaiacom-nodeinfo-v1",
+		strings.ToLower(strings.TrimSpace(serverName)),
+		strings.ToLower(strings.TrimSpace(keyFingerprintValue)),
+		strconv.FormatBool(topSecret),
+		strings.Join(normalized, ","),
+	}, "\n"))
+}
+
+// SignNodeInfoPayload signs the node capability document with the node key.
+func (s *Service) SignNodeInfoPayload(payload []byte) string {
+	return base64.StdEncoding.EncodeToString(ed25519.Sign(s.privateKey, payload))
 }
 
 func (s *Service) signRequest(req *http.Request, body []byte) error {
@@ -442,34 +632,133 @@ func isExactDevelopmentHost(targetDomain string) bool {
 	return ip != nil && (ip.IsLoopback() || ip.IsPrivate())
 }
 
-func (s *Service) getOrFetchPublicKey(domain string) (ed25519.PublicKey, error) {
+// getOrFetchPublicKey resolves the peer signing key with trust continuity.
+// Known peers stay pinned to their stored key (new keys are never silently
+// accepted). Unknown peers are admitted only per the configured trust mode.
+func (s *Service) getOrFetchPublicKey(ctx context.Context, domain string) (ed25519.PublicKey, error) {
+	domain = strings.ToLower(strings.TrimSpace(domain))
+	if s.store == nil {
+		return nil, errors.New("federation store unavailable")
+	}
+	if !validate.Domain(domain) {
+		return nil, errors.New("invalid federation domain")
+	}
+	if !s.peerAllowed(domain) {
+		return nil, fmt.Errorf("federation peer %s is not in the configured allowlist", domain)
+	}
+
 	server, err := s.store.FindFederationServer(domain)
-	if err == nil {
+	if err == nil && server != nil {
 		if server.IsBlocked {
 			return nil, errors.New("server is blocked")
 		}
+		if len(server.PublicKey) != ed25519.PublicKeySize {
+			return nil, errors.New("stored federation key has invalid size")
+		}
+		storedKey := ed25519.PublicKey(append([]byte(nil), server.PublicKey...))
 		go func() {
 			_ = s.store.UpdateFederationServerLastSeen(server)
 		}()
-		return server.PublicKey, nil
+		s.maybeCheckKnownPeerKeyContinuity(domain, storedKey)
+		return storedKey, nil
 	}
 
-	pubKey, err := s.fetchRemoteServerKey(domain)
+	// Unknown peer: fetch the discovery document through the bounded client.
+	pubKey, err := s.fetchServerKey(domain)
 	if err != nil {
 		return nil, err
 	}
 
+	if s.trustMode != TrustModeTOFU {
+		entry, registryErr := s.store.FindNodeRegistryEntry(ctx, domain)
+		if registryErr != nil || entry == nil {
+			log.Printf("security: strict federation trust rejected unknown peer %s (no node-registry entry)", domain)
+			return nil, fmt.Errorf("strict federation trust: peer %s is not operator-accepted", domain)
+		}
+		if !strings.EqualFold(strings.TrimSpace(entry.Status), nodeRegistryStatusOK) {
+			log.Printf("security: strict federation trust rejected peer %s with registry status %q", domain, entry.Status)
+			return nil, fmt.Errorf("strict federation trust: peer %s is not operator-accepted (status %q)", domain, entry.Status)
+		}
+		if len(entry.PublicKey) != ed25519.PublicKeySize || !bytes.Equal(entry.PublicKey, pubKey) {
+			s.emitKeyChangeEvent(ctx, domain, ed25519.PublicKey(entry.PublicKey), pubKey)
+			return nil, fmt.Errorf("strict federation trust: presented key for %s does not match the operator-accepted key", domain)
+		}
+	}
+
+	now := time.Now().UTC()
 	newServer := models.FederationServer{
 		Domain:      domain,
-		PublicKey:   pubKey,
-		FirstSeenAt: time.Now().UTC(),
-		LastSeenAt:  time.Now().UTC(),
+		PublicKey:   append([]byte(nil), pubKey...),
+		FirstSeenAt: now,
+		LastSeenAt:  now,
 	}
 	if err := s.store.CreateFederationServer(&newServer); err != nil {
 		return nil, err
 	}
-
+	log.Printf("federation: pinned new peer key for %s (sha256:%s, trust=%s)", domain, keyFingerprint(pubKey), s.trustMode)
 	return pubKey, nil
+}
+
+func (s *Service) fetchServerKey(domain string) (ed25519.PublicKey, error) {
+	if s.remoteKeyFetcher != nil {
+		return s.remoteKeyFetcher(domain)
+	}
+	return s.fetchRemoteServerKey(domain)
+}
+
+// maybeCheckKnownPeerKeyContinuity throttles the background drift check so
+// established peers do not cost one discovery request per inbound message.
+func (s *Service) maybeCheckKnownPeerKeyContinuity(domain string, storedKey ed25519.PublicKey) {
+	if s.keyCheckInterval <= 0 {
+		return
+	}
+	now := s.clock()
+	s.keyCheckMu.Lock()
+	if s.keyCheckAt == nil {
+		s.keyCheckAt = make(map[string]time.Time)
+	}
+	last, checked := s.keyCheckAt[domain]
+	if checked && now.Sub(last) < s.keyCheckInterval {
+		s.keyCheckMu.Unlock()
+		return
+	}
+	s.keyCheckAt[domain] = now
+	s.keyCheckMu.Unlock()
+	go func() {
+		_ = s.checkKnownPeerKeyContinuity(context.Background(), domain, storedKey)
+	}()
+}
+
+// checkKnownPeerKeyContinuity compares the currently served discovery key with
+// the pinned key. A mismatch is never applied: the stored key stays authoritative
+// and a high-severity security event records both fingerprints.
+func (s *Service) checkKnownPeerKeyContinuity(ctx context.Context, domain string, storedKey ed25519.PublicKey) error {
+	fetched, err := s.fetchServerKey(domain)
+	if err != nil {
+		// Offline/unreachable peers keep working with their pinned key; only an
+		// affirmative key change is actionable evidence.
+		return err
+	}
+	if bytes.Equal(fetched, storedKey) {
+		return nil
+	}
+	s.emitKeyChangeEvent(ctx, domain, storedKey, fetched)
+	return ErrFederationPeerKeyChanged
+}
+
+func (s *Service) emitKeyChangeEvent(ctx context.Context, domain string, storedKey, presentedKey ed25519.PublicKey) {
+	summary := fmt.Sprintf(
+		"federation peer %s presented a changed Ed25519 key (stored sha256:%s, presented sha256:%s); update rejected, stored key kept",
+		domain, keyFingerprint(storedKey), keyFingerprint(presentedKey),
+	)
+	log.Printf("security: %s", summary)
+	if s.security == nil {
+		return
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	s.security.RecordSecurityEvent(ctx, nil, nil, "federation_key_change", "high", "federation", summary, "rejected", nil)
 }
 
 func (s *Service) fetchRemoteServerKey(domain string) (ed25519.PublicKey, error) {
@@ -481,7 +770,11 @@ func (s *Service) fetchRemoteServerKey(domain string) (ed25519.PublicKey, error)
 		return nil, errors.New("server key fetch aborted: target domain is private or loopback (SSRF protection)")
 	}
 
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://%s/.well-known/gaiacom/server", domain), nil)
+	discoveryURL := fmt.Sprintf("https://%s/.well-known/gaiacom/server", domain)
+	if s.discoveryURL != nil {
+		discoveryURL = s.discoveryURL(domain)
+	}
+	req, err := http.NewRequest(http.MethodGet, discoveryURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -519,8 +812,12 @@ func (s *Service) fetchRemoteServerKey(domain string) (ed25519.PublicKey, error)
 	if len(keyBytes) != ed25519.PublicKeySize {
 		return nil, errors.New("invalid discovery public key size")
 	}
+	discoveredKey := ed25519.PublicKey(keyBytes)
+	if document.KeyFingerprint != "" && !strings.EqualFold(strings.TrimSpace(document.KeyFingerprint), keyFingerprint(discoveredKey)) {
+		return nil, errors.New("server discovery key fingerprint mismatch")
+	}
 
-	return ed25519.PublicKey(keyBytes), nil
+	return discoveredKey, nil
 }
 
 func containsProtocol(protocols []string, expected string) bool {

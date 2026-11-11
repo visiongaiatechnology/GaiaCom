@@ -1,0 +1,121 @@
+/* ============================================================================
+   VGT GLASS 2100 — MESSAGING: DIALOG & EMPTY STATE
+   Z4 dialog shell for report/export/confirmation flows plus the honest empty
+   state used when no conversation is selected. Part sheet of messaging.css.
+   ========================================================================== */
+/* ---------- Dialog shell (Z4) ---------- */
+.vgt-chat-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--vgt-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--vgt-space-4);
+  background: var(--vgt-scrim);
+  backdrop-filter: blur(var(--vgt-blur-1));
+  -webkit-backdrop-filter: blur(var(--vgt-blur-1));
+}
+
+.vgt-chat-dialog {
+  display: flex;
+  flex-direction: column;
+  width: min(560px, 100%);
+  max-height: min(86dvh, 720px);
+  overflow: hidden;
+}
+
+.vgt-chat-dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-5) var(--vgt-space-5) var(--vgt-space-2);
+}
+
+.vgt-chat-dialog__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.vgt-chat-dialog__title {
+  margin: 0;
+  font-family: var(--vgt-font-display);
+  font-size: var(--vgt-text-xl);
+  font-weight: 620;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-chat-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-2) var(--vgt-space-5) var(--vgt-space-4);
+  overflow-y: auto;
+}
+
+.vgt-chat-dialog__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--vgt-space-2);
+  padding: var(--vgt-space-3) var(--vgt-space-5) calc(var(--vgt-space-4) + env(safe-area-inset-bottom));
+  border-top: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-chat-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ---------- Empty state ---------- */
+.vgt-chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vgt-space-2);
+  max-width: 46ch;
+  margin: auto;
+  padding: var(--vgt-space-8) var(--vgt-space-6);
+  text-align: center;
+}
+
+.vgt-chat-empty__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--vgt-space-1);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: 50%;
+  background: var(--vgt-bg-2);
+  color: var(--vgt-pigment);
+}
+
+.vgt-chat-empty__title {
+  margin: 0;
+  font-size: var(--vgt-text-lg);
+  font-weight: 620;
+  color: var(--vgt-text-primary);
+}
+
+.vgt-chat-empty__text {
+  margin: 0;
+  color: var(--vgt-text-secondary);
+  font-size: var(--vgt-text-sm);
+  line-height: var(--vgt-leading-normal);
+}
+
+.vgt-chat-empty__hint {
+  margin: 0;
+  color: var(--vgt-text-muted);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-chat-empty__action {
+  margin-top: var(--vgt-space-3);
+}

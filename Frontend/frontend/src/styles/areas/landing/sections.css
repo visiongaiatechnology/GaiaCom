@@ -1,0 +1,164 @@
+/* ============================================================================
+   VGT GLASS 2100 — LANDING SECTIONS
+   Trust model, message path rail, surface index, protocol ledger.
+   Grouping here uses rhythm, rules and alignment — not card containers.
+   ========================================================================== */
+
+/* ---------- Trust ---------- */
+.vgt-trust__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 36px);
+}
+
+.vgt-trust__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  padding-top: var(--vgt-space-4);
+  border-top: var(--vgt-hairline) solid var(--vgt-border);
+}
+
+.vgt-trust__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--vgt-radius-control);
+  color: var(--vgt-pigment);
+  background: var(--vgt-pigment-soft);
+  border: var(--vgt-hairline) solid var(--vgt-pigment-line);
+}
+
+.vgt-trust__item .vgt-h4 { margin: 0; }
+.vgt-trust__item .vgt-body { margin: 0; }
+
+/* ---------- Flow rail ---------- */
+.vgt-flow__rail {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  border-top: var(--vgt-hairline) solid var(--vgt-border-strong);
+}
+
+.vgt-flow__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-5) clamp(16px, 2vw, 24px) var(--vgt-space-4) 0;
+  border-right: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-flow__step:last-child { border-right: 0; padding-right: 0; }
+
+.vgt-flow__step::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--vgt-pigment);
+}
+
+.vgt-flow__index {
+  font-family: var(--vgt-font-mono);
+  font-size: var(--vgt-text-xs);
+  letter-spacing: 0.12em;
+  color: var(--vgt-pigment);
+}
+
+.vgt-flow__body .vgt-h4 { margin: 0 0 6px; }
+.vgt-flow__body .vgt-body { margin: 0; }
+
+/* ---------- Surfaces ---------- */
+.vgt-surfaces__rail {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border-top: var(--vgt-hairline) solid var(--vgt-border-strong);
+}
+
+.vgt-surfaces__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-3);
+  padding: var(--vgt-space-5) clamp(16px, 2vw, 26px) var(--vgt-space-5) 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+  border-right: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-surfaces__item:nth-child(3n) { border-right: 0; padding-right: 0; }
+
+.vgt-surfaces__head {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-surfaces__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--vgt-radius-control);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-surfaces__item .vgt-h4 { margin: 0; }
+.vgt-surfaces__item .vgt-body { margin: 0; flex: 1; }
+
+.vgt-surfaces__link {
+  align-self: flex-start;
+  padding: 0;
+  min-height: 0;
+  color: var(--vgt-pigment);
+  font-size: var(--vgt-text-xs);
+}
+
+.vgt-surfaces__link:hover { background: none; color: var(--vgt-text-primary); }
+
+/* ---------- Protocol ledger ---------- */
+.vgt-ledger {
+  border-top: var(--vgt-hairline) solid var(--vgt-border-strong);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-border-strong);
+}
+
+.vgt-ledger__head,
+.vgt-ledger__row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: var(--vgt-space-4);
+  padding: 11px 0;
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-ledger__head {
+  padding: 10px 0;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-ledger__row:last-child { border-bottom: 0; }
+
+.vgt-ledger__label { color: var(--vgt-text-secondary); font-size: var(--vgt-text-sm); }
+.vgt-ledger__value { color: var(--vgt-text-primary); font-size: var(--vgt-text-sm); }
+.vgt-ledger__note { color: var(--vgt-text-muted); font-size: var(--vgt-text-xs); }
+
+.vgt-protocol__source {
+  margin-top: var(--vgt-space-4);
+  max-width: 90ch;
+}

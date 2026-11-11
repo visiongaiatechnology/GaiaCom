@@ -3,11 +3,21 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"gaiacom/backend/core/uuid"
 	"gaiacom/backend/models"
 )
+
+// Public image publication limits (FIND-024 / P-11). Kept in the repository
+// layer so the guard is enforced atomically in SQL even if a future caller
+// forgets the storage-layer validation.
+const maxPublicImageBytes int64 = 25 * 1024 * 1024
+
+// ErrFileNotPublishable is returned when a file does not satisfy the public
+// image allowlist (ownership, completion, MIME/extension, size cap).
+var ErrFileNotPublishable = errors.New("file is not publishable")
 
 func (s *SQLStore) CreateFileMetadata(metadata *models.FileMetadata) error {
 	now := utcNow()
@@ -30,6 +40,54 @@ func (s *SQLStore) CreateFileMetadata(metadata *models.FileMetadata) error {
 		formatTime(metadata.UpdatedAt),
 	)
 	return err
+}
+
+// CreateFileMetadataWithQuota atomically reserves the requested bytes against the
+// user's storage quota and creates the pending file row in one statement
+// (P-08 / FIND-008). It returns (false, nil) when the quota predicate fails, so
+// concurrent InitializeUpload calls cannot both pass a stale SUM check.
+func (s *SQLStore) CreateFileMetadataWithQuota(ctx context.Context, metadata *models.FileMetadata, quotaBytes int64) (bool, error) {
+	if metadata == nil {
+		return false, errors.New("invalid file metadata")
+	}
+	if quotaBytes <= 0 {
+		return false, errors.New("invalid storage quota")
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	now := utcNow()
+	metadata.CreatedAt = now
+	metadata.UpdatedAt = now
+	result, err := s.execWithBusyRetry(
+		ctx,
+		`INSERT INTO file_metadata (file_id, user_id, file_name, file_size, file_hash, mime_type, encryption_iv, path, status, created_at, updated_at)
+		 SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+		 WHERE (SELECT COALESCE(SUM(file_size), 0) FROM file_metadata
+		        WHERE user_id = ? AND status IN ('pending', 'complete', 'completed')) + ? <= ?`,
+		metadata.FileID,
+		metadata.UserID,
+		metadata.FileName,
+		metadata.FileSize,
+		metadata.FileHash,
+		metadata.MimeType,
+		metadata.EncryptionIV,
+		metadata.Path,
+		metadata.Status,
+		formatTime(metadata.CreatedAt),
+		formatTime(metadata.UpdatedAt),
+		metadata.UserID,
+		metadata.FileSize,
+		quotaBytes,
+	)
+	if err != nil {
+		return false, err
+	}
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return affected == 1, nil
 }
 
 func (s *SQLStore) FindPendingFileForUser(fileID uuid.UUID, userID uuid.UUID) (*models.FileMetadata, error) {
@@ -268,12 +326,29 @@ func (s *SQLStore) GrantFileAccessToIdentities(ctx context.Context, fileID uuid.
 }
 
 func (s *SQLStore) MarkFilePublic(ctx context.Context, fileID uuid.UUID, ownerUserID uuid.UUID) error {
+	// FIND-024 / CHAIN-005: publication is an explicit allowlist, not an
+	// ownership-only operation. Only completed, allowlisted image files from
+	// the owner and under the public size cap may flip public_access to 1.
+	// The extension list keeps the SQL guard independent from the caller's
+	// declared Content-Type; storage.VerifyEncryptedPublicImage additionally
+	// verifies the decrypted magic bytes before this call.
 	result, err := s.execWithBusyRetry(
 		ctx,
-		`UPDATE file_metadata SET public_access = 1, updated_at = ? WHERE file_id = ? AND user_id = ?`,
+		`UPDATE file_metadata
+		 SET public_access = 1, updated_at = ?
+		 WHERE file_id = ? AND user_id = ?
+		   AND status IN ('complete', 'completed')
+		   AND file_size > 0 AND file_size <= ?
+		   AND LOWER(mime_type) IN ('image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif')
+		   AND (
+		     LOWER(file_name) LIKE '%.png' OR LOWER(file_name) LIKE '%.jpg' OR
+		     LOWER(file_name) LIKE '%.jpeg' OR LOWER(file_name) LIKE '%.gif' OR
+		     LOWER(file_name) LIKE '%.webp' OR LOWER(file_name) LIKE '%.avif'
+		   )`,
 		time.Now().UTC().Format(time.RFC3339),
 		fileID,
 		ownerUserID,
+		maxPublicImageBytes,
 	)
 	if err != nil {
 		return err
@@ -283,7 +358,7 @@ func (s *SQLStore) MarkFilePublic(ctx context.Context, fileID uuid.UUID, ownerUs
 		return err
 	}
 	if affected == 0 {
-		return sql.ErrNoRows
+		return ErrFileNotPublishable
 	}
 	return nil
 }

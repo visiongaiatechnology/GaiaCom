@@ -1,0 +1,16 @@
+/* ============================================================================
+   VGT GLASS 2100 — FOUNDATION ENTRY
+   Cascade: tokens -> reset -> environment -> materials -> controls
+   -> typography -> motion -> accessibility -> layout/mobile contract.
+   Area sheets are imported after this file (see src/index.css).
+   ========================================================================== */
+
+@import './tokens.css';
+@import './reset.css';
+@import './environment.css';
+@import './materials.css';
+@import './controls.css';
+@import './typography.css';
+@import './motion.css';
+@import './a11y.css';
+@import './layout.css';

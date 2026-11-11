@@ -1,268 +1,197 @@
 import React from 'react';
+import Icon from '../ui/Icon';
+import DashboardHeader from './dashboard/DashboardHeader';
+import DashboardStats from './dashboard/DashboardStats';
+import DashboardFeed from './dashboard/DashboardFeed';
+import DashboardRooms from './dashboard/DashboardRooms';
 
-export const DashboardPane = ({
-  rooms,
-  contacts,
-  chatMessages,
-  inboxEmails,
-  activeIdentity,
+/**
+ * Kommandozentrale — session dashboard.
+ *
+ * Every number on this surface is derived from data the client actually loaded
+ * (rooms, contacts, chatMessages, inboxEmails). There are no hardcoded status
+ * claims, no fake uptime, no fabricated encryption badges.
+ */
+export default function DashboardPane({
+  rooms = [],
+  contacts = [],
+  chatMessages = [],
+  inboxEmails = [],
+  activeIdentity = null,
   setCurrentMenu,
   setActiveChatContact,
   setActiveRoom,
   setShowCreateGroupModal,
+  displayGaiaID,
   deferredPrompt,
   handleInstallApp,
   t
-}) => {
+}) {
+  const go = React.useCallback((menu) => {
+    if (typeof setCurrentMenu === 'function') setCurrentMenu(menu);
+  }, [setCurrentMenu]);
+
   const recentEmails = React.useMemo(() => {
     return [...inboxEmails]
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, 4);
+      .filter((email) => email && (email.createdAt || email.date))
+      .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
+      .slice(0, 4)
+      .map((email) => ({
+        key: `mail-${email.id ?? email.Id ?? email.subject}`,
+        primary: email.sender || email.from || 'Unbekannter Absender',
+        preview: email.subject || '(ohne Betreff)',
+        timestamp: email.createdAt || email.date,
+        raw: email
+      }));
   }, [inboxEmails]);
 
+  const identityIds = React.useMemo(() => {
+    const ids = new Set();
+    if (activeIdentity?.GaiaID) ids.add(activeIdentity.GaiaID.toLowerCase());
+    if (activeIdentity?.gaiaID) ids.add(activeIdentity.gaiaID.toLowerCase());
+    if (activeIdentity?.GaiaId) ids.add(activeIdentity.GaiaId.toLowerCase());
+    return ids;
+  }, [activeIdentity]);
+
   const recentChats = React.useMemo(() => {
-    const contactsWithLatestMsg = contacts.map(contact => {
-      const contactMessages = chatMessages.filter(msg =>
-        (msg.sender === contact.gaiaID && msg.recipient === activeIdentity?.GaiaID) ||
-        (msg.sender === activeIdentity?.GaiaID && msg.recipient === contact.gaiaID)
-      );
-      const latestMsg = contactMessages.length > 0
-        ? contactMessages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]
-        : null;
-      return { contact, latestMsg };
-    });
+    const byContact = contacts.map((contact) => {
+      const contactId = (contact.gaiaID || contact.GaiaID || '').toLowerCase();
+      const messages = chatMessages.filter((message) => {
+        const sender = (message.sender || '').toLowerCase();
+        const recipient = (message.recipient || '').toLowerCase();
+        return (sender === contactId && identityIds.has(recipient)) ||
+          (identityIds.has(sender) && recipient === contactId);
+      });
+      const latest = messages.reduce((acc, message) => {
+        const current = new Date(message.createdAt || 0).getTime();
+        return current > (acc?.time || 0) ? { message, time: current } : acc;
+      }, null);
+      return latest ? { contact, message: latest.message, time: latest.time } : null;
+    }).filter(Boolean);
 
-    return contactsWithLatestMsg
-      .filter(item => item.latestMsg !== null)
-      .sort((a, b) => new Date(b.latestMsg.createdAt) - new Date(a.latestMsg.createdAt))
-      .slice(0, 4);
-  }, [contacts, chatMessages, activeIdentity]);
+    return byContact
+      .sort((a, b) => b.time - a.time)
+      .slice(0, 4)
+      .map((entry) => ({
+        key: `chat-${entry.contact.gaiaID || entry.contact.GaiaID || entry.contact.displayName}`,
+        primary: entry.contact.displayName || entry.contact.DisplayName || entry.contact.gaiaID || 'Kontakt',
+        preview: entry.message.body || '(leere Nachricht)',
+        timestamp: entry.message.createdAt,
+        raw: entry.contact
+      }));
+  }, [contacts, chatMessages, identityIds]);
 
-  const handleOpenEmail = () => {
-    setCurrentMenu('inbox');
-  };
+  const openChat = React.useCallback((item) => {
+    if (typeof setActiveChatContact === 'function') setActiveChatContact(item.raw);
+    go('chat');
+  }, [setActiveChatContact, go]);
 
-  const handleOpenChat = contact => {
-    setActiveChatContact(contact);
-    setCurrentMenu('chat');
-  };
+  const openRoom = React.useCallback((room) => {
+    if (typeof setActiveRoom === 'function') setActiveRoom(room);
+    go('groups');
+  }, [setActiveRoom, go]);
 
-  const handleOpenRoom = room => {
-    setActiveRoom(room);
-    setCurrentMenu('groups');
-  };
+  const isEmpty = inboxEmails.length === 0 && contacts.length === 0 && rooms.length === 0;
 
   return (
-    <div className="dashboard-container gaia-scrollbar">
-      <header className="dashboard-header-row">
-        <div className="dashboard-title-area">
-          <h1>{t('kommandozentrale') || 'Kommandozentrale'}</h1>
-          <div className="dashboard-session-status">
-            <span>{'\u{1F512}'}</span>
-            <span>
-              {(t('session_encrypted') || 'Sitzung verschlüsselt: {name}').replace(
-                '{name}',
-                activeIdentity ? (activeIdentity.DisplayName || activeIdentity.displayName) : (t('no_id') || 'Keine ID')
-              )}
-            </span>
-          </div>
-        </div>
-        <div className="dashboard-network-pill-container">
-          <div className="dashboard-network-pill">
-            <span className="pulse-dot"></span>
-            <span>{t('network_online') || 'NETWORK: ONLINE'}</span>
-          </div>
-          <button
-            type="button"
-            className="dashboard-refresh-btn"
-            onClick={() => window.location.reload()}
-            title="Neu laden"
-          >
-            {'\u{1F504}'}
-          </button>
-        </div>
-      </header>
+    <div className="vgt-dash vgt-scroll-page">
+      <DashboardHeader
+        activeIdentity={activeIdentity}
+        displayGaiaID={displayGaiaID}
+        onNewRoom={() => setShowCreateGroupModal?.(true)}
+        onOpenInbox={() => go('inbox')}
+        onOpenChats={() => go('chat')}
+        t={t}
+      />
 
-      <section className="dashboard-command-band" aria-label="GaiaCom network status">
-        <div className="dashboard-command-copy">
-          <span className="dashboard-eyebrow">GAIACOM // NETWORK OPERATIONS</span>
-          <h2>Dein Kommunikationsraum ist bereit.</h2>
-          <p>Chat, Mail und Räume laufen über eine gemeinsame Identität — mit deinen Schlüsseln als Vertrauensanker.</p>
-        </div>
-        <div className="dashboard-network-matrix" aria-label="Aktive GaiaCom Ebenen">
-          <div className="dashboard-network-node"><span>CHAT</span><strong>{recentChats.length}</strong></div>
-          <div className="dashboard-network-link" aria-hidden="true"></div>
-          <div className="dashboard-network-node identity"><span>IDENTITY</span><strong>01</strong></div>
-          <div className="dashboard-network-link" aria-hidden="true"></div>
-          <div className="dashboard-network-node"><span>MAIL</span><strong>{inboxEmails.length}</strong></div>
-        </div>
-      </section>
+      <DashboardStats
+        contactsCount={contacts.length}
+        roomsCount={rooms.length}
+        messagesCount={chatMessages.length}
+        inboxCount={inboxEmails.length}
+        t={t}
+      />
 
-      {deferredPrompt && (
-        <section className="dashboard-install-banner">
-          <div className="dashboard-install-info">
-            <span className="dashboard-install-icon">{'\u{1F4F1}'}</span>
-            <div className="dashboard-install-text">
-              <h4>{t('install_app') || 'GaiaCOM App installieren'}</h4>
-              <p>{t('install_app_desc') || 'Für schnellen Start & Offline-Modus'}</p>
-            </div>
+      {isEmpty && (
+        <section className="vgt-dash-start" aria-label="Erste Schritte">
+          <div>
+            <p className="vgt-eyebrow">Erste Schritte</p>
+            <h2 className="vgt-h3">Dein Kommunikationsraum ist bereit — aber noch leer.</h2>
+            <p className="vgt-body vgt-body--sm">
+              Lege einen Raum an, öffne den Posteingang oder sende eine Nachricht an eine GaiaID.
+              Alle Aktionen laufen über dieselbe Identität.
+            </p>
           </div>
-          <button type="button" className="dashboard-install-btn" onClick={handleInstallApp}>
-            {t('install_app') || 'App installieren'}
-          </button>
+          <div className="vgt-dash-start__actions">
+            <button type="button" className="btn-primary" onClick={() => setShowCreateGroupModal?.(true)}>
+              <Icon name="plus" size={15} />
+              Raum erstellen
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => go('inbox')}>
+              <Icon name="mail" size={15} />
+              {t('onboarding_inbox_title') || 'Posteingang'}
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => go('gaiadrop')}>
+              <Icon name="send" size={15} />
+              {t('public_drop_send') || 'GaiaDrop senden'}
+            </button>
+          </div>
         </section>
       )}
 
-      <section className="dashboard-grid-cards">
-        <div className="dashboard-card glass-panel nebula-metric-card nebula-metric-card-blue">
-          <div className="dashboard-card-top">
-            <span className="dashboard-card-label">{t('connected_rooms') || 'VERBUNDENE RÄUME'}</span>
-            <span className="dashboard-card-icon" aria-hidden="true">{'\u{1F465}'}</span>
-          </div>
-          <div className="dashboard-card-value">{rooms.length}</div>
-          <div className="dashboard-card-bar-container">
-            <div className="dashboard-card-bar" style={{ width: rooms.length > 0 ? '100%' : '0%' }}></div>
-          </div>
-        </div>
+      <div className="vgt-dash-feeds">
+        <DashboardFeed
+          kind="mail"
+          title={t('recent_messages') || 'Neueste Nachrichten'}
+          icon="mail"
+          items={recentEmails}
+          emptyTitle={t('empty_messages') || 'Keine Nachrichten im Postfach.'}
+          emptyBody="Neue Mail erscheint hier, sobald der Posteingang Nachrichten enthält."
+          emptyActionLabel={t('open_inbox') || 'Posteingang öffnen'}
+          onEmptyAction={() => go('inbox')}
+          onOpenItem={() => go('inbox')}
+          footerLabel="Alle Mails"
+          onFooter={() => go('inbox')}
+        />
 
-        <div className="dashboard-card glass-panel nebula-metric-card nebula-metric-card-purple">
-          <div className="dashboard-card-top">
-            <span className="dashboard-card-label">{t('primary_identity') || 'PRIMÄRE IDENTITÄT'}</span>
-            <span className="dashboard-card-icon" aria-hidden="true">#</span>
-          </div>
-          <div className="dashboard-card-value" style={{ fontSize: activeIdentity ? '1.25rem' : '1.8rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {activeIdentity ? (activeIdentity.DisplayName || activeIdentity.displayName) : (t('no_id') || 'Keine ID')}
-          </div>
-          <div className="dashboard-card-footer-pill verified">
-            <span>{'\u{1F512}'} HQC-256 + ML-KEM-1024 VERIFIED</span>
-          </div>
-        </div>
+        <DashboardFeed
+          kind="chat"
+          title={t('recent_chats') || 'Neueste Chats'}
+          icon="chat"
+          items={recentChats}
+          emptyTitle={t('empty_chats') || 'Noch keine Chatverläufe.'}
+          emptyBody="Wähle einen Kontakt aus, um ein verschlüsseltes Gespräch zu beginnen."
+          emptyActionLabel="Kontakte ansehen"
+          onEmptyAction={() => go('contacts')}
+          onOpenItem={openChat}
+          footerLabel="Alle Chats"
+          onFooter={() => go('chat')}
+        />
+      </div>
 
-        <div className="dashboard-card glass-panel nebula-metric-card nebula-metric-card-green" style={{ borderBottom: '2px solid var(--success)' }}>
-          <div className="dashboard-card-top">
-            <span className="dashboard-card-label">{t('gaiacom_uplink') || 'GAIACOM UPLINK'}</span>
-            <span className="dashboard-card-icon" aria-hidden="true">{'\u{1F4C8}'}</span>
-          </div>
-          <div className="dashboard-card-value" style={{ color: 'var(--success)', textShadow: '0 0 10px rgba(46, 213, 115, 0.2)' }}>
-            Online
-          </div>
-          <div className="dashboard-card-bar-container">
-            <div className="dashboard-card-bar" style={{ background: 'var(--success)', width: '100%' }}></div>
-          </div>
-        </div>
-      </section>
+      <DashboardRooms
+        rooms={rooms}
+        onOpenRoom={openRoom}
+        onCreateRoom={() => setShowCreateGroupModal?.(true)}
+        t={t}
+      />
 
-      <section className="dashboard-grid-feed">
-        <div className="dashboard-feed-pane glass-panel">
-          <div className="dashboard-feed-header">
-            <span className="dashboard-feed-title">{'\u2709\uFE0F'} {t('recent_messages') || 'Neueste Nachrichten'}</span>
+      {deferredPrompt && (
+        <aside className="vgt-dash-install" aria-label={t('install_app') || 'App installieren'}>
+          <div>
+            <p className="vgt-h4">GaiaCom als App installieren</p>
+            <p className="vgt-caption">Schnellerer Start und ein eigenes Fenster auf diesem Gerät.</p>
           </div>
-          <div className="dashboard-feed-list gaia-scrollbar">
-            {recentEmails.length === 0 ? (
-              <div className="dashboard-feed-empty">
-                <span className="dashboard-feed-empty-icon">{'\u{1F4EC}'}</span>
-                <span>{t('empty_messages') || 'Keine neuen Nachrichten vorhanden.'}</span>
-              </div>
-            ) : (
-              recentEmails.map(email => (
-                <div key={email.id} className="dashboard-feed-item" onClick={() => handleOpenEmail(email)}>
-                  <div className="dashboard-feed-item-avatar">{'\u2709\uFE0F'}</div>
-                  <div className="dashboard-feed-item-content">
-                    <div className="dashboard-feed-item-header">
-                      <span className="dashboard-feed-item-sender">{email.sender}</span>
-                      <span className="dashboard-feed-item-time">
-                        {new Date(email.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
-                      </span>
-                    </div>
-                    <div className="dashboard-feed-item-preview">{email.subject}</div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          <div className="dashboard-feed-footer">
-            <button type="button" className="btn-secondary dashboard-feed-footer-btn" onClick={() => setCurrentMenu('inbox')}>
-              {t('open_inbox') || 'Posteingang öffnen'}
-            </button>
-          </div>
-        </div>
-
-        <div className="dashboard-feed-pane glass-panel">
-          <div className="dashboard-feed-header">
-            <span className="dashboard-feed-title">{'\u{1F4AC}'} {t('recent_chats') || 'Neue Chats'}</span>
-          </div>
-          <div className="dashboard-feed-list gaia-scrollbar">
-            {recentChats.length === 0 ? (
-              <div className="dashboard-feed-empty">
-                <span className="dashboard-feed-empty-icon">{'\u{1F4AC}'}</span>
-                <span>{t('empty_chats') || 'Keine aktiven Chats vorhanden.'}</span>
-              </div>
-            ) : (
-              recentChats.map(item => (
-                <div key={item.contact.gaiaID} className="dashboard-feed-item" onClick={() => handleOpenChat(item.contact)}>
-                  <div className="dashboard-feed-item-avatar">{'\u{1F464}'}</div>
-                  <div className="dashboard-feed-item-content">
-                    <div className="dashboard-feed-item-header">
-                      <span className="dashboard-feed-item-sender">{item.contact.displayName}</span>
-                      <span className="dashboard-feed-item-time">
-                        {new Date(item.latestMsg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                    <div className="dashboard-feed-item-preview">{item.latestMsg.body}</div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-          <div className="dashboard-feed-footer">
-            <button type="button" className="btn-secondary dashboard-feed-footer-btn" onClick={() => setCurrentMenu('chat')}>
-              {t('open_chats') || 'Chats öffnen'}
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section className="dashboard-active-channels-card glass-panel">
-        <div className="dashboard-feed-header">
-          <span className="dashboard-feed-title">{'\u{1F4FB}'} {t('active_frequencies') || 'Aktive Frequenzen'} ({rooms.length})</span>
-          <button type="button" className="btn-primary dashboard-inline-action" onClick={() => setShowCreateGroupModal(true)}>
-            {'\u2795'} {t('new_room') || 'Neuer Raum'}
+          <button type="button" className="btn-secondary" onClick={handleInstallApp}>
+            <Icon name="download" size={15} />
+            {t('install_app') || 'Installieren'}
           </button>
-        </div>
+        </aside>
+      )}
 
-        {rooms.length === 0 ? (
-          <div className="dashboard-empty-state-channels">
-            <div className="dashboard-empty-state-icon">{'\u{1F4E1}'}</div>
-            <div className="dashboard-empty-state-title">
-              {t('no_frequencies_active') || 'Keine Frequenzen aktiv.'}
-            </div>
-            <div className="dashboard-empty-state-desc">
-              {t('no_frequencies_active_desc') || 'Erstellen Sie einen neuen Raum, um die Kommunikation zu starten.'}
-            </div>
-          </div>
-        ) : (
-          <div className="dashboard-feed-list dashboard-active-frequencies-list gaia-scrollbar">
-            {rooms.map(room => (
-              <div key={room.ID} className="dashboard-feed-item" onClick={() => handleOpenRoom(room)}>
-                <div className="dashboard-feed-item-avatar">{'\u{1F4FB}'}</div>
-                <div className="dashboard-feed-item-content">
-                  <div className="dashboard-feed-item-header">
-                    <span className="dashboard-feed-item-sender dashboard-room-name">{room.Name}</span>
-                    <span className="dashboard-feed-item-time dashboard-room-members">
-                      {room.Members?.length || 0} Members
-                    </span>
-                  </div>
-                  <div className="dashboard-feed-item-preview dashboard-room-preview">
-                    {room.Description || 'Zero-Knowledge Crypto Room'}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
+      <p className="vgt-dash__provenance">
+        Alle Werte sind Sitzungsdaten. Keine geschätzten oder dekorativen Kennzahlen.
+      </p>
     </div>
   );
-};
-
-export default DashboardPane;
+}

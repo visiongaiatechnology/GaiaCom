@@ -1,4 +1,3 @@
-// STATUS: PLATIN
 import { createHQC256 } from './vendor/liboqs-hqc256/hqc-256.js';
 import initSovereignWasm, {
   sovereign_open as wasmOpen,

@@ -1,0 +1,372 @@
+/* ============================================================================
+   VGT GLASS 2100 — IDENTITY WORKSPACE (Profile pane)
+   Composition: identity header (Z1 canvas) -> sticky section rail -> section.
+   Glass is used for the navigation rail only; forms and dense lists are opaque.
+   ========================================================================== */
+
+.vgt-profile-pane__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+}
+
+.vgt-profile-back {
+  padding-left: var(--vgt-space-1);
+}
+
+@media (min-width: 993px) {
+  .vgt-profile-back {
+    display: none;
+  }
+}
+
+/* ---------- Identity header ---------- */
+.vgt-profile-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-5);
+  padding: clamp(var(--vgt-space-4), 2vw, var(--vgt-space-6));
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-1);
+}
+
+.vgt-profile-head__identity {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vgt-space-4);
+  min-width: 0;
+}
+
+.vgt-profile-head__avatar {
+  width: 64px;
+  height: 64px;
+  flex: none;
+  font-size: 1.75rem;
+}
+
+.vgt-profile-head__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  min-width: 0;
+}
+
+.vgt-profile-head__text .vgt-h2 {
+  font-size: var(--vgt-text-xl);
+  overflow-wrap: anywhere;
+}
+
+.vgt-profile-head__id {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  min-width: 0;
+}
+
+.vgt-profile-head__id .vgt-id {
+  overflow-wrap: anywhere;
+}
+
+.vgt-profile-head__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-profile-head__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-4);
+  margin: 0;
+}
+
+.vgt-profile-head__facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 110px;
+  padding-left: var(--vgt-space-3);
+  border-left: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-profile-head__facts dt {
+  font-size: var(--vgt-text-xs);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-profile-head__facts dd {
+  font-size: var(--vgt-text-sm);
+  font-weight: 620;
+  color: var(--vgt-text-secondary);
+}
+
+.vgt-profile-head__facts dd.is-ok {
+  color: var(--vgt-success);
+}
+
+.vgt-profile-head__facts dd.is-idle {
+  color: var(--vgt-text-muted);
+}
+
+/* ---------- Avatar mark ---------- */
+.vgt-avatar-mark {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  border: var(--vgt-hairline) solid var(--vgt-border-strong);
+  background: var(--vgt-bg-3);
+  color: var(--vgt-text-primary);
+  line-height: 1;
+}
+
+.vgt-avatar-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vgt-avatar-mark__glyph {
+  font-size: 1.15em;
+}
+
+.vgt-avatar-mark__initials {
+  font-family: var(--vgt-font-display);
+  font-size: 0.42em;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  color: var(--vgt-pigment);
+  text-transform: uppercase;
+}
+
+.vgt-avatar-mark--editor {
+  width: 56px;
+  height: 56px;
+  font-size: 1.5rem;
+  border-radius: var(--vgt-radius-panel);
+}
+
+.vgt-avatar-mark--profile {
+  font-size: 1.6rem;
+}
+
+/* ---------- Workspace: sticky rail + section ---------- */
+.vgt-profile-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--vgt-space-5);
+  align-items: start;
+  min-width: 0;
+}
+
+.vgt-profile-nav {
+  display: flex;
+  gap: var(--vgt-space-3);
+  min-width: 0;
+  margin: 0;
+  position: sticky;
+  top: 0;
+  z-index: var(--vgt-z-sticky);
+  padding: var(--vgt-space-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
+}
+
+.vgt-profile-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.vgt-profile-nav__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-1);
+  flex: none;
+}
+
+.vgt-profile-nav__label {
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vgt-text-muted);
+  padding-left: var(--vgt-space-3);
+}
+
+.vgt-profile-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vgt-profile-nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--vgt-space-2);
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--vgt-space-3);
+  border: var(--vgt-hairline) solid transparent;
+  border-radius: var(--vgt-radius-control);
+  background: transparent;
+  color: var(--vgt-text-secondary);
+  font-family: var(--vgt-font-sans);
+  font-size: var(--vgt-text-sm);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--vgt-dur-micro) ease, color var(--vgt-dur-micro) ease,
+              border-color var(--vgt-dur-micro) ease;
+}
+
+.vgt-profile-nav__item .vgt-icon {
+  flex: none;
+  color: var(--vgt-text-muted);
+}
+
+.vgt-profile-nav__item:hover {
+  background: var(--vgt-bg-2);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-profile-nav__item.is-active {
+  background: var(--vgt-pigment-soft);
+  border-color: var(--vgt-pigment-line);
+  color: var(--vgt-text-primary);
+}
+
+.vgt-profile-nav__item.is-active .vgt-icon {
+  color: var(--vgt-pigment);
+}
+
+.vgt-profile-nav__item:focus-visible {
+  outline: none;
+  box-shadow: var(--vgt-focus-ring);
+}
+
+.vgt-profile-content {
+  min-width: 0;
+  padding-bottom: var(--vgt-space-8);
+}
+
+@media (min-width: 900px) {
+  .vgt-profile-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}
+
+/* Settings content owns the pane width now: the section navigation lives in the
+   workspace ListPane, so the former in-content rail is gone and the forms get a
+   centered, readable measure instead of stretching across ultra-wide displays. */
+.vgt-profile-workspace {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.vgt-profile-pane {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.vgt-profile-content {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (min-width: 993px) {
+  .vgt-profile-pane__bar {
+    display: none;
+  }
+}
+
+/* ---------- Section frame ---------- */
+.vgt-profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-5);
+  min-width: 0;
+}
+
+/* One quiet functional surface per settings view: the section now reads as a
+   composed panel under the identity card instead of floating text on the canvas. */
+.vgt-profile-content .vgt-profile-section {
+  padding: clamp(16px, 2.1vw, 24px);
+  border: var(--vgt-hairline) solid var(--vgt-border);
+  border-radius: var(--vgt-radius-panel);
+  background: var(--vgt-bg-1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.vgt-profile-section__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--vgt-space-3);
+  padding-bottom: var(--vgt-space-3);
+  border-bottom: var(--vgt-hairline) solid var(--vgt-divider);
+}
+
+.vgt-profile-section__titles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-2);
+  min-width: 0;
+}
+
+.vgt-profile-section__titles .vgt-body {
+  max-width: 72ch;
+}
+
+.vgt-profile-section__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vgt-space-2);
+}
+
+.vgt-profile-section__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-5);
+  min-width: 0;
+}
+
+.vgt-profile-section.is-danger {
+  border-left: 2px solid var(--vgt-danger);
+  padding-left: var(--vgt-space-4);
+}
+
+/* Slightly more air in the settings workspace, and a defined rhythm between the
+   identity card and the active section panel. */
+.vgt-profile-pane {
+  gap: var(--vgt-space-6);
+}
+
+.vgt-profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vgt-space-5);
+}
+
+/* Keep long form measures readable on wide desktop panes. */
+.vgt-profile-content .vgt-profile-form,
+.vgt-profile-content .vgt-profile-section__body > form {
+  max-width: 820px;
+}
+
+
+

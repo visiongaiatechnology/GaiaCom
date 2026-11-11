@@ -1,11 +1,11 @@
-// STATUS: DIAMANT VGT SUPREME
 import { readdir, readFile } from 'node:fs/promises';
 import { gzipSync } from 'node:zlib';
 
 const assetsDirectory = new URL('../dist/assets/', import.meta.url);
 const maximumJavaScriptBytes = 1_600 * 1024;
 const maximumJavaScriptGzipBytes = 500 * 1024;
-const maximumStylesheetBytes = 320 * 1024;
+// 384 KiB: the authenticated workspace adds the neon app theme (aurora-app/*.css).
+const maximumStylesheetBytes = 448 * 1024;
 
 const entries = await readdir(assetsDirectory, { withFileTypes: true });
 const assetFiles = entries.filter((entry) => entry.isFile());

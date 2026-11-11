@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 use hmac::{Hmac, Mac};
 use sha2::{Digest, Sha256};
 

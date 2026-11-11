@@ -139,3 +139,66 @@ func (s *SecuritySystem) CheckMessageEnvelope(ctx context.Context, senderID uuid
 
 	return nil
 }
+
+// Message fan-out budgets (P-09 / FIND-011, CHAIN-003). These are per-user
+// budgets across all sends in one minute; the per-request 256-recipient cap and
+// the 30 MiB envelope cap in CheckMessageEnvelope remain in force.
+const (
+	messageFanoutRequestWindow   = time.Minute
+	messageFanoutMaxRequests     = 60
+	messageFanoutRecipientWindow = time.Minute
+	messageFanoutMaxRecipients   = 600
+	messageFanoutBytesWindow     = time.Minute
+	messageFanoutMaxBytesMiB     = 64
+)
+
+// CheckMessageFanout enforces per-user send fan-out budgets before any
+// distribution happens. Rejections record a security event and fail closed.
+func (s *SecuritySystem) CheckMessageFanout(ctx context.Context, r *http.Request, senderID uuid.UUID, recipientCount int, envelopeBytes int) error {
+	if s == nil {
+		return errors.New("security system unavailable")
+	}
+	if recipientCount < 0 || envelopeBytes < 0 {
+		return errors.New("invalid fan-out budget request")
+	}
+	material := senderID.String()
+
+	requests, err := s.incrementCriticalRateLimit(ctx, "msg-send", material, messageFanoutRequestWindow)
+	if err != nil {
+		return errors.New("message throttled: quota backend unavailable")
+	}
+	if requests > messageFanoutMaxRequests {
+		s.RecordSecurityEvent(ctx, nil, &senderID, "rate_limit", "medium", "message_guard",
+			"Nachrichten-Sendebudget pro Minute überschritten.", "rate_limit", r)
+		return errors.New("message send rate limit exceeded")
+	}
+
+	if recipientCount > 0 {
+		recipients, err := s.incrementCriticalRateLimitBy(ctx, "msg-recipients", material, messageFanoutRecipientWindow, recipientCount)
+		if err != nil {
+			return errors.New("message throttled: quota backend unavailable")
+		}
+		if recipients > messageFanoutMaxRecipients {
+			s.RecordSecurityEvent(ctx, nil, &senderID, "rate_limit", "medium", "message_guard",
+				"Empfänger-Fanout-Budget pro Minute überschritten.", "rate_limit", r)
+			return errors.New("message recipient budget exceeded")
+		}
+	}
+
+	if envelopeBytes > 0 {
+		units := (envelopeBytes + (1024*1024 - 1)) / (1024 * 1024)
+		if units < 1 {
+			units = 1
+		}
+		bytesCount, err := s.incrementCriticalRateLimitBy(ctx, "msg-bytes", material, messageFanoutBytesWindow, units)
+		if err != nil {
+			return errors.New("message throttled: quota backend unavailable")
+		}
+		if bytesCount > messageFanoutMaxBytesMiB {
+			s.RecordSecurityEvent(ctx, nil, &senderID, "rate_limit", "medium", "message_guard",
+				"Nachrichten-Bytebudget pro Minute überschritten.", "rate_limit", r)
+			return errors.New("message byte budget exceeded")
+		}
+	}
+	return nil
+}

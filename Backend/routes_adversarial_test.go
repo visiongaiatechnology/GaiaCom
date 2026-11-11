@@ -1,4 +1,3 @@
-// STATUS: DIAMANT VGT SUPREME
 package backend
 
 import (
@@ -304,7 +303,7 @@ func TestAdversarialRoomBOLAAndIdentityLimit(t *testing.T) {
 	// -------------------------------------------------------------------------
 	// User 1 currently has 1 identity. Try creating a 2nd.
 	reqCreateIdent2 := httptest.NewRequest(http.MethodPost, "/api/v1/identity/create", strings.NewReader(`{
-		"gaiaId": "@user1b:gaiacom.de",
+		"gaiaId": "@user1b:node.test.example",
 		"displayName": "User One B",
 		"publicRecord": {"public_keys": {"identity": "pubkey1b"}}
 	}`))
@@ -318,7 +317,7 @@ func TestAdversarialRoomBOLAAndIdentityLimit(t *testing.T) {
 
 	// Try creating a 3rd identity. Should fail with 400 Bad Request.
 	reqCreateIdent3 := httptest.NewRequest(http.MethodPost, "/api/v1/identity/create", strings.NewReader(`{
-		"gaiaId": "@user1c:gaiacom.de",
+		"gaiaId": "@user1c:node.test.example",
 		"displayName": "User One C",
 		"publicRecord": {"public_keys": {"identity": "pubkey1c"}}
 	}`))
