@@ -67,10 +67,9 @@ export function verifyAttestationSignature(attestation) {
     const publicKey = hexToBytes(String(publicKeyHex));
     const message = new TextEncoder().encode(String(canonical));
     return { valid: ed25519.verify(signature, message, publicKey), reason: 'checked' };
-  } catch (error) {
+  } catch {
     // Malformed hex or an unsupported key length means the client cannot prove
     // the signature; treat the claim as unverified instead of throwing.
-    void error;
     return { valid: false, reason: 'invalid-encoding' };
   }
 }

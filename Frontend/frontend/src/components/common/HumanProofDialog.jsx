@@ -299,9 +299,8 @@ export default function HumanProofDialog({
             onClick={async () => {
               try {
                 await navigator.clipboard?.writeText(challenge.phrase);
-              } catch (error) {
+              } catch {
                 // Clipboard permission can be denied; the phrase stays visible.
-                void error;
               }
             }}
             title="Phrase kopieren"

@@ -34,7 +34,7 @@ const METRIC_FIELDS = [
 function metricValue(field, stats, statsError) {
   if (statsError) return '—';
   const value = stats?.[field.key];
-  return typeof value === 'number' ? value : '—';
+  return typeof value === 'number' ? String(value) : '—';
 }
 
 /**

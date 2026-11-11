@@ -58,10 +58,9 @@ export function readCryptoSession(expectedUserId, enabledMinutes) {
   try {
     const stored = safeJsonParse(sessionStorage.getItem(CRYPTO_SESSION_KEY), null);
     if (stored && typeof stored === 'object') parsed = stored;
-  } catch (error) {
+  } catch {
     // Corrupt or unavailable sessionStorage is treated as "no stored session";
     // the volatile in-memory session (if any) is still used below.
-    void error;
   }
   if (!parsed || parsed.userId !== expectedUserId || !parsed.mnemonic || Number(parsed.expiresAt) <= Date.now()) {
     volatileCryptoSession = null;
