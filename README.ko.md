@@ -31,7 +31,7 @@
 
 ## 메뉴
 
-[개요](#overview) · [베타 V3](#beta-v3) · [스크린샷](#screenshots) · [기능](#features) · [기술 정보](#technical-information) · [GaiaCom만의 차별점](#what-makes-gaiacom-different) · [소스에서 빌드하기](#build-from-source) · [노드 운영자 되기](#become-a-node-operator) · [보안 및 감사 현황](#security-and-audit-status) · [프로젝트 구조](#project-structure) · [기여하기](#contributing) · [라이선스](#license)
+[개요](#overview) · [VGT Licence](#vgt-licence) · [베타 V3](#beta-v3) · [스크린샷](#screenshots) · [기능](#features) · [기술 정보](#technical-information) · [GaiaCom만의 차별점](#what-makes-gaiacom-different) · [소스에서 빌드하기](#build-from-source) · [노드 운영자 되기](#become-a-node-operator) · [보안 및 감사 현황](#security-and-audit-status) · [프로젝트 구조](#project-structure) · [기여하기](#contributing) · [라이선스](#license)
 
 ---
 
@@ -57,6 +57,46 @@
 
 GaiaCom은 절대적 보안을 주장하지 **않습니다**. 대신 신뢰 경계를 명확하고 검증
 가능하며 — 가능한 곳에서는 — 수학적으로 강제할 수 있도록 만드는 시도입니다.
+
+---
+
+<a id="vgt-licence"></a>
+## VGT Licence
+
+GaiaCom은 3가지 에디션으로 제공됩니다:
+
+**하나의 프로토콜. 세 가지 운영 모델.**
+
+### Business — GaiaCom Enterprise
+
+기업, 법률사무소, 중소기업, 산업 및 프라이빗 뱅킹용. 관리 권한 제어와 지원을 제공하는 독립된 통신망.
+
+- 내부 주권 확보 및 사용자 관리
+- 자체 호스팅 노드 또는 관리형 주권 클러스터 구축
+- SLA 보장, 기술 지원 및 프리미엄 모듈 제공
+
+### Public — GaiaCom Network
+
+디지털 프라이버시를 위한 개방형 네트워크. 데이터 상거래가 없으며, 오직 자유롭고 암호화된 통신을 위한 인프라입니다.
+
+- 오픈소스 클라이언트 앱
+- 연합 노드 환경
+- 중앙 복호화 키 미보유
+
+### Government — GaiaCom Defend
+
+정부 기관, 핵심 인프라 및 격리된 통신 환경을 위해 고도로 세분화된 맞춤형 보안 인프라.
+
+- 인터넷과 완벽히 격리된 폐쇄망(air-gapped) 배포
+- 화이트라벨 솔루션 제공 및 소스코드 감사 진행
+- 국가 디지털 주권 확보
+
+> **현재 테스트 버전 및 상용 라이선스 요건 (이중 라이선스 / Dual-Licensing)**
+>
+> 이 저장소에서 현재 테스트 중인 버전은 오픈소스 라이선스 **AGPL-3.0-or-later**([LICENSE](LICENSE) 참조) 하의 공개 **GaiaCom Network** 에디션(Beta V3)입니다. 오픈소스 라이선스 하에서 `GaiaCom Network`를 네트워크로 운영하거나 수정하는 경우, AGPL 카피레프트 및 소스코드 공개 의무가 엄격하게 적용되며 상표권, SLA 또는 Enterprise/Defend 모듈은 부여되지 않습니다.
+>
+> **기업 및 정부 기관의 경우 이 시스템은 무료로 제공되지 않습니다.** 기업 환경(**GaiaCom Enterprise**) 또는 정부·공공기관 및 핵심 인프라(**GaiaCom Defend**)에서 GaiaCom을 도입하려는 경우(AGPL 소스 공개 의무가 없는 폐쇄형·상용 운영 배포, Enterprise/Defend 모듈, 관리형 주권 클러스터, 화이트라벨, 소스코드 감사, SLA 및 기술 지원 포함) 상용 **VGT Licence**가 필요하며, 가급적 암호화된 문의 양식을 통해 VisionGaiaTechnology에 문의하시기 바랍니다:
+> **[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink)**
 
 ---
 
@@ -634,11 +674,16 @@ GaiaCom/
 <a id="license"></a>
 ## 라이선스
 
-GaiaCom은 **GNU Affero General Public License v3.0 이상**(AGPL-3.0-or-later)에 따라
-라이선스가 부여됩니다. [LICENSE](LICENSE)를 참고하십시오.
+GaiaCom은 **이중 라이선스 모델**([VGT Licence](#vgt-licence) 참조)을 따릅니다. 공개된
+오픈소스 코드베이스(`GaiaCom Network`)는 **GNU Affero General Public License v3.0
+이상**(AGPL-3.0-or-later)에 따라 라이선스가 부여됩니다([LICENSE](LICENSE) 참조). 기업용
+운영(**GaiaCom Enterprise**), 공공·정부 기관(**GaiaCom Defend**) 및 AGPL 소스 공개
+의무가 없는 상용·폐쇄형 배포(프리미엄 모듈, SLA/지원, 화이트라벨 및 폐쇄망 air-gapped
+환경 포함)는 **무료가 아니며**, 다음 경로를 통해 상용 **VGT Licence**를 취득해야 합니다:
+[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink).
 
-수정된 GaiaCom 소프트웨어를 운영하는 네트워크 운영자는 AGPL의 요구 사항에 따라 해당
-소스를 공개해야 합니다. 제3자 구성 요소 및 그 라이선스는
+AGPL 하에서 수정된 GaiaCom 오픈소스 소프트웨어를 운영하는 네트워크 운영자는 AGPL의 요구
+사항에 따라 해당 소스를 공개해야 합니다. 제3자 구성 요소 및 그 라이선스는
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)와 각 패키지 매니페스트에 나열되어
 있습니다.
 

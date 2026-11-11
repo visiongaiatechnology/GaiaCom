@@ -31,7 +31,7 @@
 
 ## Menü
 
-[Genel Bakış](#overview) · [Beta V3](#beta-v3) · [Ekran Görüntüleri](#screenshots) · [Özellikler](#features) · [Teknik Bilgiler](#technical-information) · [GaiaCom'u Farklı Kılan Nedir](#what-makes-gaiacom-different) · [Kaynaktan Derleme](#build-from-source) · [Düğüm Operatörü Olun](#become-a-node-operator) · [Güvenlik ve Denetim Durumu](#security-and-audit-status) · [Proje Yapısı](#project-structure) · [Katkıda Bulunma](#contributing) · [Lisans](#license)
+[Genel Bakış](#overview) · [VGT Licence](#vgt-licence) · [Beta V3](#beta-v3) · [Ekran Görüntüleri](#screenshots) · [Özellikler](#features) · [Teknik Bilgiler](#technical-information) · [GaiaCom'u Farklı Kılan Nedir](#what-makes-gaiacom-different) · [Kaynaktan Derleme](#build-from-source) · [Düğüm Operatörü Olun](#become-a-node-operator) · [Güvenlik ve Denetim Durumu](#security-and-audit-status) · [Proje Yapısı](#project-structure) · [Katkıda Bulunma](#contributing) · [Lisans](#license)
 
 ---
 
@@ -57,6 +57,46 @@ Sunucu hiçbir zaman yerel özel içeriğin şifresini çözme yeteneğini almam
 
 GaiaCom mutlak güvenlik iddiası **değildir**. Güven sınırlarını açık, test edilebilir ve — mümkün
 olduğu yerlerde — matematiksel olarak zorunlu kılma girişimidir.
+
+---
+
+<a id="vgt-licence"></a>
+## VGT Licence
+
+GaiaCom 3 sürüm hâlinde sunulmaktadır:
+
+**Tek protokol. Üç işletim modeli.**
+
+### Business — GaiaCom Enterprise
+
+Şirketler, hukuk büroları, KOBİ'ler, sanayi ve özel bankacılık için. Yönetimsel kontrollere ve desteğe sahip kapalı iletişim çevreleri.
+
+- İç egemenlik ve kullanıcı yönetimi
+- Kendi sunucunuzda barındırma veya yönetilen egemen küme
+- SLA, destek ve premium modüller
+
+### Public — GaiaCom Network
+
+Dijital gizlilik için açık ağ. Veri ticareti içermez, sadece özgür ve şifreli iletişim için bir altyapıdır.
+
+- Açık kaynak kodlu istemci uygulaması
+- Federe düğümler
+- Merkezi şifre çözme anahtarı barındırmaz
+
+### Government — GaiaCom Defend
+
+Resmi makamlar, kritik altyapılar ve izole iletişim kanalları için yüksek güvenlikli özel altyapı.
+
+- İnternetten tamamen izole (air-gapped) kurulumlar
+- Özel markalama (white-label) ve kaynak kod denetimi
+- Ulusal dijital egemenlik
+
+> **Mevcut test sürümü ve ticari lisans gereksinimi (Çift Lisanslama)**
+>
+> Bu depoda şu anda test edilen sürüm, açık kaynak **AGPL-3.0-or-later** lisansı altındaki halka açık **GaiaCom Network** sürümüdür (Beta V3, bkz. [LICENSE](LICENSE)). Açık kaynak lisansı kapsamında `GaiaCom Network` üzerinde yapılan her türlü ağ işletimi veya değişiklik AGPL copyleft ve kaynak kod paylaşım yükümlülüklerine tabidir (ticari marka hakları, SLA veya Enterprise/Defend modülleri kapsam dışıdır).
+>
+> **Şirketler ve resmî kurumlar için sistem ücretsiz değildir.** GaiaCom'u şirketlerinde (**GaiaCom Enterprise**) ya da devlet kurumları ve kritik altyapılarda (**GaiaCom Defend**) kullanmak isteyenler — AGPL kaynak paylaşım yükümlülüğü olmaksızın kapalı veya canlı kurulumlar, Enterprise/Defend modülleri, yönetilen egemen kümeler, özel markalama (white labeling), kaynak kod denetimi veya SLA/destek dâhil — ticari bir **VGT Licence** edinmeli ve tercihen şifreli başvuru formu üzerinden VisionGaiaTechnology ile iletişime geçmelidir:
+> **[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink)**
 
 ---
 
@@ -636,16 +676,21 @@ Katılarak [Davranış Kuralları](CODE_OF_CONDUCT.md)'nı kabul etmiş olursunu
 <a id="license"></a>
 ## Lisans
 
-GaiaCom, **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later) kapsamında
-lisanslanmıştır. Bkz. [LICENSE](LICENSE).
+GaiaCom **çift lisanslama modelini** uygular (bkz. [VGT Licence](#vgt-licence)): halka
+açık kaynak kod tabanı (`GaiaCom Network`), **GNU Affero General Public License v3.0 or
+later** (AGPL-3.0-or-later) altında lisanslanmıştır — bkz. [LICENSE](LICENSE). Şirketlerde
+(**GaiaCom Enterprise**), devlet kurumlarında (**GaiaCom Defend**) veya AGPL kaynak kod
+paylaşım yükümlülüğü olmaksızın kapalı/ticari kurulumlarda (premium modüller, SLA/destek,
+white labeling ve air-gapped ortamlar dâhil) sistem **ücretsiz değildir** ve
+[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink) üzerinden ticari bir **VGT Licence** gerektirir.
 
-Değiştirilmiş GaiaCom yazılımını çalıştıran ağ operatörleri, AGPL'nin gerektirdiği şekilde ilgili
-kaynak kodunu kullanıma sunmalıdır. Üçüncü taraf bileşenler ve lisansları
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dosyasında ve ilgili paket bildirimlerinde
-listelenmiştir.
+AGPL kapsamında değiştirilmiş GaiaCom açık kaynak yazılımını çalıştıran ağ operatörleri,
+AGPL'nin gerektirdiği şekilde ilgili kaynak kodunu kullanıma sunmalıdır. Üçüncü taraf
+bileşenler ve lisansları [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dosyasında ve
+ilgili paket bildirimlerinde listelenmiştir.
 
-GaiaCom ve GaiaCom logosu VisionGaiaTechnology'nin ticari markalarıdır. AGPL lisansı ticari marka
-hakları vermez.
+GaiaCom ve GaiaCom logosu VisionGaiaTechnology'nin ticari markalarıdır. AGPL lisansı
+ticari marka hakları vermez.
 
 ---
 

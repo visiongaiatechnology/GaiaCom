@@ -31,7 +31,7 @@
 
 ## القائمة
 
-[نظرة عامة](#overview) · [بيتا V3](#beta-v3) · [لقطات الشاشة](#screenshots) · [الميزات](#features) · [المعلومات التقنية](#technical-information) · [ما الذي يميّز GaiaCom](#what-makes-gaiacom-different) · [البناء من المصدر](#build-from-source) · [كن مشغّل عقدة](#become-a-node-operator) · [حالة الأمان والتدقيق](#security-and-audit-status) · [بنية المشروع](#project-structure) · [المساهمة](#contributing) · [الترخيص](#license)
+[نظرة عامة](#overview) · [VGT Licence](#vgt-licence) · [بيتا V3](#beta-v3) · [لقطات الشاشة](#screenshots) · [الميزات](#features) · [المعلومات التقنية](#technical-information) · [ما الذي يميّز GaiaCom](#what-makes-gaiacom-different) · [البناء من المصدر](#build-from-source) · [كن مشغّل عقدة](#become-a-node-operator) · [حالة الأمان والتدقيق](#security-and-audit-status) · [بنية المشروع](#project-structure) · [المساهمة](#contributing) · [الترخيص](#license)
 
 ---
 
@@ -57,6 +57,46 @@
 
 GaiaCom **ليس** ادعاءً بأمان مطلق. بل هو محاولة لجعل حدود الثقة صريحةً، وقابلة للاختبار،
 وملزمة رياضيًا حيثما أمكن.
+
+---
+
+<a id="vgt-licence"></a>
+## VGT Licence
+
+يتوفر GaiaCom في ٣ إصدارات:
+
+**بروتوكول واحد. ثلاثة نماذج تشغيل.**
+
+### Business — GaiaCom Enterprise
+
+للشركات، ومكاتب المحاماة، والمؤسسات المتوسطة، والصناعة، والخدمات المصرفية الخاصة. دوائر اتصال مغلقة مع تحكم إداري ودعم.
+
+- السيادة الداخلية وإدارة المستخدمين
+- عقدة مستضافة ذاتيًا أو مجموعة سيادية مدارة
+- اتفاقية مستوى الخدمة والدعم والوحدات المتميزة
+
+### Public — GaiaCom Network
+
+الشبكة المفتوحة للخصوصية الرقمية. لا توجد تجارة بيانات، بل بنية تحتية للاتصالات الحرة والمشفرة.
+
+- تطبيق عميل مفتوح المصدر
+- عقد فيدرالية
+- بدون مفتاح فك تشفير مركزي
+
+### Government — GaiaCom Defend
+
+بنية تحتية مخصصة وعالية الأمان للسلطات والبنى التحتية الحيوية وصوامع الاتصالات المعزولة.
+
+- عمليات نشر معزولة تمامًا عن الإنترنت (air-gapped)
+- العلامة البيضاء وتدقيق الكود المصدري
+- السيادة الرقمية الوطنية
+
+> **نسخة الاختبار الحالية ومتطلبات الترخيص التجاري (الترخيص المزدوج)**
+>
+> الإصدار الذي يجري اختباره حاليًا في هذا المستودع هو النسخة العامة **GaiaCom Network** (بيتا V3) بموجب الرخصة مفتوحة المصدر **AGPL-3.0-or-later** (راجع [LICENSE](LICENSE)). يخضع أي تشغيل شبكي أو تعديل لـ `GaiaCom Network` بموجب الرخصة المفتوحة لالتزامات حقوق النسخ المتروك (copyleft) وإتاحة الشيفرة المصدرية وفق رخصة AGPL (ولا يمنح أي حقوق علامات تجارية أو اتفاقية مستوى خدمة SLA أو وحدات Enterprise/Defend).
+>
+> **بالنسبة للشركات والجهات الحكومية، النظام ليس مجانيًا.** يتعيّن على أي شركة ترغب في استخدام GaiaCom (**GaiaCom Enterprise**) أو أي جهة حكومية وبنية تحتية حيوية (**GaiaCom Defend**) — بما في ذلك عمليات النشر المغلقة أو الإنتاجية دون التزامات كشف الشيفرة بموجب AGPL، ووحدات Enterprise/Defend، والمجموعات السيادية المدارة، والعلامة البيضاء، وتدقيق الشيفرة المصدرية، أو SLA والدعم — الحصول على ترخيص تجاري **VGT Licence** والتواصل مع VisionGaiaTechnology، ويفضَّل عبر نموذج الطلب المشفّر:
+> **[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink)**
 
 ---
 
@@ -605,15 +645,21 @@ GaiaCom/
 <a id="license"></a>
 ## الترخيص
 
-يخضع GaiaCom لرخصة **GNU Affero General Public License v3.0 or later**
-(AGPL-3.0-or-later). راجع [LICENSE](LICENSE).
+يتّبع GaiaCom نموذج **الترخيص المزدوج** (راجع [VGT Licence](#vgt-licence)): تخضع قاعدة
+الشيفرة مفتوحة المصدر العامة (`GaiaCom Network`) لرخصة **GNU Affero General Public License
+v3.0 or later** (AGPL-3.0-or-later) — راجع [LICENSE](LICENSE). أمّا للاستخدام في الشركات
+(**GaiaCom Enterprise**)، أو الجهات الحكومية (**GaiaCom Defend**)، أو عمليات النشر
+التجارية والمغلقة دون التزامات كشف الشيفرة بموجب AGPL (بما يشمل الوحدات المتميزة، وSLA
+والدعم، والعلامة البيضاء، والبيئات المعزولة air-gapped)، فإن النظام **ليس مجانيًا**
+ويتطلب ترخيصًا تجاريًا **VGT Licence** عبر
+[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink).
 
-يجب على مشغّلي الشبكات الذين يشغّلون برمجيات GaiaCom معدّلة إتاحة الشيفرة المصدرية المقابلة
-وفق ما تقتضيه رخصة AGPL. وتُدرج مكونات الأطراف الثالثة وتراخيصها في
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) وفي بيانات الحزم المعنية.
+يجب على مشغّلي الشبكات الذين يشغّلون برمجيات GaiaCom مفتوحة المصدر المعدّلة بموجب AGPL
+إتاحة الشيفرة المصدرية المقابلة وفق ما تقتضيه رخصة AGPL. وتُدرج مكونات الأطراف الثالثة
+وتراخيصها في [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) وفي بيانات الحزم المعنية.
 
-تُعد GaiaCom وشعار GaiaCom علامتين تجاريتين تابعتين لـ VisionGaiaTechnology. ولا تمنح رخصة
-AGPL أي حقوق علامات تجارية.
+تُعد GaiaCom وشعار GaiaCom علامتين تجاريتين تابعتين لـ VisionGaiaTechnology. ولا تمنح
+رخصة AGPL أي حقوق علامات تجارية.
 
 ---
 

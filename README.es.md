@@ -31,7 +31,7 @@
 
 ## Menú
 
-[Visión general](#overview) · [Beta V3](#beta-v3) · [Capturas de pantalla](#screenshots) · [Funciones](#features) · [Información técnica](#technical-information) · [Qué diferencia a GaiaCom](#what-makes-gaiacom-different) · [Compilar desde el código fuente](#build-from-source) · [Conviértete en operador de nodo](#become-a-node-operator) · [Estado de seguridad y auditoría](#security-and-audit-status) · [Estructura del proyecto](#project-structure) · [Contribuir](#contributing) · [Licencia](#license)
+[Visión general](#overview) · [VGT Licence](#vgt-licence) · [Beta V3](#beta-v3) · [Capturas de pantalla](#screenshots) · [Funciones](#features) · [Información técnica](#technical-information) · [Qué diferencia a GaiaCom](#what-makes-gaiacom-different) · [Compilar desde el código fuente](#build-from-source) · [Conviértete en operador de nodo](#become-a-node-operator) · [Estado de seguridad y auditoría](#security-and-audit-status) · [Estructura del proyecto](#project-structure) · [Contribuir](#contributing) · [Licencia](#license)
 
 ---
 
@@ -59,6 +59,46 @@ El servidor nunca debe recibir la capacidad de descifrar contenido privado nativ
 
 GaiaCom **no** es una promesa de seguridad absoluta. Es un intento de hacer que los límites de
 confianza sean explícitos, verificables y — cuando es posible — matemáticamente exigibles.
+
+---
+
+<a id="vgt-licence"></a>
+## VGT Licence
+
+GaiaCom está disponible en 3 ediciones:
+
+**Un protocolo. Tres modelos operativos.**
+
+### Business — GaiaCom Enterprise
+
+Para corporaciones, firmas de abogados, medianas empresas, industria y banca privada. Círculos cerrados con control administrativo, cumplimiento y soporte.
+
+- Soberanía interna y administración de usuarios
+- Nodo autoalojado o clúster soberano gestionado
+- SLA, soporte y módulos premium
+
+### Public — GaiaCom Network
+
+La red abierta para la privacidad digital. Sin comercio de datos, sino infraestructura para comunicación libre y cifrada.
+
+- Cliente de código abierto
+- Nodos federados
+- Sin claves centrales de descifrado
+
+### Government — GaiaCom Defend
+
+Infraestructura de alta seguridad especializada para autoridades, infraestructuras críticas y silos de comunicación aislados.
+
+- Despliegues en entornos aislados y desconectados
+- Marca blanca y auditoría de código fuente
+- Soberanía digital nacional
+
+> **Versión de prueba actual y requisito de licencia comercial (licenciamiento dual)**
+>
+> La versión que se está probando actualmente en este repositorio es la edición pública **GaiaCom Network** (Beta V3) bajo la licencia de código abierto **AGPL-3.0-or-later** (consulta [LICENSE](LICENSE)). Cualquier operación en red o modificación de `GaiaCom Network` bajo la licencia abierta está sujeta a las obligaciones de copyleft y divulgación del código fuente de la AGPL (y no concede derechos de marca, SLA ni módulos Enterprise/Defend).
+>
+> **Para empresas y organismos públicos, el sistema no es gratuito.** Quienes deseen utilizar GaiaCom en sus empresas (**GaiaCom Enterprise**) o en administraciones públicas e infraestructuras críticas (**GaiaCom Defend**) — incluidos despliegues cerrados o en producción sin las obligaciones de divulgación de la AGPL, módulos Enterprise/Defend, clústeres soberanos gestionados, marca blanca, auditoría de código fuente o SLA/soporte — necesitan una **VGT Licence** comercial y deben ponerse en contacto con VisionGaiaTechnology, preferiblemente mediante la solicitud cifrada:
+> **[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink)**
 
 ---
 
@@ -657,16 +697,22 @@ Al participar, aceptas el [Código de Conducta](CODE_OF_CONDUCT.md).
 <a id="license"></a>
 ## Licencia
 
-GaiaCom está licenciado bajo la **GNU Affero General Public License v3.0 o posterior**
-(AGPL-3.0-or-later). Consulta [LICENSE](LICENSE).
+GaiaCom sigue un modelo de **licenciamiento dual** (consulta [VGT Licence](#vgt-licence)):
+el código fuente abierto público (`GaiaCom Network`) está licenciado bajo la **GNU Affero
+General Public License v3.0 o posterior** (AGPL-3.0-or-later) — consulta [LICENSE](LICENSE).
+Para despliegues empresariales (**GaiaCom Enterprise**), gubernamentales (**GaiaCom
+Defend**) o entornos comerciales y cerrados sin las obligaciones de divulgación de la AGPL
+(incluidos módulos premium, SLA/soporte, marca blanca y despliegues air-gapped), el sistema
+**no es gratuito** y requiere una **VGT Licence** comercial a través de
+[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink).
 
-Los operadores de red que ejecuten software GaiaCom modificado deben poner a disposición el
-código fuente correspondiente según lo exige la AGPL. Los componentes de terceros y sus licencias
-se enumeran en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) y en los manifiestos de cada
-paquete.
+Los operadores de red que ejecuten software de código abierto GaiaCom modificado bajo la
+AGPL deben poner a disposición el código fuente correspondiente según lo exige la AGPL. Los
+componentes de terceros y sus licencias se enumeran en
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) y en los manifiestos de cada paquete.
 
-GaiaCom y el logotipo de GaiaCom son marcas comerciales de VisionGaiaTechnology. La licencia
-AGPL no concede derechos de marca.
+GaiaCom y el logotipo de GaiaCom son marcas comerciales de VisionGaiaTechnology. La
+licencia AGPL no concede derechos de marca.
 
 ---
 

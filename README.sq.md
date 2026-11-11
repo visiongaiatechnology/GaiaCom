@@ -31,7 +31,7 @@
 
 ## Menyja
 
-[Përmbledhje](#overview) · [Beta V3](#beta-v3) · [Pamjet e ekranit](#screenshots) · [Veçoritë](#features) · [Informacione teknike](#technical-information) · [Çfarë e dallon GaiaCom](#what-makes-gaiacom-different) · [Ndërtimi nga kodi burimor](#build-from-source) · [Bëhu operator nyjeje](#become-a-node-operator) · [Statusi i sigurisë dhe auditimit](#security-and-audit-status) · [Struktura e projektit](#project-structure) · [Kontributi](#contributing) · [Licenca](#license)
+[Përmbledhje](#overview) · [VGT Licence](#vgt-licence) · [Beta V3](#beta-v3) · [Pamjet e ekranit](#screenshots) · [Veçoritë](#features) · [Informacione teknike](#technical-information) · [Çfarë e dallon GaiaCom](#what-makes-gaiacom-different) · [Ndërtimi nga kodi burimor](#build-from-source) · [Bëhu operator nyjeje](#become-a-node-operator) · [Statusi i sigurisë dhe auditimit](#security-and-audit-status) · [Struktura e projektit](#project-structure) · [Kontributi](#contributing) · [Licenca](#license)
 
 ---
 
@@ -59,6 +59,46 @@ Serveri nuk duhet të marrë kurrë aftësinë për të deshifruar përmbajtje p
 
 GaiaCom **nuk** është një pretendim për siguri absolute. Ai është një përpjekje për t’i bërë kufijtë
 e besimit të qartë, të testueshëm dhe — aty ku është e mundur — të zbatuar matematikisht.
+
+---
+
+<a id="vgt-licence"></a>
+## VGT Licence
+
+GaiaCom ofrohet në 3 edicione:
+
+**Një protokoll. Tre modele funksionimi.**
+
+### Business — GaiaCom Enterprise
+
+Për korporatat, zyrat ligjore, bizneset e mesme, industrinë dhe bankat private. Rrathë të mbyllur komunikimi me kontroll administrativ dhe mbështetje.
+
+- Sovraniteti i brendshëm dhe administrimi i përdoruesve
+- Nyje e vetë-strehuar ose klaster sovran i menaxhuar
+- SLA, mbështetje dhe module premium
+
+### Public — GaiaCom Network
+
+Rrjeti i hapur për privatësinë dixhitale. Nuk ka tregti të dhënash, por infrastrukturë për komunikim të lirë dhe të enkriptuar.
+
+- Aplikacion klient me burim të hapur
+- Nyje të federuara
+- Pa çelës qendror dekriptimi
+
+### Government — GaiaCom Defend
+
+Infrastrukturë e specializuar e sigurisë së lartë për autoritetet, infrastrukturat kritike dhe silot e izoluara të komunikimit.
+
+- Implantime të izoluara dhe jashtë linje (air-gapped)
+- Markë e bardhë (white-label) dhe auditim i kodit burimor
+- Sovraniteti dixhital kombëtar
+
+> **Versioni aktual i testimit dhe detyrimi i licencës komerciale (Licencim i dyfishtë)**
+>
+> Versioni që po testohet aktualisht në këtë depo është edicioni publik **GaiaCom Network** (Beta V3) nën licencën me burim të hapur **AGPL-3.0-or-later** (shihni [LICENSE](LICENSE)). Çdo funksionim në rrjet ose modifikim i `GaiaCom Network` sipas licencës me burim të hapur i nënshtrohet detyrimeve copyleft dhe publikimit të kodit burimor të AGPL (dhe nuk jep të drejta mbi markën tregtare, SLA apo module Enterprise/Defend).
+>
+> **Për kompanitë dhe autoritetet shtetërore, sistemi nuk është falas.** Organizatat që dëshirojnë ta përdorin GaiaCom në kompani (**GaiaCom Enterprise**) ose në institucione shtetërore dhe infrastrukturë kritike (**GaiaCom Defend**) — duke përfshirë implantimet e mbyllura ose prodhuese pa detyrime publikimi sipas AGPL, modulet Enterprise/Defend, klasterët sovranë të menaxhuar, markën e bardhë (white labeling), auditimin e kodit burimor ose SLA/mbështetjen — kanë nevojë për një **VGT Licence** komerciale dhe duhet të kontaktojnë VisionGaiaTechnology, mundësisht përmes formularit të enkriptuar të kërkesës:
+> **[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink)**
 
 ---
 
@@ -651,16 +691,22 @@ Duke marrë pjesë, ju pranoni [Kodin e Sjelljes](CODE_OF_CONDUCT.md).
 <a id="license"></a>
 ## Licenca
 
-GaiaCom licencohet sipas **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later).
-Shihni [LICENSE](LICENSE).
+GaiaCom ndjek një model **licencimi të dyfishtë** (shihni [VGT Licence](#vgt-licence)):
+baza publike e kodit me burim të hapur (`GaiaCom Network`) licencohet sipas **GNU Affero
+General Public License v3.0 or later** (AGPL-3.0-or-later) — shihni [LICENSE](LICENSE).
+Për përdorim në kompani (**GaiaCom Enterprise**), autoritete shtetërore (**GaiaCom
+Defend**), si dhe implantime komerciale ose të mbyllura pa detyrime publikimi sipas AGPL
+(përfshirë modulet premium, SLA/mbështetjen, markën e bardhë dhe mjediset air-gapped),
+sistemi **nuk është falas** dhe kërkon një **VGT Licence** komerciale përmes
+[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink).
 
-Operatorët e rrjetit që ekzekutojnë softuer të modifikuar të GaiaCom duhet ta bëjnë të
-disponueshëm kodin burimor përkatës siç kërkohet nga AGPL. Komponentët e palëve të treta dhe
-licencat e tyre janë renditur në [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dhe në manifestet
-përkatëse të paketave.
+Operatorët e rrjetit që ekzekutojnë softuer të modifikuar me burim të hapur të GaiaCom
+sipas AGPL duhet ta bëjnë të disponueshëm kodin burimor përkatës siç kërkohet nga AGPL.
+Komponentët e palëve të treta dhe licencat e tyre janë renditur në
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dhe në manifestet përkatëse të paketave.
 
-GaiaCom dhe logoja e GaiaCom janë marka tregtare të VisionGaiaTechnology. Licenca AGPL nuk jep të
-drejta mbi markat tregtare.
+GaiaCom dhe logoja e GaiaCom janë marka tregtare të VisionGaiaTechnology. Licenca AGPL nuk
+jep të drejta mbi markat tregtare.
 
 ---
 

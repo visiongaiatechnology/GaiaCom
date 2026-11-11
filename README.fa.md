@@ -31,7 +31,7 @@
 
 ## فهرست
 
-[نمای کلی](#overview) · [بتا V3](#beta-v3) · [تصاویر محیط برنامه](#screenshots) · [ویژگی‌ها](#features) · [اطلاعات فنی](#technical-information) · [چه چیزی GaiaCom را متمایز می‌کند](#what-makes-gaiacom-different) · [ساخت از کد منبع](#build-from-source) · [اپراتور گره شوید](#become-a-node-operator) · [وضعیت امنیت و ممیزی](#security-and-audit-status) · [ساختار پروژه](#project-structure) · [مشارکت](#contributing) · [مجوز](#license)
+[نمای کلی](#overview) · [VGT Licence](#vgt-licence) · [بتا V3](#beta-v3) · [تصاویر محیط برنامه](#screenshots) · [ویژگی‌ها](#features) · [اطلاعات فنی](#technical-information) · [چه چیزی GaiaCom را متمایز می‌کند](#what-makes-gaiacom-different) · [ساخت از کد منبع](#build-from-source) · [اپراتور گره شوید](#become-a-node-operator) · [وضعیت امنیت و ممیزی](#security-and-audit-status) · [ساختار پروژه](#project-structure) · [مشارکت](#contributing) · [مجوز](#license)
 
 ---
 
@@ -57,6 +57,46 @@
 
 GaiaCom ادعای امنیت مطلق **ندارد**. بلکه تلاشی است برای آنکه مرزهای اعتماد را شفاف،
 آزمون‌پذیر و — در هر جا که ممکن باشد — به‌صورت ریاضی اجبارپذیر کند.
+
+---
+
+<a id="vgt-licence"></a>
+## VGT Licence
+
+GaiaCom در ۳ نسخه ارائه می‌شود:
+
+**یک پروتکل. سه مدل عملیاتی.**
+
+### Business — GaiaCom Enterprise
+
+برای شرکت‌ها، دفاتر حقوقی، کسب‌وکارهای متوسط و بانکداری خصوصی. کانال‌های ارتباطی بسته همراه با کنترل مدیریتی و پشتیبانی.
+
+- حاکمیت داخلی و مدیریت کاربران
+- گره میزبانی‌شده توسط خود یا کلاستر حاکمیتی مدیریت‌شده
+- توافق‌نامه سطح خدمات، پشتیبانی و ماژول‌های پیشرفته
+
+### Public — GaiaCom Network
+
+شبکه باز برای حریم خصوصی دیجیتال. بدون تجارت داده، زیرساختی برای ارتباطات آزاد و رمزگذاری‌شده.
+
+- نرم‌افزار کلاینت متن‌باز
+- گره‌های فدرال
+- بدون کلید رمزگشایی مرکزی
+
+### Government — GaiaCom Defend
+
+زیرساخت اختصاصی و فوق امنیتی برای سازمان‌های دولتی و بخش‌های ارتباطی ایزوله.
+
+- استقرار کاملاً ایزوله از اینترنت (air-gapped)
+- برندسازی اختصاصی و ممیزی کد منبع
+- حاکمیت دیجیتال ملی
+
+> **نسخه آزمایشی فعلی و الزام مجوز تجاری (مجوز دوگانه / Dual-Licensing)**
+>
+> نسخه‌ای که هم‌اکنون در این مخزن آزمایش می‌شود، نسخه عمومی **GaiaCom Network** (بتا V3) تحت مجوز متن‌باز **AGPL-3.0-or-later** است (به [LICENSE](LICENSE) مراجعه کنید). هرگونه اجرای شبکه‌ای یا تغییر در `GaiaCom Network` تحت مجوز متن‌باز، مشمول الزامات copyleft و انتشار کد منبع AGPL است (و هیچ حق علامت تجاری، SLA یا ماژول‌های Enterprise/Defend اعطا نمی‌کند).
+>
+> **برای شرکت‌ها و نهادهای دولتی، این سیستم رایگان نیست.** هر سازمان یا شرکتی که قصد استفاده از GaiaCom را در محیط کسب‌وکار (**GaiaCom Enterprise**) یا در سازمان‌های دولتی و زیرساخت‌های حیاتی (**GaiaCom Defend**) دارد — از جمله استقرارهای بسته یا عملیاتی بدون الزامات انتشار کد منبع AGPL، ماژول‌های Enterprise/Defend، کلاسترهای حاکمیتی مدیریت‌شده، برندسازی اختصاصی، ممیزی کد منبع یا SLA و پشتیبانی — نیازمند یک مجوز تجاری **VGT Licence** است و باید ترجیحاً از طریق درخواست رمزگذاری‌شده با VisionGaiaTechnology تماس بگیرد:
+> **[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink)**
 
 ---
 
@@ -610,11 +650,17 @@ GaiaCom/
 <a id="license"></a>
 ## مجوز
 
-GaiaCom تحت مجوز **GNU Affero General Public License v3.0 or later**
-(AGPL-3.0-or-later) منتشر شده است. به [LICENSE](LICENSE) مراجعه کنید.
+GaiaCom از مدل **مجوز دوگانه (Dual-Licensing)** پیروی می‌کند (به [VGT Licence](#vgt-licence)
+مراجعه کنید): کد منبع عمومی متن‌باز (`GaiaCom Network`) تحت مجوز **GNU Affero General
+Public License v3.0 or later** (AGPL-3.0-or-later) منتشر شده است — به [LICENSE](LICENSE)
+مراجعه کنید. برای استفاده شرکت‌ها (**GaiaCom Enterprise**)، سازمان‌های دولتی
+(**GaiaCom Defend**) و استقرارهای تجاری یا بسته بدون الزام انتشار کد منبع AGPL (شامل
+ماژول‌های پیشرفته، SLA و پشتیبانی، برندسازی اختصاصی و محیط‌های کاملاً ایزوله air-gapped)،
+این سیستم **رایگان نیست** و نیازمند دریافت مجوز تجاری **VGT Licence** از طریق
+[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink) است.
 
-اپراتورهای شبکه‌ای که نرم‌افزار تغییریافته GaiaCom را اجرا می‌کنند باید کد منبع متناظر را
-مطابق الزامات AGPL در دسترس قرار دهند. اجزای شخص ثالث و مجوزهای آن‌ها در
+اپراتورهای شبکه‌ای که نرم‌افزار تغییریافته متن‌باز GaiaCom را تحت AGPL اجرا می‌کنند باید کد
+منبع متناظر را مطابق الزامات AGPL در دسترس قرار دهند. اجزای شخص ثالث و مجوزهای آن‌ها در
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) و در مانیفست‌های بسته مربوطه فهرست شده‌اند.
 
 GaiaCom و لوگوی GaiaCom علائم تجاری VisionGaiaTechnology هستند. مجوز AGPL هیچ حقوق علامت

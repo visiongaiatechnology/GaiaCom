@@ -31,7 +31,7 @@
 
 ## 目录
 
-[概述](#overview) · [Beta V3](#beta-v3) · [界面截图](#screenshots) · [功能特性](#features) · [技术信息](#technical-information) · [GaiaCom 的与众不同之处](#what-makes-gaiacom-different) · [从源码构建](#build-from-source) · [成为节点运营者](#become-a-node-operator) · [安全与审计状态](#security-and-audit-status) · [项目结构](#project-structure) · [参与贡献](#contributing) · [许可证](#license)
+[概述](#overview) · [VGT Licence](#vgt-licence) · [Beta V3](#beta-v3) · [界面截图](#screenshots) · [功能特性](#features) · [技术信息](#technical-information) · [GaiaCom 的与众不同之处](#what-makes-gaiacom-different) · [从源码构建](#build-from-source) · [成为节点运营者](#become-a-node-operator) · [安全与审计状态](#security-and-audit-status) · [项目结构](#project-structure) · [参与贡献](#contributing) · [许可证](#license)
 
 ---
 
@@ -57,6 +57,46 @@
 
 GaiaCom **并非**声称拥有绝对安全，而是力求让信任边界变得明确、可测试，并在
 可能的地方通过数学机制加以强制执行。
+
+---
+
+<a id="vgt-licence"></a>
+## VGT Licence
+
+GaiaCom 提供 3 个版本：
+
+**一个协议。三种运营模式。**
+
+### Business — GaiaCom Enterprise
+
+适用于企业、律所、中型商家、工业以及私人银行。提供具备行政控制、合规性与支持的封闭通信圈。
+
+- 内部主权与用户管理
+- 自托管节点或托管的主权集群
+- SLA、技术支持与高级模块
+
+### Public — GaiaCom Network
+
+保障数字隐私的开放网络。无数据交易，旨在提供自由、加密通信的基础设施。
+
+- 开源客户端
+- 联合节点
+- 无中央解密密钥
+
+### Government — GaiaCom Defend
+
+专为官方机构、关键基础设施和隔离通信环境设计的高安全度专用基础设施。
+
+- 物理隔离（air-gapped）与断网部署
+- 白标定制与源代码审计
+- 国家数字主权
+
+> **当前测试版本与商业许可要求（双重许可 / Dual-Licensing）**
+>
+> 本仓库中当前正在测试的是公开版本 **GaiaCom Network**（Beta V3），遵循开源协议 **AGPL-3.0-or-later**（详见 [LICENSE](LICENSE)）。在开源协议下对 `GaiaCom Network` 进行网络运营或修改，必须严格遵守 AGPL 传染性与源代码披露义务（且不授予任何商标权、SLA 或 Enterprise / Defend 模块）。
+>
+> **对于企业和官方机构，本系统并非免费使用。** 任何计划在企业内部部署（**GaiaCom Enterprise**）或用于政府部门及关键基础设施（**GaiaCom Defend**）的单位——包括不受 AGPL 源码披露义务约束的封闭或生产环境部署、Enterprise / Defend 模块、托管主权集群、白标定制、源代码审计或 SLA 与技术支持——均须取得商业授权 **VGT Licence**，请通过加密咨询表单联系 VisionGaiaTechnology：
+> **[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink)**
 
 ---
 
@@ -605,11 +645,16 @@ GaiaCom/
 <a id="license"></a>
 ## 许可证
 
-GaiaCom 基于 **GNU Affero General Public License v3.0 或更高版本**
-（AGPL-3.0-or-later）发布。详见 [LICENSE](LICENSE)。
+GaiaCom 采用**双重许可模式**（详见 [VGT Licence](#vgt-licence)）：公开的开源代码库
+（`GaiaCom Network`）基于 **GNU Affero General Public License v3.0 或更高版本**
+（AGPL-3.0-or-later）发布——详见 [LICENSE](LICENSE)。对于企业部署（**GaiaCom
+Enterprise**）、政府及官方机构（**GaiaCom Defend**），以及不承担 AGPL 源码披露
+义务的商业或封闭部署（含高级模块、SLA/技术支持、白标定制及物理隔离 air-gapped 环境），
+本系统**并非免费**，需通过以下加密渠道获取商业 **VGT Licence**：
+[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink)。
 
-运行经过修改的 GaiaCom 软件的网络运营者，必须按照 AGPL 协议的要求提供对应的
-源代码。第三方组件及其许可证列于 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
+在 AGPL 协议下运行经过修改的 GaiaCom 开源软件的网络运营者，必须按照 AGPL 的要求
+提供相应的源代码。第三方组件及其许可证列于 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)
 以及各自的包清单文件中。
 
 GaiaCom 及 GaiaCom 徽标均为 VisionGaiaTechnology 的商标。AGPL 许可证不授予任何

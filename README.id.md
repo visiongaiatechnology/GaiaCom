@@ -31,7 +31,7 @@
 
 ## Menu
 
-[Ikhtisar](#overview) · [Beta V3](#beta-v3) · [Tangkapan layar](#screenshots) · [Fitur](#features) · [Informasi teknis](#technical-information) · [Apa yang membuat GaiaCom berbeda](#what-makes-gaiacom-different) · [Bangun dari sumber](#build-from-source) · [Menjadi operator node](#become-a-node-operator) · [Status keamanan dan audit](#security-and-audit-status) · [Struktur proyek](#project-structure) · [Berkontribusi](#contributing) · [Lisensi](#license)
+[Ikhtisar](#overview) · [VGT Licence](#vgt-licence) · [Beta V3](#beta-v3) · [Tangkapan layar](#screenshots) · [Fitur](#features) · [Informasi teknis](#technical-information) · [Apa yang membuat GaiaCom berbeda](#what-makes-gaiacom-different) · [Bangun dari sumber](#build-from-source) · [Menjadi operator node](#become-a-node-operator) · [Status keamanan dan audit](#security-and-audit-status) · [Struktur proyek](#project-structure) · [Berkontribusi](#contributing) · [Lisensi](#license)
 
 ---
 
@@ -57,6 +57,46 @@ Server tidak boleh pernah menerima kemampuan untuk mendekripsi konten pribadi as
 
 GaiaCom **bukan** klaim keamanan absolut. Ini adalah upaya untuk membuat batas kepercayaan
 eksplisit, dapat diuji, dan — bila memungkinkan — ditegakkan secara matematis.
+
+---
+
+<a id="vgt-licence"></a>
+## VGT Licence
+
+GaiaCom tersedia dalam 3 edisi:
+
+**Satu protokol. Tiga model operasional.**
+
+### Business — GaiaCom Enterprise
+
+Untuk korporasi, firma hukum, bisnis menengah, industri, dan perbankan swasta. Lingkaran komunikasi tertutup dengan kontrol administratif dan dukungan.
+
+- Kedaulatan internal dan administrasi pengguna
+- Node ter-self-host atau klaster berdaulat terkelola
+- SLA, dukungan, dan modul premium
+
+### Public — GaiaCom Network
+
+Jaringan terbuka untuk privasi digital. Tidak ada perdagangan data, melainkan infrastruktur untuk komunikasi bebas dan terenkripsi.
+
+- Aplikasi klien open source
+- Node terfederasi
+- Tanpa kunci dekripsi terpusat
+
+### Government — GaiaCom Defend
+
+Infrastruktur keamanan tinggi khusus untuk otoritas, infrastruktur kritis, dan silo komunikasi terisolasi.
+
+- Penyebaran terisolasi dan luring (air-gapped)
+- Merek putih (white-label) dan audit kode sumber
+- Kedaulatan digital nasional
+
+> **Edisi uji coba saat ini & ketentuan lisensi komersial (Dual-Licensing)**
+>
+> Versi yang sedang diuji dalam repositori ini adalah edisi publik **GaiaCom Network** (Beta V3) di bawah lisensi sumber terbuka **AGPL-3.0-or-later** (lihat [LICENSE](LICENSE)). Setiap pengoperasian jaringan atau modifikasi `GaiaCom Network` di bawah lisensi sumber terbuka tunduk pada kewajiban copyleft dan keterbukaan kode sumber AGPL (serta tidak memberikan hak merek dagang, SLA, maupun modul Enterprise/Defend).
+>
+> **Untuk perusahaan dan instansi pemerintah, sistem ini tidak gratis.** Organisasi yang ingin menggunakan GaiaCom di perusahaan (**GaiaCom Enterprise**) atau di lembaga pemerintah dan infrastruktur kritis (**GaiaCom Defend**) — termasuk penerapan tertutup atau produksi tanpa kewajiban pengungkapan kode AGPL, modul Enterprise/Defend, klaster berdaulat terkelola, white labeling, audit kode sumber, atau SLA/dukungan — memerlukan **VGT Licence** komersial dan wajib menghubungi VisionGaiaTechnology, sebaiknya melalui formulir permintaan terenkripsi:
+> **[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink)**
 
 ---
 
@@ -617,11 +657,18 @@ Dengan berpartisipasi, Anda menyetujui [Code of Conduct](CODE_OF_CONDUCT.md).
 <a id="license"></a>
 ## Lisensi
 
-GaiaCom dilisensikan di bawah **GNU Affero General Public License v3.0 atau lebih baru**
-(AGPL-3.0-or-later). Lihat [LICENSE](LICENSE).
+GaiaCom menerapkan model **lisensi ganda (Dual-Licensing)** (lihat [VGT Licence](#vgt-licence)):
+basis kode sumber terbuka publik (`GaiaCom Network`) dilisensikan di bawah **GNU Affero
+General Public License v3.0 atau lebih baru** (AGPL-3.0-or-later) — lihat [LICENSE](LICENSE).
+Untuk penggunaan perusahaan (**GaiaCom Enterprise**), instansi pemerintah (**GaiaCom Defend**),
+maupun penerapan komersial atau tertutup tanpa kewajiban pengungkapan AGPL (termasuk modul
+premium, SLA/dukungan, merek putih, dan lingkungan air-gapped), sistem ini **tidak gratis**
+dan memerlukan **VGT Licence** komersial melalui
+[https://visiongaiatechnology.de/#vgt-comlink](https://visiongaiatechnology.de/#vgt-comlink).
 
-Operator jaringan yang menjalankan perangkat lunak GaiaCom yang dimodifikasi harus menyediakan sumber
-yang sesuai sebagaimana disyaratkan oleh AGPL. Komponen pihak ketiga dan lisensinya tercantum dalam
+Operator jaringan yang menjalankan perangkat lunak sumber terbuka GaiaCom yang dimodifikasi
+di bawah AGPL harus menyediakan sumber yang sesuai sebagaimana disyaratkan oleh AGPL.
+Komponen pihak ketiga dan lisensinya tercantum dalam
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) dan dalam manifes paket masing-masing.
 
 GaiaCom dan logo GaiaCom adalah merek dagang VisionGaiaTechnology. Lisensi AGPL tidak
