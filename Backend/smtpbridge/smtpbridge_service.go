@@ -71,9 +71,12 @@ type Service struct {
 	// comma-separated GAIACOM_SMTP_INGEST_TOKEN value (old+new during a rotation
 	// window). Empty means the bridge is not configured and ingest fails closed.
 	ingestKeys []string
-	tlsMode    string
-	timeout    time.Duration
-	security   *security.SecuritySystem
+	// messageAuth optionally binds each ingest message to the bridge with an
+	// HMAC when GAIACOM_SMTP_MESSAGE_SECRET is configured.
+	messageAuth *smtpMessageAuth
+	tlsMode     string
+	timeout     time.Duration
+	security    *security.SecuritySystem
 }
 
 func NewService(messages repository.MessageStore, identities repository.IdentityStore, securitySystems ...*security.SecuritySystem) *Service {
@@ -86,16 +89,17 @@ func NewService(messages repository.MessageStore, identities repository.Identity
 		tlsMode = "starttls"
 	}
 	service := &Service{
-		Messages:   messages,
-		Identities: identities,
-		host:       strings.TrimSpace(os.Getenv("GAIACOM_SMTP_HOST")),
-		port:       port,
-		username:   strings.TrimSpace(os.Getenv("GAIACOM_SMTP_USERNAME")),
-		password:   os.Getenv("GAIACOM_SMTP_PASSWORD"),
-		from:       strings.TrimSpace(os.Getenv("GAIACOM_SMTP_FROM")),
-		ingestKeys: parseSMTPIngestTokens(os.Getenv("GAIACOM_SMTP_INGEST_TOKEN")),
-		tlsMode:    tlsMode,
-		timeout:    30 * time.Second,
+		Messages:    messages,
+		Identities:  identities,
+		host:        strings.TrimSpace(os.Getenv("GAIACOM_SMTP_HOST")),
+		port:        port,
+		username:    strings.TrimSpace(os.Getenv("GAIACOM_SMTP_USERNAME")),
+		password:    os.Getenv("GAIACOM_SMTP_PASSWORD"),
+		from:        strings.TrimSpace(os.Getenv("GAIACOM_SMTP_FROM")),
+		ingestKeys:  parseSMTPIngestTokens(os.Getenv("GAIACOM_SMTP_INGEST_TOKEN")),
+		tlsMode:     tlsMode,
+		timeout:     30 * time.Second,
+		messageAuth: newSMTPMessageAuth(os.Getenv("GAIACOM_SMTP_MESSAGE_SECRET")),
 	}
 	if len(service.ingestKeys) > 0 {
 		service.ingestKey = service.ingestKeys[0]

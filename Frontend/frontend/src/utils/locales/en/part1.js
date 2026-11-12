@@ -222,6 +222,7 @@ const enPart1 = {
     "crypto_lock_title": "Device keys & lock",
     "crypto_session_duration": "Unlocked after reload",
     "crypto_session_duration_desc": "Only keeps the crypto session open in this browser tab for the selected duration.",
+    "crypto_session_storage_warning": "For \"Unlocked after reload\" GaiaCom keeps the seed in this tab's sessionStorage for the selected duration. On shared devices or with browser extensions this is a risk — \"Always lock on reload\" is the safest mode.",
     "cryptographic_fingerprint": "Cryptographic Fingerprint",
     "current_password": "Current Password",
     "data_minimization": "Data Minimization",

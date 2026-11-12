@@ -5,6 +5,25 @@
 
 import { BASE_URL, apiFetch, getHeaders, handleResponse } from './client';
 
+let serverDiscoveryPromise = null;
+
+/**
+ * Public node discovery document. Its Ed25519 key is the trust anchor for
+ * attestation signatures; the key included inside an attestation response is
+ * never trusted by itself.
+ */
+export function getServerDiscovery() {
+  if (!serverDiscoveryPromise) {
+    serverDiscoveryPromise = apiFetch(`${BASE_URL}/.well-known/gaiacom/server`, {
+      method: 'GET'
+    }).then(handleResponse).catch(error => {
+      serverDiscoveryPromise = null;
+      throw error;
+    });
+  }
+  return serverDiscoveryPromise;
+}
+
 /** Public list of attestations for one identity (valid/expired/revoked). */
 export async function getIdentityAttestations(gaiaID) {
   const clean = String(gaiaID || '').trim();

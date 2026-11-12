@@ -55,6 +55,12 @@ export default function ProfileSecuritySection({
               <option value="1440">24 h</option>
             </select>
           </ProfileField>
+          {Number(cryptoSessionMinutes) > 0 ? (
+            <p className="field-hint" role="note">
+              {t('crypto_session_storage_warning') ||
+                'Für „Entsperrt nach Reload“ hält GaiaCom den Seed für diese Dauer im sessionStorage dieses Browser-Tabs. Bei gemeinsam genutzten Geräten oder Browser-Extensions ist das ein Risiko — der sicherste Modus ist „Immer nach Reload sperren“.'}
+            </p>
+          ) : null}
 
           <ProfileField
             id="vgt-inactivity-lock-minutes"

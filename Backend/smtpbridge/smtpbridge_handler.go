@@ -87,6 +87,21 @@ func (h *Handler) Ingest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Optional per-message HMAC (GAIACOM_SMTP_MESSAGE_SECRET). Disabled for
+	// legacy bridges; when configured it binds the message fields to the bridge
+	// and rejects replayed/edited payloads even if the static token leaked.
+	if err := h.Service.messageAuth.VerifyIngestMessage(
+		input.TargetGaiaID,
+		input.ExternalFrom,
+		input.Subject,
+		input.Body,
+		r.Header.Get("X-Gaia-SMTP-Timestamp"),
+		r.Header.Get("X-Gaia-SMTP-Signature"),
+	); err != nil {
+		writeSMTPError(w, err)
+		return
+	}
+
 	token := r.Header.Get("X-Gaia-SMTP-Token")
 	if err := h.Service.IngestLegacyMail(r.Context(), token, input.TargetGaiaID, input.ExternalFrom, input.Subject, input.Body, input.Attachments); err != nil {
 		writeSMTPError(w, err)
@@ -110,6 +125,8 @@ func writeSMTPError(w http.ResponseWriter, err error) {
 		httpx.WriteError(w, http.StatusServiceUnavailable, "SMTP bridge is not configured")
 	case errors.Is(err, errSMTPUnauthorized):
 		httpx.WriteError(w, http.StatusUnauthorized, "SMTP bridge token rejected")
+	case errors.Is(err, errSMTPMessageSignature):
+		httpx.WriteError(w, http.StatusUnauthorized, "SMTP message signature rejected")
 	case errors.Is(err, errSMTPRateLimited):
 		httpx.WriteError(w, http.StatusTooManyRequests, "SMTP bridge ingest temporarily throttled")
 	default:

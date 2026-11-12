@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import * as api from '../api';
-import { presentAttestation } from '../utils/attestations';
+import { base64ToHex, presentAttestation } from '../utils/attestations';
 
 /**
  * Loads and verifies the attestations (badges) of one identity.
  *
- * Results are cached per GaiaID for a short time so the same profile opened in
- * chat, contact profile and GSN does not trigger repeated requests. Every entry
- * is signature-verified client-side; the server's status is kept separately.
+ * Trust anchor: the signing key is pinned to the serving node's discovery
+ * document (`/.well-known/gaiacom/server`), not to the key included in the
+ * attestation response. Only claims whose signed canonical payload matches the
+ * displayed fields and whose issuer domain is scoped by the serving node are
+ * rendered as verified.
  */
 const CACHE_TTL_MS = 60 * 1000;
 const cache = new Map();
@@ -34,11 +36,20 @@ export default function useAttestations(gaiaID) {
       return () => { active = false; };
     }
     setState(prev => ({ ...prev, loading: true, error: '' }));
-    api.getIdentityAttestations(clean)
-      .then(response => {
-        const list = Array.isArray(response?.attestations)
-          ? response.attestations.map(presentAttestation)
-          : [];
+
+    const trust = api.getServerDiscovery().then(discovery => ({
+      trustedKeyHex: discovery?.ed25519_public_key ? base64ToHex(discovery.ed25519_public_key) : '',
+      nodeName: String(discovery?.server_name || '')
+    })).catch(() => ({ trustedKeyHex: '', nodeName: '' }));
+
+    Promise.all([api.getIdentityAttestations(clean), trust])
+      .then(([response, anchor]) => {
+        const raw = Array.isArray(response?.attestations) ? response.attestations : [];
+        const list = raw.map(record => presentAttestation(record, {
+          expectedSubject: clean,
+          trustedKeyHex: anchor.trustedKeyHex,
+          nodeName: anchor.nodeName
+        }));
         cache.set(cacheKey, { at: Date.now(), attestations: list });
         if (active) setState({ loading: false, attestations: list, error: '' });
       })

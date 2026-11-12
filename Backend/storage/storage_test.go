@@ -60,8 +60,13 @@ func createTestMultipartFileHeader(t *testing.T, fieldName, fileName string, con
 
 func createCompletedTestFile(t *testing.T, svc *StorageService, userID uuid.UUID, fileName string, content []byte) *models.FileMetadata {
 	t.Helper()
+	return createCompletedTestFileWithMIME(t, svc, userID, fileName, content, "application/octet-stream")
+}
+
+func createCompletedTestFileWithMIME(t *testing.T, svc *StorageService, userID uuid.UUID, fileName string, content []byte, mimeType string) *models.FileMetadata {
+	t.Helper()
 	fileHash := sha256Hex(content)
-	metadata, err := svc.InitializeUpload(userID, fileName, int64(len(content)), "application/octet-stream", fileHash)
+	metadata, err := svc.InitializeUpload(userID, fileName, int64(len(content)), mimeType, fileHash)
 	if err != nil {
 		t.Fatalf("InitializeUpload %s failed: %v", fileName, err)
 	}
@@ -223,7 +228,7 @@ func TestStorageService(t *testing.T) {
 		t.Fatalf("expected ACL-granted user to access file metadata: %v", err)
 	}
 
-	metadataPublic := createCompletedTestFile(t, svc, user1.ID, "public-gsn-image.webp", []byte("encrypted-public-image"))
+	metadataPublic := createCompletedTestFileWithMIME(t, svc, user1.ID, "public-gsn-image.webp", []byte("encrypted-public-image"), "image/webp")
 	if _, err := svc.GetAccessibleFileMetadata(t.Context(), metadataPublic.FileID, user2.ID); err == nil {
 		t.Fatal("expected public file to remain private before MarkFilePublic")
 	}

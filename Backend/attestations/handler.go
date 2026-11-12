@@ -46,6 +46,8 @@ func (h *Handler) writeServiceError(w http.ResponseWriter, operation string, err
 		httpx.WriteError(w, http.StatusNotFound, "Attestation not found")
 	case errors.Is(err, ErrDuplicate), errors.Is(err, ErrAlreadyRevoked):
 		httpx.WriteError(w, http.StatusConflict, "Attestation state conflict")
+	case errors.Is(err, ErrRateLimited):
+		httpx.WriteError(w, http.StatusTooManyRequests, "Operator action rate limit exceeded")
 	default:
 		log.Printf("attestations %s failed: %v", operation, err)
 		httpx.WriteError(w, http.StatusInternalServerError, "Attestation operation failed")
@@ -89,9 +91,14 @@ func (h *Handler) GetSubjectAttestations(w http.ResponseWriter, r *http.Request)
 		h.writeServiceError(w, "list subject attestations", err)
 		return
 	}
+	publicViews := make([]AttestationView, len(views))
+	for index := range views {
+		publicViews[index] = views[index]
+		publicViews[index].EvidenceRef = ""
+	}
 	httpx.WriteJSON(w, http.StatusOK, map[string]interface{}{
 		"subject":      strings.ToLower(gaiaID),
-		"attestations": views,
+		"attestations": publicViews,
 	})
 }
 

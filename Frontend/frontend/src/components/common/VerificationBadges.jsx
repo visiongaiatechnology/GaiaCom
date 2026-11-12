@@ -26,8 +26,8 @@ function buildTitle(record) {
   const expiry = record.expires_at ? `, gültig bis ${formatAttestationDate(record.expires_at)}` : '';
   if (record.isRevoked) return `${meta.label} · widerrufen (Aussteller: ${issuer})`;
   if (record.isExpired) return `${meta.label} · abgelaufen (Aussteller: ${issuer}${expiry})`;
-  if (!record.signatureValid) return `${meta.label} · Signatur konnte nicht geprüft werden (Aussteller: ${issuer})`;
-  return `${meta.label} · verifiziert von ${issuer}${expiry}`;
+  if (!record.signatureValid) return `${meta.label} · Signatur nicht gegen den Node-Schlüssel bestätigt (Aussteller: ${issuer})`;
+  return `${meta.label} · Signatur gültig · Aussteller: ${issuer}${expiry}`;
 }
 
 export function AttestationBadge({ record, compact = false, showIssuer = false }) {

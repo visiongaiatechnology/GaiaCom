@@ -1,0 +1,122 @@
+name: Desktop Release
+
+# Builds signed desktop artifacts. Unsigned builds are intentionally NOT
+# published: code signing, notarization and checksums are release gates (see
+# docs/desktop-release.md). The publish job only runs when the repository
+# variable DESKTOP_SIGNING_ENABLED is "true" and the signing secrets exist.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+env:
+  NODE_VERSION: '24.13.0'
+  RUST_TOOLCHAIN: stable
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            bundles: nsis,msi
+          - os: ubuntu-22.04
+            bundles: deb,appimage
+          - os: macos-latest
+            bundles: dmg
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: Frontend/frontend/package-lock.json
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: DesktopClient/src-tauri
+
+      - name: Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - name: Build frontend
+        working-directory: Frontend/frontend
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build Tauri bundle (signed when secrets are configured)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          # Optional signing material. Empty values produce an unsigned build
+          # which the publish job will refuse to release.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        with:
+          projectPath: DesktopClient/src-tauri
+          args: --bundles ${{ matrix.bundles }}
+
+      - name: Collect checksums
+        shell: bash
+        run: |
+          mkdir -p release-assets
+          find DesktopClient/src-tauri/target/release/bundle -type f \( -name '*.msi' -o -name '*.exe' -o -name '*.deb' -o -name '*.AppImage' -o -name '*.dmg' \) -print0 \
+            | xargs -0 -r sha256sum > release-assets/SHA256SUMS.txt || true
+          ls -la release-assets
+
+      - name: Upload unsigned build for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          path: release-assets
+          if-no-files-found: warn
+
+  publish:
+    name: Publish signed release
+    needs: build
+    if: vars.DESKTOP_SIGNING_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: desktop-*
+          merge-multiple: true
+          path: release-assets
+
+      - name: Publish checksums (only signed release gates pass)
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-assets/*
+          fail_on_unmatched_files: true
+          body: |
+            Signed desktop build. Verify SHA256SUMS before installation.
+            Linux packages are GPG-signed; Windows binaries are Authenticode-signed.

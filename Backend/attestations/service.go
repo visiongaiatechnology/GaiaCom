@@ -29,6 +29,8 @@ var (
 	ErrNotFound = errors.New("attestation not found")
 	// ErrAlreadyRevoked is returned when revoking an already revoked attestation.
 	ErrAlreadyRevoked = errors.New("attestation already revoked")
+	// ErrRateLimited is returned when an operator exceeds the sensitive-action budget.
+	ErrRateLimited = errors.New("operator action rate limit exceeded")
 )
 
 const (
@@ -74,6 +76,7 @@ type Service struct {
 	privateKey ed25519.PrivateKey
 	publicKey  ed25519.PublicKey
 	now        func() time.Time
+	limiter    *operatorRateLimiter
 }
 
 // NewService creates the attestation service with the node Ed25519 signing key.
@@ -95,6 +98,7 @@ func NewService(store Store, roles RoleChecker, nodeName string, privateKey ed25
 		privateKey: privateKey,
 		publicKey:  publicKey,
 		now:        time.Now,
+		limiter:    newOperatorRateLimiter(),
 	}, nil
 }
 
@@ -171,6 +175,9 @@ func (s *Service) requireOperator(ctx context.Context, actorGaiaID string) error
 func (s *Service) CreateAttestation(ctx context.Context, actorGaiaID string, input CreateAttestationInput) (*models.IdentityAttestation, error) {
 	if err := s.requireOperator(ctx, actorGaiaID); err != nil {
 		return nil, err
+	}
+	if !s.limiter.allow(actorGaiaID, "issue", 30, time.Hour, s.clock()) {
+		return nil, ErrRateLimited
 	}
 	subject := strings.ToLower(strings.TrimSpace(input.Subject))
 	attestationType := strings.ToLower(strings.TrimSpace(input.Type))
@@ -257,6 +264,9 @@ func (s *Service) RevokeAttestation(ctx context.Context, actorGaiaID, attestatio
 	if err := s.requireOperator(ctx, actorGaiaID); err != nil {
 		return err
 	}
+	if !s.limiter.allow(actorGaiaID, "revoke", 30, time.Hour, s.clock()) {
+		return ErrRateLimited
+	}
 	attestationID = strings.TrimSpace(attestationID)
 	reason = strings.TrimSpace(reason)
 	if attestationID == "" {
@@ -304,6 +314,9 @@ func (s *Service) ListSubjectAttestations(ctx context.Context, subjectGaiaID str
 func (s *Service) ListIssuedAttestations(ctx context.Context, actorGaiaID, status string, limit int, cursor string) ([]AttestationView, string, error) {
 	if err := s.requireOperator(ctx, actorGaiaID); err != nil {
 		return nil, "", err
+	}
+	if !s.limiter.allow(actorGaiaID, "list-issued", 120, time.Hour, s.clock()) {
+		return nil, "", ErrRateLimited
 	}
 	activeOnly := true
 	switch strings.ToLower(strings.TrimSpace(status)) {
@@ -355,6 +368,9 @@ func (s *Service) Directory(ctx context.Context, actorGaiaID, reason, query stri
 	if err := s.requireOperator(ctx, actorGaiaID); err != nil {
 		return nil, "", 0, err
 	}
+	if !s.limiter.allow(actorGaiaID, "directory", 10, time.Hour, s.clock()) {
+		return nil, "", 0, ErrRateLimited
+	}
 	reason = strings.TrimSpace(reason)
 	if len(reason) < 20 {
 		return nil, "", 0, fmt.Errorf("%w: reason must be at least 20 characters", ErrInvalidInput)
@@ -398,6 +414,15 @@ func (s *Service) AccessLog(ctx context.Context) ([]models.NodeIdentityAccessLog
 }
 
 // ToView renders one persisted attestation for API responses.
+// ToPublicView returns an attestation without operator-only evidence metadata.
+// Public badge consumers do not need the evidence reference; it can contain
+// case identifiers or other sensitive triage context.
+func (s *Service) ToPublicView(attestation *models.IdentityAttestation) AttestationView {
+	view := s.ToView(attestation)
+	view.EvidenceRef = ""
+	return view
+}
+
 func (s *Service) ToView(attestation *models.IdentityAttestation) AttestationView {
 	if attestation == nil {
 		return AttestationView{}

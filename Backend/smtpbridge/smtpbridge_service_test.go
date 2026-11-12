@@ -290,8 +290,8 @@ func TestIngestLegacyMailKeepsExternalFromAsUntrustedMetadata(t *testing.T) {
 		t.Fatalf("find envelope: count=%d err=%v", len(envelopes), err)
 	}
 	envelope := envelopes[0]
-	if envelope.Untrusted != true {
-		t.Fatalf("inbound smtp envelope must carry the server-derived untrusted marker")
+	if inbox[0].Untrusted != true {
+		t.Fatalf("inbound smtp inbox entry must carry the server-derived untrusted marker")
 	}
 	if envelope.Sender != "source@example.net" {
 		t.Fatalf("external sender got %q, want bare lowercased address without display name", envelope.Sender)

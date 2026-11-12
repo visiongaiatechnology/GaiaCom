@@ -222,6 +222,7 @@ const dePart1 = {
     "crypto_lock_title": "Geräte-Schlüssel & Sperre",
     "crypto_session_duration": "Entsperrt nach Reload",
     "crypto_session_duration_desc": "Hält die Kryptositzung nur für die gewählte Dauer in diesem Browser-Tab offen.",
+    "crypto_session_storage_warning": "Für „Entsperrt nach Reload“ hält GaiaCom den Seed für diese Dauer im sessionStorage dieses Browser-Tabs. Bei gemeinsam genutzten Geräten oder Browser-Extensions ist das ein Risiko — der sicherste Modus ist „Immer nach Reload sperren“.",
     "cryptographic_fingerprint": "Kryptographischer Fingerprint",
     "current_password": "Aktuelles Passwort",
     "data_minimization": "Datenminimierung",
