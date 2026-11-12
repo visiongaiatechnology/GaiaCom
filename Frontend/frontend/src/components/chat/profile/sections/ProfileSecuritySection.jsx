@@ -2,6 +2,60 @@ import React from 'react';
 import ProfileField from '../ui/ProfileField';
 import ProfileSection from '../ui/ProfileSection';
 
+function CryptoSessionFields({ t, cryptoSessionMinutes, setCryptoSessionMinutes, inactivityLockMinutes, setInactivityLockMinutes }) {
+  return (
+    <div className="vgt-profile-form__row">
+      <ProfileField
+        id="vgt-crypto-session-minutes"
+        label={t('crypto_session_duration') || 'Entsperrt nach Reload'}
+        hint={
+          t('crypto_session_duration_desc') ||
+          'Hält die Kryptositzung nur für die gewählte Dauer in diesem Browser-Tab offen.'
+        }
+      >
+        <select
+          className="input-field"
+          value={cryptoSessionMinutes}
+          onChange={event => setCryptoSessionMinutes(event.target.value)}
+        >
+          <option value="0">{t('lock_on_reload') || 'Immer nach Reload sperren'}</option>
+          <option value="15">15 min</option>
+          <option value="60">1 h</option>
+          <option value="480">8 h</option>
+          <option value="1440">24 h</option>
+        </select>
+      </ProfileField>
+      {Number(cryptoSessionMinutes) > 0 ? (
+        <p className="field-hint" role="note">
+          {t('crypto_session_storage_warning') ||
+            'Für „Entsperrt nach Reload“ hält GaiaCom den Seed für diese Dauer im sessionStorage dieses Browser-Tabs. Bei gemeinsam genutzten Geräten oder Browser-Extensions ist das ein Risiko — der sicherste Modus ist „Immer nach Reload sperren“.'}
+        </p>
+      ) : null}
+
+      <ProfileField
+        id="vgt-inactivity-lock-minutes"
+        label={t('inactivity_lock_duration') || 'Sperren bei Inaktivität'}
+        hint={
+          t('inactivity_lock_duration_desc') ||
+          'Nach dieser Zeit ohne Eingabe wird GaiaCom automatisch kryptografisch gesperrt.'
+        }
+      >
+        <select
+          className="input-field"
+          value={inactivityLockMinutes}
+          onChange={event => setInactivityLockMinutes(event.target.value)}
+        >
+          <option value="0">{t('never_auto_lock') || 'Nie automatisch'}</option>
+          <option value="5">5 min</option>
+          <option value="15">15 min</option>
+          <option value="30">30 min</option>
+          <option value="60">1 h</option>
+        </select>
+      </ProfileField>
+    </div>
+  );
+}
+
 export default function ProfileSecuritySection({
   cryptoSessionMinutes,
   setCryptoSessionMinutes,
@@ -34,55 +88,13 @@ export default function ProfileSecuritySection({
       }
     >
       <div className="vgt-profile-stack">
-        <div className="vgt-profile-form__row">
-          <ProfileField
-            id="vgt-crypto-session-minutes"
-            label={t('crypto_session_duration') || 'Entsperrt nach Reload'}
-            hint={
-              t('crypto_session_duration_desc') ||
-              'Hält die Kryptositzung nur für die gewählte Dauer in diesem Browser-Tab offen.'
-            }
-          >
-            <select
-              className="input-field"
-              value={cryptoSessionMinutes}
-              onChange={event => setCryptoSessionMinutes(event.target.value)}
-            >
-              <option value="0">{t('lock_on_reload') || 'Immer nach Reload sperren'}</option>
-              <option value="15">15 min</option>
-              <option value="60">1 h</option>
-              <option value="480">8 h</option>
-              <option value="1440">24 h</option>
-            </select>
-          </ProfileField>
-          {Number(cryptoSessionMinutes) > 0 ? (
-            <p className="field-hint" role="note">
-              {t('crypto_session_storage_warning') ||
-                'Für „Entsperrt nach Reload“ hält GaiaCom den Seed für diese Dauer im sessionStorage dieses Browser-Tabs. Bei gemeinsam genutzten Geräten oder Browser-Extensions ist das ein Risiko — der sicherste Modus ist „Immer nach Reload sperren“.'}
-            </p>
-          ) : null}
-
-          <ProfileField
-            id="vgt-inactivity-lock-minutes"
-            label={t('inactivity_lock_duration') || 'Sperren bei Inaktivität'}
-            hint={
-              t('inactivity_lock_duration_desc') ||
-              'Nach dieser Zeit ohne Eingabe wird GaiaCom automatisch kryptografisch gesperrt.'
-            }
-          >
-            <select
-              className="input-field"
-              value={inactivityLockMinutes}
-              onChange={event => setInactivityLockMinutes(event.target.value)}
-            >
-              <option value="0">{t('never_auto_lock') || 'Nie automatisch'}</option>
-              <option value="5">5 min</option>
-              <option value="15">15 min</option>
-              <option value="30">30 min</option>
-              <option value="60">1 h</option>
-            </select>
-          </ProfileField>
-        </div>
+        <CryptoSessionFields
+          t={t}
+          cryptoSessionMinutes={cryptoSessionMinutes}
+          setCryptoSessionMinutes={setCryptoSessionMinutes}
+          inactivityLockMinutes={inactivityLockMinutes}
+          setInactivityLockMinutes={setInactivityLockMinutes}
+        />
 
         <hr className="vgt-divider" />
 

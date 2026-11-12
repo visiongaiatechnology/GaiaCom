@@ -71,7 +71,7 @@ export function base64ToHex(value) {
   const binary = atob(String(value || ''));
   let hex = '';
   for (let index = 0; index < binary.length; index += 1) {
-    hex += binary.charCodeAt(index).toString(16).padStart(2, '0');
+    hex += binary.codePointAt(index).toString(16).padStart(2, '0');
   }
   return hex;
 }
